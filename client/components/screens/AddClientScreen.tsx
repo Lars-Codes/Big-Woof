@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Switch, Alert, StyleSheet } from 'react-native';
 import { ChevronLeft, Check } from 'lucide-react-native';
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../styles/theme';
 import { ScreenProps } from '../../types/navigation';
+import Card from '../ui/Card';
 
 const AddClientScreen = ({ navigation }: ScreenProps<'AddClient'>) => {
   // Form state
@@ -72,124 +74,130 @@ const AddClientScreen = ({ navigation }: ScreenProps<'AddClient'>) => {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View style={styles.container}>
       {/* Header */}
-      <View className="flex-row items-center justify-between p-4 bg-[#F5FBEF] border-b border-gray-200">
+      <View style={styles.header}>
         <TouchableOpacity 
-          className="flex-row items-center" 
+          style={styles.backButton} 
           onPress={() => navigation.goBack()}
         >
-          <ChevronLeft color="#503D42" size={24} />
-          <Text className="ml-1 text-[#503D42] font-medium">Back</Text>
+          <ChevronLeft color={COLORS.primary} size={24} />
+          <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-[#503D42]">Add New Client</Text>
+        <Text style={styles.headerTitle}>Add New Client</Text>
         <TouchableOpacity 
-          className="bg-[#503D42] rounded-full w-8 h-8 items-center justify-center"
+          style={styles.saveButton}
           onPress={handleSave}
         >
-          <Check color="#fff" size={18} />
+          <Check color={COLORS.white} size={18} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 p-4">
+      <ScrollView style={styles.content}>
         {/* Basic Information Section */}
-        <View className="mb-6">
-          <Text className="text-lg font-bold text-[#503D42] mb-4">Basic Information</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic Information</Text>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">First Name <Text className="text-red-500">*</Text></Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>
+              First Name <Text style={styles.required}>*</Text>
+            </Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.firstName}
               onChangeText={(text) => handleChange('firstName', text)}
               placeholder="Enter first name"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
             />
           </View>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">Last Name <Text className="text-red-500">*</Text></Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>
+              Last Name <Text style={styles.required}>*</Text>
+            </Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.lastName}
               onChangeText={(text) => handleChange('lastName', text)}
               placeholder="Enter last name"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
             />
           </View>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">Email</Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Email</Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.email}
               onChangeText={(text) => handleChange('email', text)}
               placeholder="Enter email address"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
               keyboardType="email-address"
               autoCapitalize="none"
             />
           </View>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">Phone <Text className="text-red-500">*</Text></Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>
+              Phone <Text style={styles.required}>*</Text>
+            </Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.phone}
               onChangeText={(text) => handleChange('phone', text)}
               placeholder="Enter phone number"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
               keyboardType="phone-pad"
             />
           </View>
         </View>
 
         {/* Address Section */}
-        <View className="mb-6">
-          <Text className="text-lg font-bold text-[#503D42] mb-4">Address</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Address</Text>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">Street Address</Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Street Address</Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.address}
               onChangeText={(text) => handleChange('address', text)}
               placeholder="Enter street address"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
             />
           </View>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">City</Text>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>City</Text>
             <TextInput
-              className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+              style={styles.input}
               value={formData.city}
               onChangeText={(text) => handleChange('city', text)}
               placeholder="Enter city"
-              placeholderTextColor="#A8BCAA"
+              placeholderTextColor={COLORS.secondary}
             />
           </View>
           
-          <View className="flex-row mb-4">
-            <View className="flex-1 mr-2">
-              <Text className="text-[#748B75] mb-1">State</Text>
+          <View style={styles.rowContainer}>
+            <View style={styles.halfColumn}>
+              <Text style={styles.label}>State</Text>
               <TextInput
-                className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+                style={styles.input}
                 value={formData.state}
                 onChangeText={(text) => handleChange('state', text)}
                 placeholder="State"
-                placeholderTextColor="#A8BCAA"
+                placeholderTextColor={COLORS.secondary}
               />
             </View>
             
-            <View className="flex-1 ml-2">
-              <Text className="text-[#748B75] mb-1">ZIP Code</Text>
+            <View style={styles.halfColumn}>
+              <Text style={styles.label}>ZIP Code</Text>
               <TextInput
-                className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42]"
+                style={styles.input}
                 value={formData.zipCode}
                 onChangeText={(text) => handleChange('zipCode', text)}
                 placeholder="ZIP"
-                placeholderTextColor="#A8BCAA"
+                placeholderTextColor={COLORS.secondary}
                 keyboardType="number-pad"
               />
             </View>
@@ -197,45 +205,69 @@ const AddClientScreen = ({ navigation }: ScreenProps<'AddClient'>) => {
         </View>
 
         {/* Preferences Section */}
-        <View className="mb-6">
-          <Text className="text-lg font-bold text-[#503D42] mb-4">Preferences</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
           
-          <View className="flex-row items-center justify-between mb-4 bg-[#F5FBEF] rounded-lg p-4">
-            <Text className="text-[#503D42]">Enable Appointment Reminders</Text>
+          <Card style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Enable Appointment Reminders</Text>
             <Switch
               value={formData.enableReminders}
               onValueChange={() => handleToggle('enableReminders')}
-              trackColor={{ false: '#E0E0E0', true: '#748B75' }}
-              thumbColor={formData.enableReminders ? '#503D42' : '#f4f3f4'}
+              trackColor={{ false: '#E0E0E0', true: COLORS.secondary }}
+              thumbColor={formData.enableReminders ? COLORS.primary : '#f4f3f4'}
             />
-          </View>
+          </Card>
           
-          <View className="mb-4">
-            <Text className="text-[#748B75] mb-1">Preferred Payment Method</Text>
-            <View className="flex-row mt-2">
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Preferred Payment Method</Text>
+            <View style={styles.buttonGroup}>
               <TouchableOpacity
-                className={`flex-1 p-3 mr-2 rounded-lg ${formData.paymentMethod === 'credit_card' ? 'bg-[#503D42]' : 'bg-[#F5FBEF]'}`}
+                style={[
+                  styles.optionButton,
+                  formData.paymentMethod === 'credit_card' && styles.selectedButton
+                ]}
                 onPress={() => handleChange('paymentMethod', 'credit_card')}
               >
-                <Text className={`text-center ${formData.paymentMethod === 'credit_card' ? 'text-white' : 'text-[#503D42]'}`}>
+                <Text 
+                  style={[
+                    styles.optionButtonText,
+                    formData.paymentMethod === 'credit_card' && styles.selectedButtonText
+                  ]}
+                >
                   Credit Card
                 </Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                className={`flex-1 p-3 mr-2 rounded-lg ${formData.paymentMethod === 'cash' ? 'bg-[#503D42]' : 'bg-[#F5FBEF]'}`}
+                style={[
+                  styles.optionButton,
+                  formData.paymentMethod === 'cash' && styles.selectedButton
+                ]}
                 onPress={() => handleChange('paymentMethod', 'cash')}
               >
-                <Text className={`text-center ${formData.paymentMethod === 'cash' ? 'text-white' : 'text-[#503D42]'}`}>
+                <Text 
+                  style={[
+                    styles.optionButtonText,
+                    formData.paymentMethod === 'cash' && styles.selectedButtonText
+                  ]}
+                >
                   Cash
                 </Text>
               </TouchableOpacity>
               
               <TouchableOpacity
-                className={`flex-1 p-3 rounded-lg ${formData.paymentMethod === 'venmo' ? 'bg-[#503D42]' : 'bg-[#F5FBEF]'}`}
+                style={[
+                  styles.optionButton,
+                  formData.paymentMethod === 'venmo' && styles.selectedButton
+                ]}
                 onPress={() => handleChange('paymentMethod', 'venmo')}
               >
-                <Text className={`text-center ${formData.paymentMethod === 'venmo' ? 'text-white' : 'text-[#503D42]'}`}>
+                <Text 
+                  style={[
+                    styles.optionButtonText,
+                    formData.paymentMethod === 'venmo' && styles.selectedButtonText
+                  ]}
+                >
                   Venmo
                 </Text>
               </TouchableOpacity>
@@ -244,15 +276,15 @@ const AddClientScreen = ({ navigation }: ScreenProps<'AddClient'>) => {
         </View>
 
         {/* Notes Section */}
-        <View className="mb-6">
-          <Text className="text-lg font-bold text-[#503D42] mb-4">Notes</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notes</Text>
           
           <TextInput
-            className="bg-[#F5FBEF] rounded-lg p-3 text-[#503D42] h-24"
+            style={styles.multilineInput}
             value={formData.notes}
             onChangeText={(text) => handleChange('notes', text)}
             placeholder="Add any additional notes about this client..."
-            placeholderTextColor="#A8BCAA"
+            placeholderTextColor={COLORS.secondary}
             multiline
             textAlignVertical="top"
           />
@@ -261,5 +293,122 @@ const AddClientScreen = ({ navigation }: ScreenProps<'AddClient'>) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.md,
+    backgroundColor: COLORS.background,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backText: {
+    marginLeft: SPACING.xs,
+    color: COLORS.primary,
+    fontWeight: FONTS.weights.medium as any,
+  },
+  headerTitle: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+  },
+  saveButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.round,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    flex: 1,
+    padding: SPACING.md,
+  },
+  section: {
+    marginBottom: SPACING.lg,
+  },
+  sectionTitle: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+    marginBottom: SPACING.md,
+  },
+  formGroup: {
+    marginBottom: SPACING.md,
+  },
+  label: {
+    color: COLORS.secondary,
+    marginBottom: SPACING.xs,
+  },
+  required: {
+    color: COLORS.error,
+  },
+  input: {
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.sm,
+    color: COLORS.primary,
+  },
+  multilineInput: {
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.sm,
+    color: COLORS.primary,
+    height: 96,
+    textAlignVertical: 'top',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.md,
+  },
+  halfColumn: {
+    width: '48%',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.md,
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
+  },
+  switchLabel: {
+    color: COLORS.primary,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    marginTop: SPACING.sm,
+  },
+  optionButton: {
+    flex: 1,
+    padding: SPACING.sm,
+    marginHorizontal: SPACING.xs / 2,
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  selectedButton: {
+    backgroundColor: COLORS.primary,
+  },
+  optionButtonText: {
+    color: COLORS.primary,
+    textAlign: 'center',
+  },
+  selectedButtonText: {
+    color: COLORS.white,
+  },
+});
 
 export default AddClientScreen;
