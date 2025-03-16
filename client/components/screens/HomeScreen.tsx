@@ -4,6 +4,7 @@ import { LineChart } from "react-native-chart-kit";
 import { appointments } from "../../data";
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../styles/theme";
 import Card from "../ui/Card";
+import ScreenHeader from "../ui/ScreenHeader";
 
 const HomeScreen = () => {
   // Mock data for weekly earnings
@@ -22,18 +23,28 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <ScreenHeader>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Welcome to Big Woof!</Text>
-      </View>
+      </ScreenHeader>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Today's Summary */}
         <View style={styles.summaryRow}>
-          <Card style={StyleSheet.flatten([styles.summaryCard, styles.firstSummaryCard])}>
+          <Card
+            style={StyleSheet.flatten([
+              styles.summaryCard,
+              styles.firstSummaryCard,
+            ])}
+          >
             <Text style={styles.cardLabel}>Today's Appointments</Text>
             <Text style={styles.cardValue}>2</Text>
           </Card>
-          <Card style={StyleSheet.flatten([styles.summaryCard, styles.lastSummaryCard])}>
+          <Card
+            style={StyleSheet.flatten([
+              styles.summaryCard,
+              styles.lastSummaryCard,
+            ])}
+          >
             <Text style={styles.cardLabel}>Expected Revenue</Text>
             <Text style={styles.cardValue}>$150</Text>
           </Card>
@@ -51,8 +62,10 @@ const HomeScreen = () => {
               backgroundGradientFrom: COLORS.background,
               backgroundGradientTo: COLORS.background,
               decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(${hexToRgb(COLORS.secondary)}, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
+              color: (opacity = 1) =>
+                `rgba(${hexToRgb(COLORS.secondary)}, ${opacity})`,
+              labelColor: (opacity = 1) =>
+                `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
               propsForDots: {
                 r: "6",
                 strokeWidth: "2",
@@ -73,7 +86,9 @@ const HomeScreen = () => {
                 <Text style={styles.appointmentDate}>
                   {appointment.date} • {appointment.time}
                 </Text>
-                <Text style={styles.appointmentService}>{appointment.service}</Text>
+                <Text style={styles.appointmentService}>
+                  {appointment.service}
+                </Text>
               </View>
               <Text style={styles.appointmentClient}>
                 {appointment.clientName} • {appointment.petName}
@@ -89,13 +104,13 @@ const HomeScreen = () => {
 // Helper function to convert hex to rgb for chart colors
 const hexToRgb = (hex: string) => {
   // Remove the hash if it exists
-  hex = hex.replace('#', '');
-  
+  hex = hex.replace("#", "");
+
   // Parse the hex values
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
-  
+
   return `${r}, ${g}, ${b}`;
 };
 
@@ -109,7 +124,7 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.md + 80,
   },
   header: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -118,7 +133,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.lightGray,
-    shadowOpacity: 0.1,
   },
   title: {
     fontSize: FONTS.sizes.xxl,
@@ -130,7 +144,7 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
   },
   summaryRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: SPACING.sm,
   },
   summaryCard: {
@@ -186,8 +200,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   appointmentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: SPACING.sm,
   },
   appointmentDate: {
