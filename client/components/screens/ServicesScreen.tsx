@@ -21,6 +21,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Card from "../ui/Card";
 import ScreenHeader from "../ui/ScreenHeader";
+import AddButton from "../ui/AddButton";
 
 type ServicesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Services'>;
 
@@ -147,12 +148,13 @@ const ServicesScreen = () => {
       </ScrollView>
 
       {/* Add Service Button */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('AddService', {})}
       >
         <Plus color={COLORS.white} size={24} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <AddButton navigation={navigation} location="AddService" />
     </View>
   );
 };
@@ -265,18 +267,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginTop: SPACING.md,
-  },
-  fab: {
-    position: "absolute",
-    right: SPACING.lg,
-    bottom: SPACING.lg,
-    backgroundColor: COLORS.primary,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    ...SHADOWS.medium,
   },
 });
 
