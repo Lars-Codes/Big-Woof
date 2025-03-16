@@ -21,6 +21,7 @@ import {
 import Card from "../ui/Card";
 import { appointments } from "../../data";
 import ScreenHeader from "../ui/ScreenHeader";
+import AddButton from "../ui/AddButton";
 
 type AppointmentsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -172,14 +173,7 @@ const AppointmentsScreen = ({ navigation }: AppointmentsScreenProps) => {
       </ScrollView>
 
       {/* Add Appointment Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => {
-          navigation.navigate("AddAppointment", {});
-        }}
-      >
-        <Plus color={COLORS.white} size={24} />
-      </TouchableOpacity>
+      <AddButton navigation={navigation} location="AddAppointment" />
     </View>
   );
 };

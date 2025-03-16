@@ -115,16 +115,7 @@ const ClientsScreen: React.FC = () => {
           </Text>
         )}
       </ScrollView>
-
-      {/* Add Client Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => {
-          navigation.navigate("AddClient");
-        }}
-      >
-        <Plus color={COLORS.white} size={24} />
-      </TouchableOpacity>
+      <AddButton navigation={navigation} location="AddClient" />
     </View>
   );
 };
@@ -211,22 +202,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginTop: SPACING.md,
-  },
-  fab: {
-    position: "absolute",
-    right: SPACING.lg,
-    bottom: SPACING.lg,
-    backgroundColor: COLORS.primary,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });
 
