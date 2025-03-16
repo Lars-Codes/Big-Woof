@@ -15,6 +15,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "@/types/navigation";
 import { clients, Client } from "@/data";
 import ScreenHeader from "../ui/ScreenHeader";
+import AddButton from "../ui/AddButton";
 
 // Define the type for the navigation prop
 type ClientsScreenNavigationProp = StackNavigationProp<
@@ -50,8 +51,8 @@ const ClientsScreen: React.FC = () => {
           <Text style={styles.clientName}>{client.name}</Text>
           <Text style={styles.clientPhone}>{client.phone}</Text>
           <Text style={styles.clientDetails}>
-            {client.pets.length} {client.pets.length === 1 ? "pet" : "pets"} • Last
-            visit: {client.lastVisit}
+            {client.pets.length} {client.pets.length === 1 ? "pet" : "pets"} •
+            Last visit: {client.lastVisit}
           </Text>
         </View>
         <ChevronRight color={COLORS.primary} size={24} />
@@ -104,7 +105,8 @@ const ClientsScreen: React.FC = () => {
       {/* Client List */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {filteredClients.length > 0 ? (
-          filteredClients.map(renderClientItem)
+          <View style={styles.clientsContainer}
+          >{filteredClients.map(renderClientItem)}</View>
         ) : (
           <Text style={styles.emptyText}>
             {searchQuery
@@ -172,6 +174,9 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: SPACING.md,
+  },
+  clientsContainer: {
+    marginBottom: SPACING.xxl + 34,
   },
   clientCard: {
     backgroundColor: COLORS.background,

@@ -1,13 +1,17 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ViewStyle } from "react-native";
 import { COLORS, SPACING } from "../../styles/theme";
-
 import { ReactNode } from "react";
 
-const ScreenHeader = ({ children }: { children: ReactNode }) => {
+interface ScreenHeaderProps {
+  children: ReactNode;
+  style?: ViewStyle;
+}
+
+const ScreenHeader: React.FC<ScreenHeaderProps> = ({ children, style }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, style]}>
         {children}
       </View>
     </View>

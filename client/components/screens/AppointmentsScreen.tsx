@@ -20,6 +20,7 @@ import {
 } from "../../styles/theme";
 import Card from "../ui/Card";
 import { appointments } from "../../data";
+import ScreenHeader from "../ui/ScreenHeader";
 
 type AppointmentsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -79,7 +80,7 @@ const AppointmentsScreen = ({ navigation }: AppointmentsScreenProps) => {
   return (
     <View style={styles.container}>
       {/* Header with view toggle */}
-      <View style={styles.header}>
+      <ScreenHeader style={styles.header}>
         <Text style={styles.title}>Appointments</Text>
         <View style={styles.toggleContainer}>
           <TouchableOpacity
@@ -115,58 +116,60 @@ const AppointmentsScreen = ({ navigation }: AppointmentsScreenProps) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScreenHeader>
 
-      {view === "calendar" ? (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Calendar View */}
-          <Calendar
-            markedDates={markedDates}
-            onDayPress={(day: any) => setSelectedDate(day.dateString)}
-            theme={{
-              calendarBackground: COLORS.white,
-              textSectionTitleColor: COLORS.primary,
-              selectedDayBackgroundColor: COLORS.primary,
-              selectedDayTextColor: COLORS.white,
-              todayTextColor: COLORS.primary,
-              dayTextColor: "#2d4150",
-              textDisabledColor: "#d9e1e8",
-              dotColor: COLORS.primary,
-              selectedDotColor: COLORS.white,
-              arrowColor: COLORS.primary,
-              monthTextColor: COLORS.primary,
-              indicatorColor: COLORS.primary,
-            }}
-          />
+      <ScrollView style={styles.scrollContainer}>
+        {view === "calendar" ? (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Calendar View */}
+            <Calendar
+              markedDates={markedDates}
+              onDayPress={(day: any) => setSelectedDate(day.dateString)}
+              theme={{
+                calendarBackground: COLORS.white,
+                textSectionTitleColor: COLORS.primary,
+                selectedDayBackgroundColor: COLORS.primary,
+                selectedDayTextColor: COLORS.white,
+                todayTextColor: COLORS.primary,
+                dayTextColor: "#2d4150",
+                textDisabledColor: "#d9e1e8",
+                dotColor: COLORS.primary,
+                selectedDotColor: COLORS.white,
+                arrowColor: COLORS.primary,
+                monthTextColor: COLORS.primary,
+                indicatorColor: COLORS.primary,
+              }}
+            />
 
-          {/* Appointments for selected date */}
-          <View style={styles.appointmentListHeader}>
-            <Text style={styles.appointmentListTitle}>
-              {selectedDate
-                ? `Appointments for ${selectedDate}`
-                : "All Upcoming Appointments"}
-            </Text>
-            {filteredAppointments.length > 0 ? (
-              filteredAppointments.map((item) => (
-                <View key={item.id}>{renderAppointmentItem({ item })}</View>
-              ))
-            ) : (
+            {/* Appointments for selected date */}
+            <View style={styles.appointmentListHeader}>
+              <Text style={styles.appointmentListTitle}>
+                {selectedDate
+                  ? `Appointments for ${selectedDate}`
+                  : "All Upcoming Appointments"}
+              </Text>
+              {filteredAppointments.length > 0 ? (
+                filteredAppointments.map((item) => (
+                  <View key={item.id}>{renderAppointmentItem({ item })}</View>
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No appointments found.</Text>
+              )}
+            </View>
+          </ScrollView>
+        ) : (
+          /* List View */
+          <FlatList
+            data={appointments}
+            renderItem={renderAppointmentItem}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
               <Text style={styles.emptyText}>No appointments found.</Text>
-            )}
-          </View>
-        </ScrollView>
-      ) : (
-        /* List View */
-        <FlatList
-          data={appointments}
-          renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No appointments found.</Text>
-          }
-        />
-      )}
+            }
+          />
+        )}
+      </ScrollView>
 
       {/* Add Appointment Button */}
       <TouchableOpacity
@@ -185,13 +188,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    padding: SPACING.md,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: SPACING.md,
   },
   title: {
     fontSize: FONTS.sizes.xxl,
@@ -218,8 +219,12 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: COLORS.white,
   },
+  scrollContainer: {
+    padding: SPACING.md,
+  },
   appointmentListHeader: {
     marginTop: SPACING.md,
+    marginBottom: SPACING.xxl + 50,
   },
   appointmentListTitle: {
     fontSize: FONTS.sizes.lg,
