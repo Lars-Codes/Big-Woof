@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   TextInput,
   StyleSheet,
 } from "react-native";
@@ -14,6 +14,7 @@ import Card from "../ui/Card";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "@/types/navigation";
 import { clients, Client } from "@/data";
+import ScreenHeader from "../ui/ScreenHeader";
 
 // Define the type for the navigation prop
 type ClientsScreenNavigationProp = StackNavigationProp<
@@ -37,20 +38,20 @@ const ClientsScreen: React.FC = () => {
       )
     : clients;
 
-  const renderClientItem = ({ item }: { item: Client }) => (
-    <Card style={styles.clientCard}>
+  const renderClientItem = (client: Client) => (
+    <Card key={client.id} style={styles.clientCard}>
       <TouchableOpacity
         style={styles.clientCardContent}
         onPress={() => {
-          navigation.navigate("ClientDetails", { id: item.id });
+          navigation.navigate("ClientDetails", { id: client.id });
         }}
       >
         <View style={styles.clientInfo}>
-          <Text style={styles.clientName}>{item.name}</Text>
-          <Text style={styles.clientPhone}>{item.phone}</Text>
+          <Text style={styles.clientName}>{client.name}</Text>
+          <Text style={styles.clientPhone}>{client.phone}</Text>
           <Text style={styles.clientDetails}>
-            {item.pets.length} {item.pets.length === 1 ? "pet" : "pets"} • Last
-            visit: {item.lastVisit}
+            {client.pets.length} {client.pets.length === 1 ? "pet" : "pets"} • Last
+            visit: {client.lastVisit}
           </Text>
         </View>
         <ChevronRight color={COLORS.primary} size={24} />
@@ -61,7 +62,7 @@ const ClientsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Header with search */}
-      <View style={styles.header}>
+      <ScreenHeader>
         {isSearchActive ? (
           <View style={styles.searchActive}>
             <View style={styles.searchInputContainer}>
@@ -98,22 +99,20 @@ const ClientsScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         )}
-      </View>
+      </ScreenHeader>
 
       {/* Client List */}
-      <FlatList
-        data={filteredClients}
-        renderItem={renderClientItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {filteredClients.length > 0 ? (
+          filteredClients.map(renderClientItem)
+        ) : (
           <Text style={styles.emptyText}>
             {searchQuery
               ? "No matching clients found."
               : "No clients yet. Add your first client!"}
           </Text>
-        }
-      />
+        )}
+      </ScrollView>
 
       {/* Add Client Button */}
       <TouchableOpacity
@@ -132,10 +131,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    padding: SPACING.md,
-  },
-  header: {
-    marginBottom: SPACING.md,
   },
   headerDefault: {
     flexDirection: "row",
@@ -175,8 +170,8 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: FONTS.weights.medium as any,
   },
-  listContent: {
-    paddingBottom: SPACING.xxl,
+  scrollContainer: {
+    padding: SPACING.md,
   },
   clientCard: {
     backgroundColor: COLORS.background,

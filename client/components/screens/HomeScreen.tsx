@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: SPACING.md,
-    paddingTop: SPACING.md + 80,
   },
   header: {
     position: "absolute",
