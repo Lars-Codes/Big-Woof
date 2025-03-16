@@ -11,19 +11,11 @@ import AddClientScreen from '../screens/AddClientScreen';
 import AddPetScreen from '../screens/AddPetScreen';
 import AddAppointmentScreen from '../screens/AddAppointmentScreen';
 import ServicesScreen from '../screens/ServicesScreen';
+import AddServiceScreen from '../screens/AddServiceScreen';
+import { RootStackParamList } from '../../types/navigation';
 
 // Import Header
 import Header from './Header';
-
-// Define screen parameters type
-export type RootStackParamList = {
-  Main: undefined;
-  ClientDetails: { id: string };
-  AddClient: undefined;
-  AddPet: { clientId: string };
-  AddAppointment: { clientId?: string, petId?: string };
-  Services: undefined;
-};
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -44,6 +36,7 @@ const AppNavigator = () => {
         <Stack.Screen name="AddPet" component={AddPetScreen} />
         <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
+        <Stack.Screen name="AddService" component={AddServiceScreen} />
       </Stack.Navigator>
     </View>
   );

@@ -1,16 +1,18 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { Service } from '@/data';
 
 // Define all the route parameters for your stack navigator
 export type RootStackParamList = {
   Main: undefined;
-  Clients: undefined;
+  Clients: undefined
   ClientDetails: { id: string };
   AddClient: undefined;
   AddPet: { clientId?: string };
   Appointments: undefined;
   AddAppointment: { clientId?: string; petId?: string };
   Services: undefined;
+  AddService: { service?: Service };
   PetDetails: { clientId: string, petId: string };
 };
 
