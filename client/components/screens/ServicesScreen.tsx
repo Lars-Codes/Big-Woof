@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   Alert,
   StyleSheet,
 } from "react-native";
@@ -20,6 +20,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Card from "../ui/Card";
+import ScreenHeader from "../ui/ScreenHeader";
 
 type ServicesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Services'>;
 
@@ -63,8 +64,8 @@ const ServicesScreen = () => {
   };
 
   // Render each service item
-  const renderServiceItem = ({ item }: { item: Service }) => (
-    <Card style={{ ...styles.serviceCard, ...(item.active ? {} : styles.inactiveService) }}>
+  const renderServiceItem = (item: Service) => (
+    <Card key={item.id} style={{ ...styles.serviceCard, ...(item.active ? {} : styles.inactiveService) }}>
       <View style={styles.serviceHeader}>
         <View style={styles.serviceInfo}>
           <Text style={styles.serviceName}>{item.name}</Text>
@@ -127,26 +128,23 @@ const ServicesScreen = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <ScreenHeader>
         <Text style={styles.title}>Services</Text>
         <Text style={styles.subtitle}>
           Manage your grooming services and pricing
         </Text>
-      </View>
+      </ScreenHeader>
 
       {/* Services List */}
-      <FlatList
-        data={services}
-        renderItem={renderServiceItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {services.length > 0 ? (
+          services.map(renderServiceItem)
+        ) : (
           <Text style={styles.emptyText}>
             No services found. Add your first service to get started.
           </Text>
-        }
-      />
+        )}
+      </ScrollView>
 
       {/* Add Service Button */}
       <TouchableOpacity
@@ -163,7 +161,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    padding: SPACING.md,
   },
   header: {
     marginBottom: SPACING.md,
@@ -172,12 +169,13 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.xxl,
     fontWeight: FONTS.weights.bold as any,
     color: COLORS.primary,
+    marginBottom: SPACING.xs,
   },
   subtitle: {
     color: COLORS.secondary,
   },
-  listContent: {
-    paddingBottom: SPACING.xl * 2,
+  scrollContainer: {
+    padding: SPACING.md,
   },
   serviceCard: {
     backgroundColor: COLORS.background,
