@@ -122,17 +122,6 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: SPACING.md,
   },
-  header: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    zIndex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
-  },
   title: {
     fontSize: FONTS.sizes.xxl,
     fontWeight: FONTS.weights.bold as any,
