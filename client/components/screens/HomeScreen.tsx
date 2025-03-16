@@ -21,67 +21,68 @@ const HomeScreen = () => {
   const screenWidth = Dimensions.get("window").width - 40;
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Welcome to Big Woof!</Text>
       </View>
-
-      {/* Today's Summary */}
-      <View style={styles.summaryRow}>
-        <Card style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Today's Appointments</Text>
-          <Text style={styles.cardValue}>2</Text>
-        </Card>
-        <Card style={styles.summaryCard}>
-          <Text style={styles.cardLabel}>Expected Revenue</Text>
-          <Text style={styles.cardValue}>$150</Text>
-        </Card>
-      </View>
-
-      {/* Weekly Earnings Chart */}
-      <Card style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Weekly Earnings</Text>
-        <LineChart
-          data={weeklyData}
-          width={screenWidth - 32} // Account for padding
-          height={180}
-          chartConfig={{
-            backgroundColor: COLORS.background,
-            backgroundGradientFrom: COLORS.background,
-            backgroundGradientTo: COLORS.background,
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(${hexToRgb(COLORS.secondary)}, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
-            propsForDots: {
-              r: "6",
-              strokeWidth: "2",
-              stroke: COLORS.primary,
-            },
-          }}
-          bezier
-          style={styles.chart}
-        />
-      </Card>
-
-      {/* Upcoming Appointments */}
-      <View style={styles.appointmentsSection}>
-        <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-        {appointments.map((appointment) => (
-          <Card key={appointment.id} style={styles.appointmentCard}>
-            <View style={styles.appointmentHeader}>
-              <Text style={styles.appointmentDate}>
-                {appointment.date} • {appointment.time}
-              </Text>
-              <Text style={styles.appointmentService}>{appointment.service}</Text>
-            </View>
-            <Text style={styles.appointmentClient}>
-              {appointment.clientName} • {appointment.petName}
-            </Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Today's Summary */}
+        <View style={styles.summaryRow}>
+          <Card style={styles.summaryCard}>
+            <Text style={styles.cardLabel}>Today's Appointments</Text>
+            <Text style={styles.cardValue}>2</Text>
           </Card>
-        ))}
-      </View>
-    </ScrollView>
+          <Card style={styles.summaryCard}>
+            <Text style={styles.cardLabel}>Expected Revenue</Text>
+            <Text style={styles.cardValue}>$150</Text>
+          </Card>
+        </View>
+
+        {/* Weekly Earnings Chart */}
+        <Card style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Weekly Earnings</Text>
+          <LineChart
+            data={weeklyData}
+            width={screenWidth - 32} // Account for padding
+            height={180}
+            chartConfig={{
+              backgroundColor: COLORS.background,
+              backgroundGradientFrom: COLORS.background,
+              backgroundGradientTo: COLORS.background,
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(${hexToRgb(COLORS.secondary)}, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
+              propsForDots: {
+                r: "6",
+                strokeWidth: "2",
+                stroke: COLORS.primary,
+              },
+            }}
+            bezier
+            style={styles.chart}
+          />
+        </Card>
+
+        {/* Upcoming Appointments */}
+        <View style={styles.appointmentsSection}>
+          <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
+          {appointments.map((appointment) => (
+            <Card key={appointment.id} style={styles.appointmentCard}>
+              <View style={styles.appointmentHeader}>
+                <Text style={styles.appointmentDate}>
+                  {appointment.date} • {appointment.time}
+                </Text>
+                <Text style={styles.appointmentService}>{appointment.service}</Text>
+              </View>
+              <Text style={styles.appointmentClient}>
+                {appointment.clientName} • {appointment.petName}
+              </Text>
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -102,10 +103,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+  },
+  scrollContainer: {
     padding: SPACING.md,
+    paddingTop: SPACING.lg + 80,
   },
   header: {
-    marginBottom: SPACING.lg,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.white,
+    padding: SPACING.md,
+    zIndex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
   },
   title: {
     fontSize: FONTS.sizes.xxl,
