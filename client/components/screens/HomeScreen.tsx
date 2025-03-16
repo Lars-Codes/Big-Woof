@@ -29,11 +29,11 @@ const HomeScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Today's Summary */}
         <View style={styles.summaryRow}>
-          <Card style={styles.summaryCard}>
+          <Card style={StyleSheet.flatten([styles.summaryCard, styles.firstSummaryCard])}>
             <Text style={styles.cardLabel}>Today's Appointments</Text>
             <Text style={styles.cardValue}>2</Text>
           </Card>
-          <Card style={styles.summaryCard}>
+          <Card style={StyleSheet.flatten([styles.summaryCard, styles.lastSummaryCard])}>
             <Text style={styles.cardLabel}>Expected Revenue</Text>
             <Text style={styles.cardValue}>$150</Text>
           </Card>
@@ -130,14 +130,19 @@ const styles = StyleSheet.create({
   },
   summaryRow: {
     flexDirection: 'row',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.sm,
   },
   summaryCard: {
     flex: 1,
     backgroundColor: COLORS.background,
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.md,
-    marginHorizontal: SPACING.xs,
+  },
+  firstSummaryCard: {
+    marginRight: SPACING.sm,
+  },
+  lastSummaryCard: {
+    marginLeft: SPACING.sm,
   },
   cardLabel: {
     color: COLORS.primary,
@@ -165,7 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
   },
   appointmentsSection: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.xs,
   },
   sectionTitle: {
     fontSize: FONTS.sizes.xl,
