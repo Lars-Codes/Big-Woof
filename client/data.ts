@@ -51,7 +51,17 @@ export interface Service {
   active: boolean;
 }
 
-// Mock data for clients
+export interface Appointment {
+  id: string;
+  date: string;
+  clientName: string;
+  petName: string;
+  time: string;
+  service: string;
+  duration: number;
+  status: string;
+}
+
 // Mock data for clients
 export const clients: Client[] = [
   {
