@@ -159,16 +159,18 @@ const AppointmentsScreen = ({ navigation }: AppointmentsScreenProps) => {
             </View>
           </ScrollView>
         ) : (
-          /* List View */
-          <FlatList
-            data={appointments}
-            renderItem={renderAppointmentItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
+          <View style={styles.appointmentListHeader}>
+            <Text style={styles.appointmentListTitle}>
+              All Upcoming Appointments
+            </Text>
+            {filteredAppointments.length > 0 ? (
+              filteredAppointments.map((item) => (
+                <View key={item.id}>{renderAppointmentItem({ item })}</View>
+              ))
+            ) : (
               <Text style={styles.emptyText}>No appointments found.</Text>
-            }
-          />
+            )}
+          </View>
         )}
       </ScrollView>
 
@@ -215,6 +217,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: SPACING.md,
+    paddingTop: 0,
   },
   appointmentListHeader: {
     marginTop: SPACING.md,
