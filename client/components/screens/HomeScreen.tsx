@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Text, ScrollView, Dimensions } from "react-native";
+import { View, Text, ScrollView, Dimensions, StyleSheet } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { appointments } from "../../data";
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../styles/theme";
+import Card from "../ui/Card";
 
 const HomeScreen = () => {
   // Mock data for weekly earnings
@@ -10,7 +12,7 @@ const HomeScreen = () => {
     datasets: [
       {
         data: [150, 220, 180, 250, 300, 280, 200],
-        color: (opacity = 1) => `rgba(80, 61, 66, ${opacity})`, // #503D42 with opacity
+        color: (opacity = 1) => `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
         strokeWidth: 2,
       },
     ],
@@ -19,140 +21,167 @@ const HomeScreen = () => {
   const screenWidth = Dimensions.get("window").width - 40;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-      <View style={{ marginBottom: 24 }}>
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "bold",
-            color: "#503D42",
-            marginBottom: 8,
-          }}
-        >
-          Dashboard
-        </Text>
-        <Text style={{ color: "#748B75" }}>Welcome to Big Woof!</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Dashboard</Text>
+        <Text style={styles.subtitle}>Welcome to Big Woof!</Text>
       </View>
 
       {/* Today's Summary */}
-      <View style={{ flexDirection: "row", marginBottom: 24 }}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#F5FBEF",
-            borderRadius: 8,
-            padding: 16,
-            marginRight: 8,
-          }}
-        >
-          <Text
-            style={{ color: "#503D42", fontWeight: "600", marginBottom: 4 }}
-          >
-            Today's Appointments
-          </Text>
-          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#503D42" }}>
-            2
-          </Text>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#F5FBEF",
-            borderRadius: 8,
-            padding: 16,
-            marginLeft: 8,
-          }}
-        >
-          <Text
-            style={{ color: "#503D42", fontWeight: "600", marginBottom: 4 }}
-          >
-            Expected Revenue
-          </Text>
-          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#503D42" }}>
-            $150
-          </Text>
-        </View>
+      <View style={styles.summaryRow}>
+        <Card style={styles.summaryCard}>
+          <Text style={styles.cardLabel}>Today's Appointments</Text>
+          <Text style={styles.cardValue}>2</Text>
+        </Card>
+        <Card style={styles.summaryCard}>
+          <Text style={styles.cardLabel}>Expected Revenue</Text>
+          <Text style={styles.cardValue}>$150</Text>
+        </Card>
       </View>
 
       {/* Weekly Earnings Chart */}
-      <View
-        style={{
-          backgroundColor: "#F5FBEF",
-          borderRadius: 8,
-          padding: 16,
-          marginBottom: 24,
-        }}
-      >
-        <Text style={{ color: "#503D42", fontWeight: "600", marginBottom: 8 }}>
-          Weekly Earnings
-        </Text>
+      <Card style={styles.chartCard}>
+        <Text style={styles.chartTitle}>Weekly Earnings</Text>
         <LineChart
           data={weeklyData}
           width={screenWidth - 32} // Account for padding
           height={180}
           chartConfig={{
-            backgroundColor: "#F5FBEF",
-            backgroundGradientFrom: "#F5FBEF",
-            backgroundGradientTo: "#F5FBEF",
+            backgroundColor: COLORS.background,
+            backgroundGradientFrom: COLORS.background,
+            backgroundGradientTo: COLORS.background,
             decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(116, 139, 117, ${opacity})`, // #748B75 with opacity
-            labelColor: (opacity = 1) => `rgba(80, 61, 66, ${opacity})`, // #503D42 with opacity
+            color: (opacity = 1) => `rgba(${hexToRgb(COLORS.secondary)}, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(${hexToRgb(COLORS.primary)}, ${opacity})`,
             propsForDots: {
               r: "6",
               strokeWidth: "2",
-              stroke: "#503D42",
+              stroke: COLORS.primary,
             },
           }}
           bezier
-          style={{
-            marginVertical: 8,
-            borderRadius: 16,
-          }}
+          style={styles.chart}
         />
-      </View>
+      </Card>
 
       {/* Upcoming Appointments */}
-      <View style={{ marginBottom: 24 }}>
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "#503D42",
-            marginBottom: 16,
-          }}
-        >
-          Upcoming Appointments
-        </Text>
+      <View style={styles.appointmentsSection}>
+        <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
         {appointments.map((appointment) => (
-          <View
-            key={appointment.id}
-            style={{
-              backgroundColor: "#F5FBEF",
-              borderRadius: 8,
-              padding: 16,
-              marginBottom: 12,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 8,
-              }}
-            >
-              <Text style={{ fontWeight: "bold", color: "#503D42" }}>
+          <Card key={appointment.id} style={styles.appointmentCard}>
+            <View style={styles.appointmentHeader}>
+              <Text style={styles.appointmentDate}>
                 {appointment.date} • {appointment.time}
               </Text>
-              <Text style={{ color: "#748B75" }}>{appointment.service}</Text>
+              <Text style={styles.appointmentService}>{appointment.service}</Text>
             </View>
-            <Text style={{ color: "#503D42" }}>
+            <Text style={styles.appointmentClient}>
               {appointment.clientName} • {appointment.petName}
             </Text>
-          </View>
+          </Card>
         ))}
       </View>
     </ScrollView>
   );
 };
+
+// Helper function to convert hex to rgb for chart colors
+const hexToRgb = (hex: string) => {
+  // Remove the hash if it exists
+  hex = hex.replace('#', '');
+  
+  // Parse the hex values
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `${r}, ${g}, ${b}`;
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    padding: SPACING.md,
+  },
+  header: {
+    marginBottom: SPACING.lg,
+  },
+  title: {
+    fontSize: FONTS.sizes.xxl,
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+    marginBottom: SPACING.xs,
+  },
+  subtitle: {
+    color: COLORS.secondary,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    marginBottom: SPACING.lg,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginHorizontal: SPACING.xs,
+  },
+  cardLabel: {
+    color: COLORS.primary,
+    fontWeight: FONTS.weights.semiBold as any,
+    marginBottom: SPACING.xs,
+  },
+  cardValue: {
+    fontSize: FONTS.sizes.xxl,
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+  },
+  chartCard: {
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  chartTitle: {
+    color: COLORS.primary,
+    fontWeight: FONTS.weights.semiBold as any,
+    marginBottom: SPACING.sm,
+  },
+  chart: {
+    marginVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  appointmentsSection: {
+    marginBottom: SPACING.lg,
+  },
+  sectionTitle: {
+    fontSize: FONTS.sizes.xl,
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+    marginBottom: SPACING.md,
+  },
+  appointmentCard: {
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  appointmentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
+  },
+  appointmentDate: {
+    fontWeight: FONTS.weights.bold as any,
+    color: COLORS.primary,
+  },
+  appointmentService: {
+    color: COLORS.secondary,
+  },
+  appointmentClient: {
+    color: COLORS.primary,
+  },
+});
 
 export default HomeScreen;
