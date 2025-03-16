@@ -7,6 +7,7 @@ import HomeScreen from "../screens/HomeScreen";
 import AppointmentsScreen from "../screens/AppointmentsScreen";
 import ClientsScreen from "../screens/ClientsScreen";
 import ServicesScreen from "../screens/ServicesScreen";
+import AddAppointmentScreen from "../screens/AddAppointmentScreen";
 
 // Define the param list for the bottom tab navigator
 export type BottomTabParamList = {
@@ -47,10 +48,10 @@ export default function BottomTabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Appointments" component={AppointmentsScreen} />
-      <Tab.Screen name="Clients" component={ClientsScreen} />
-      <Tab.Screen name="Services" component={ServicesScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Appointments" component={AppointmentsScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Clients" component={ClientsScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Services" component={ServicesScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 }
