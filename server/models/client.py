@@ -1,10 +1,5 @@
 """
     TODO: 
-    - Validate email, validate phone, validate address
-    - Get all clients pagination 
-    - Emergency contact CRUD 
-    - Create payment type CRUD 
-    - Charge client CRUD 
     - Send messages CRUD 
     -Time types table 
     - Add document type table 
@@ -49,38 +44,38 @@ class Client:
         )
     
     @classmethod 
-    def update_fname(cls, newfname): 
+    def update_fname(cls, client_id, newfname): 
         pass 
         
     @classmethod 
-    def update_lname(cls, newlname): 
+    def update_lname(cls, client_id, newlname): 
         pass 
     
     @classmethod 
-    def update_email(cls, new_email): 
+    def update_email(cls, client_id, new_email): 
         # TODO: VALIDATE EMAIL 
         pass 
     
     @classmethod 
-    def update_phone(cls, new_phone):
+    def update_phone(cls, client_id, new_phone):
         #TODO: FRONTEND MAKE SURE VALID PHONE 
         pass 
     
     @classmethod 
-    def change_address(cls, new_address): 
+    def change_address(cls, client_id, new_address): 
         # TODO: VALIDATE ADDRESS 
         pass 
     
     @classmethod 
-    def change_secondary_email(cls, new_email):
+    def change_secondary_email(cls, client_id, new_email):
         pass 
     
     @classmethod 
-    def change_secondary_phone(cls, new_phone):
+    def change_secondary_phone(cls, client_id, new_phone):
         pass 
     
     @classmethod 
-    def update_notes(cls, new_notes):
+    def update_notes(cls, client_id, new_notes):
         pass 
     
     @classmethod 
@@ -102,21 +97,20 @@ class Client:
         pass 
     
     @classmethod 
-    def add_payment_type(cls, client_id, payment_type_id):
+    def add_payment_type(cls, client_id, payment_type_id, online_payment_id=None):
+        """_summary_
+            If payment_type_id == Venmo, PayPal, or Zelle, store online payment id in
+            client_online_payments table
+        """
         pass 
     
-
     @classmethod 
-    def disable_messages(cls, client_id, disable_messages): 
-        pass 
-    
-    @classmethod 
-    def contact_methods(cls, client_id, preferred_contact_method): 
+    def contact_methods(cls, client_id, preferred_contact_method, contact_type): 
         # phone or email 
         pass 
     
     @classmethod 
-    def added_cost(cls, client_id, is_percentage, is_per_mile, reason, price_change, service_id=None): 
+    def added_client_cost(cls, client_id, is_percentage, is_per_mile, reason, price_change, service_id=None): 
         """_summary_
         Args:
             client_id (_type_): client 
@@ -129,7 +123,7 @@ class Client:
         pass 
     
     @classmethod 
-    def added_time(cls, client_id, time_type_id, additional_time, notes, service_id=None):
+    def added_client_time(cls, client_id, time_type_id, additional_time, notes, service_id=None):
         """_summary_
         Args:
             client_id (_type_): Client 
@@ -157,4 +151,8 @@ class Client:
     @classmethod 
     def get_document(cls, client_id, document_id): 
         pass 
+    
+    @classmethod 
+    def client_searchbar(cls, letters_to_search): # If user types "lar" return all clients that start with lar
+        pass
     
