@@ -42,6 +42,27 @@ class Client:
             secondary_phone, 
             notes
         )
+        
+    # ON PAGE LOAD 
+    @classmethod 
+    def get_client_metadata(cls, client_id): 
+        # Return contact info and notes, emergency contact data, pet metadata 
+        pass 
+    
+    @classmethod 
+    def get_cost_and_time_stats_metadata(cls, client_id):
+        # returns list of payment types/ids, added costs, added time
+        pass 
+    
+    @classmethod 
+    def get_appointment_metadata(cls, client_id):
+        # returns upcoming appointments, past appointments, appointment stats 
+        pass
+    
+    @classmethod 
+    def get_client_document_metadata(cls, client_id):
+        # return all client document names and document types 
+        pass 
     
     @classmethod 
     def update_fname(cls, client_id, newfname): 
@@ -79,18 +100,15 @@ class Client:
         pass 
     
     @classmethod 
-    def get_all_clients(cls): 
+    def get_all_clients(cls, page, page_size): 
         # TODO: Pagination? Which data does this pass? 
-        pass 
-    
-    @classmethod 
-    def get_client(cls, client_id): 
         # TODO: Also pass emergency contact information, some pet information, vet info, 
         # client payment types, client documents, client message opt out, additional costs, preferred payment method, 
         # additional time, upcoming appointments. Don't send all of the data up at once, just previews of some stuff. 
         # Can click on pet and stuff for more details, but basically just send text for this. 
         # Also pass preferred contact method 
         pass 
+    
     
     @classmethod 
     def delete_client(cls, client_id_array):
@@ -103,6 +121,10 @@ class Client:
             client_online_payments table
         """
         pass 
+    
+    @classmethod 
+    def get_payment_types_metadata(cls, client_id):
+        pass # return payment types. if payment type is paypal, venmo, zelle, then also give username 
     
     @classmethod 
     def contact_methods(cls, client_id, preferred_contact_method, contact_type): 
@@ -135,13 +157,22 @@ class Client:
         pass
     
     @classmethod 
-    def get_appointment_stats(cls, client_id): # late, no shows, cancellations, late cancellations 
+    def get_appointment_metadata(cls, client_id):
+        # return time/date and potential other details
+        pass
+    
+    @classmethod 
+    def get_added_cost_metadata(cls, client_id):
         pass 
     
     @classmethod 
-    def get_client_document_metadata(cls, client_id):
-        # return all client document names and document types 
+    def get_added_time_metadata(cls, client_id):
+        pass
+    
+    @classmethod 
+    def get_appointment_stats(cls, client_id): # late, no shows, cancellations, late cancellations 
         pass 
+    
     
     @classmethod 
     def add_client_documents(cls, client_id, document, document_name, document_type_id): 

@@ -1,4 +1,6 @@
 class Emergency_Contact: 
+    
+    id = None 
     user_type_id = None 
     relationship = None 
     fname = None 

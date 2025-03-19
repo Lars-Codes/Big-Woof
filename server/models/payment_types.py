@@ -1,5 +1,6 @@
 class Payment_Types: 
     
+    id = None 
     payment_type = None 
     
     def __init__(self, payment_type):
