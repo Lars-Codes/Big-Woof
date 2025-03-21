@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Clients: undefined
   ClientDetails: { id: string };
   AddClient: undefined;
+  EditClient: { id: string };
   AddPet: { clientId?: string };
   Appointments: undefined;
   AddAppointment: { clientId?: string; petId?: string };

@@ -68,3 +68,61 @@ export const getClientDetails = async (clientId: string): Promise<any> => {
     throw error;
   }
 };
+
+// New function to update client details
+export const updateClient = async (
+  clientId: string,
+  clientData: any
+): Promise<any> => {
+  if (USE_FALLBACK_DATA) {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // For development, just return a success response
+    return {
+      success: true,
+      message: "Client updated successfully",
+      client: {
+        ...clientData,
+        id: clientId,
+      },
+    };
+  }
+
+  try {
+    const response = await axios.put(
+      `${API_URL}/updateClient/${clientId}`,
+      clientData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating client:", error);
+    throw error;
+  }
+};
+
+// Function to add a new client
+export const addClient = async (clientData: any): Promise<any> => {
+  if (USE_FALLBACK_DATA) {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // For development, return a success response with a new ID
+    return {
+      success: true,
+      message: "Client added successfully",
+      client: {
+        ...clientData,
+        id: Math.floor(Math.random() * 10000) + 1000,
+      },
+    };
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/addClient`, clientData);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding client:", error);
+    throw error;
+  }
+};

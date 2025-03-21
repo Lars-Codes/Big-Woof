@@ -7,7 +7,6 @@ import HomeScreen from "../screens/HomeScreen";
 import AppointmentsScreen from "../screens/AppointmentsScreen";
 import ClientsScreen from "../screens/ClientsScreen";
 import ServicesScreen from "../screens/ServicesScreen";
-import AddAppointmentScreen from "../screens/AddAppointmentScreen";
 
 // Define the param list for the bottom tab navigator
 export type BottomTabParamList = {

@@ -124,7 +124,7 @@ const ClientDetailsScreen: React.FC = () => {
           <View style={styles.headerRightContainer}>
             <TouchableOpacity 
               style={styles.editButton}
-              // onPress={() => navigation.navigate('EditClient', { id })}
+              onPress={() => navigation.navigate('EditClient', { id })}
             >
               <Edit color={COLORS.primary} size={20} />
             </TouchableOpacity>
@@ -184,7 +184,7 @@ const ClientDetailsScreen: React.FC = () => {
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Payment Methods</Text>
           {client.paymentTypes && client.paymentTypes.length > 0 ? (
-            client.paymentTypes.map((method: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
+            client.paymentTypes.map((method: string, index: number) => (
               <Text key={index} style={styles.paymentMethod}>{method}</Text>
             ))
           ) : (

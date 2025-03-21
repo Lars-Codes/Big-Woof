@@ -6,12 +6,12 @@ import { View, StyleSheet } from 'react-native';
 import BottomTabNavigator from './BottomTabNavigator';
 
 // Import screens
-import ClientDetailsScreen from '../screens/ClientDetailsScreen';
+import AddAppointmentScreen from '../screens/AddAppointmentScreen';
 import AddClientScreen from '../screens/AddClientScreen';
 import AddPetScreen from '../screens/AddPetScreen';
-import AddAppointmentScreen from '../screens/AddAppointmentScreen';
-import ServicesScreen from '../screens/ServicesScreen';
 import AddServiceScreen from '../screens/AddServiceScreen';
+import ClientDetailsScreen from '../screens/ClientDetailsScreen';
+import EditClientScreen from '../screens/EditClientScreen';
 import { RootStackParamList } from '../../types/navigation';
 
 // Import Header
@@ -33,9 +33,9 @@ const AppNavigator = () => {
         <Stack.Screen name="Main" component={BottomTabNavigator} />
         <Stack.Screen name="ClientDetails" component={ClientDetailsScreen} />
         <Stack.Screen name="AddClient" component={AddClientScreen} />
+        <Stack.Screen name="EditClient" component={EditClientScreen} />
         <Stack.Screen name="AddPet" component={AddPetScreen} />
         <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
-        <Stack.Screen name="Services" component={ServicesScreen} />
         <Stack.Screen name="AddService" component={AddServiceScreen} />
       </Stack.Navigator>
     </View>

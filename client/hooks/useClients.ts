@@ -93,17 +93,27 @@ export const useClients = () => {
     }
   };
 
-  // Toggle client selection
-  const toggleSelectClient = (clientId: number) => {
-    setSelectedClientIds((prev) => {
-      if (prev.includes(clientId)) {
-        // Remove if already selected
-        return prev.filter((id) => id !== clientId);
-      } else {
-        // Add if not selected
-        return [...prev, clientId];
-      }
-    });
+  // Toggle client selection - enhanced to handle array of IDs
+  const toggleSelectClient = (clientIds: number[] | number) => {
+    // If single ID passed, convert to array
+    const idsToToggle = Array.isArray(clientIds) ? clientIds : [clientIds];
+
+    if (idsToToggle.length === 1) {
+      // Simple toggle for a single ID
+      const singleId = idsToToggle[0];
+      setSelectedClientIds((prev) => {
+        if (prev.includes(singleId)) {
+          // Remove if already selected
+          return prev.filter((id) => id !== singleId);
+        } else {
+          // Add if not selected
+          return [...prev, singleId];
+        }
+      });
+    } else {
+      // Direct set for multiple IDs (used for select all or bulk operations)
+      setSelectedClientIds(idsToToggle);
+    }
   };
 
   // Select all clients on current page
@@ -144,7 +154,6 @@ export const useClients = () => {
     pageSize,
     totalPages,
     selectedClientIds,
-    setSelectedClientIds,
     isDeleting,
     goToPage,
     nextPage,

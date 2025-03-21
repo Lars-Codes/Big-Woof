@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,6 @@ import {
   Trash2,
   Check,
   ChevronLeft,
-  ChevronDown,
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../styles/theme";
@@ -39,6 +38,9 @@ const ClientsScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [filteredClients, setFilteredClients] = useState<ApiClient[]>([]);
+  const [allClients, setAllClients] = useState<ApiClient[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const {
     clients,
@@ -48,28 +50,62 @@ const ClientsScreen: React.FC = () => {
     pageSize,
     totalPages,
     selectedClientIds,
-    setSelectedClientIds,
     isDeleting,
     nextPage,
     prevPage,
+    goToPage,
     toggleSelectClient,
     selectAllClients,
     deleteSelectedClients,
     refreshClients,
   } = useClients();
 
-  // Filter clients based on search query
-  const filteredClients = searchQuery
-    ? clients.filter(
-        (client) =>
-          `${client.fname} ${client.lname}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          client.pets.some((pet) =>
-            pet.name.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-      )
-    : clients;
+  // Fetch all clients for searching
+  useEffect(() => {
+    const fetchAllClients = async () => {
+      if (isSearchActive && searchQuery && searchQuery.length > 2) {
+        setIsSearching(true);
+        // This would typically be a separate API call to search all clients
+        // For now, we'll just use the current page data
+        try {
+          // In a real implementation, you would call an API endpoint that searches across all data
+          // setAllClients(await searchAllClients(searchQuery));
+
+          // For now, we'll just use the current clients as a placeholder
+          setFilteredClients(
+            clients.filter(
+              (client) =>
+                `${client.fname} ${client.lname}`
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()) ||
+                client.pets.some((pet) =>
+                  pet.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+            )
+          );
+        } catch (err) {
+          console.error("Error searching clients:", err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else if (!searchQuery) {
+        setFilteredClients(clients);
+      }
+    };
+
+    fetchAllClients();
+  }, [searchQuery, isSearchActive, clients]);
+
+  // Default to showing current page clients when not searching
+  useEffect(() => {
+    if (!isSearchActive) {
+      setFilteredClients(clients);
+    }
+  }, [clients, isSearchActive]);
+
+  const handleSearchInputChange = (text: string) => {
+    setSearchQuery(text);
+  };
 
   const handleDeleteSelected = () => {
     if (selectedClientIds.length === 0) {
@@ -88,10 +124,43 @@ const ClientsScreen: React.FC = () => {
         {
           text: "Delete",
           style: "destructive",
-          onPress: deleteSelectedClients,
+          onPress: async () => {
+            await deleteSelectedClients();
+            setIsSelectionMode(false);
+          },
         },
       ]
     );
+  };
+
+  // Handle select all for current visible clients
+  const handleSelectAll = () => {
+    // If in search mode, only select visible filtered clients
+    if (isSearchActive && filteredClients.length > 0) {
+      const visibleIds = filteredClients.map((client) => client.id);
+
+      // Check if all visible clients are already selected
+      const allSelected = visibleIds.every((id) =>
+        selectedClientIds.includes(id)
+      );
+
+      if (allSelected) {
+        // Deselect only the visible clients
+        const newSelection = selectedClientIds.filter(
+          (id) => !visibleIds.includes(id)
+        );
+        toggleSelectClient(newSelection);
+      } else {
+        // Select all visible clients (keeping any previously selected but not visible)
+        const newSelection = [
+          ...new Set([...selectedClientIds, ...visibleIds]),
+        ];
+        toggleSelectClient(newSelection);
+      }
+    } else {
+      // Normal select all for current page
+      selectAllClients();
+    }
   };
 
   const renderClientItem = (client: ApiClient) => (
@@ -100,7 +169,7 @@ const ClientsScreen: React.FC = () => {
         style={styles.clientCardContent}
         onPress={() => {
           if (isSelectionMode) {
-            toggleSelectClient(client.id);
+            toggleSelectClient([client.id]);
           } else {
             navigation.navigate("ClientDetails", { id: client.id.toString() });
           }
@@ -108,7 +177,7 @@ const ClientsScreen: React.FC = () => {
         onLongPress={() => {
           if (!isSelectionMode) {
             setIsSelectionMode(true);
-            toggleSelectClient(client.id);
+            toggleSelectClient([client.id]);
           }
         }}
       >
@@ -141,6 +210,44 @@ const ClientsScreen: React.FC = () => {
     </Card>
   );
 
+  const renderPagination = () => {
+    if (totalPages <= 1 || isSearchActive) return null;
+
+    return (
+      <View style={styles.paginationContainer}>
+        <TouchableOpacity
+          style={[
+            styles.paginationButton,
+            page === 1 && styles.paginationButtonDisabled,
+          ]}
+          onPress={prevPage}
+          disabled={page === 1}
+        >
+          <ChevronLeft
+            color={page === 1 ? COLORS.secondary : COLORS.primary}
+            size={24}
+          />
+        </TouchableOpacity>
+        <Text style={styles.paginationText}>
+          Page {page} of {totalPages}
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.paginationButton,
+            page === totalPages && styles.paginationButtonDisabled,
+          ]}
+          onPress={nextPage}
+          disabled={page === totalPages}
+        >
+          <ChevronRight
+            color={page === totalPages ? COLORS.secondary : COLORS.primary}
+            size={24}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Header with search */}
@@ -153,7 +260,7 @@ const ClientsScreen: React.FC = () => {
                 style={styles.searchInput}
                 placeholder="Search clients or pets..."
                 value={searchQuery}
-                onChangeText={setSearchQuery}
+                onChangeText={handleSearchInputChange}
                 autoFocus
                 placeholderTextColor={COLORS.secondary}
               />
@@ -176,24 +283,28 @@ const ClientsScreen: React.FC = () => {
         ) : isSelectionMode ? (
           <View style={styles.selectionHeader}>
             <TouchableOpacity
-              style={styles.selectionButton}
+              style={styles.cancelButton}
               onPress={() => {
                 setIsSelectionMode(false);
-                setSelectedClientIds([]);
+                toggleSelectClient([]);
               }}
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.selectionText}>
-              {selectedClientIds.length} selected
-            </Text>
+            <View style={styles.selectionInfo}>
+              <Text style={styles.selectionText}>
+                {selectedClientIds.length} selected
+              </Text>
+            </View>
             <View style={styles.selectionActions}>
               <TouchableOpacity
-                style={styles.selectionButton}
-                onPress={selectAllClients}
+                style={styles.selectAllButton}
+                onPress={handleSelectAll}
               >
-                <Text style={styles.actionText}>
-                  {selectedClientIds.length === clients.length
+                <Text style={styles.selectAllText}>
+                  {filteredClients.every((client) =>
+                    selectedClientIds.includes(client.id)
+                  )
                     ? "Deselect All"
                     : "Select All"}
                 </Text>
@@ -250,6 +361,14 @@ const ClientsScreen: React.FC = () => {
         </View>
       ) : (
         <>
+          {/* Search indicator */}
+          {isSearching && (
+            <View style={styles.searchingIndicator}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={styles.searchingText}>Searching...</Text>
+            </View>
+          )}
+
           {/* Client List */}
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             {filteredClients.length > 0 ? (
@@ -263,44 +382,10 @@ const ClientsScreen: React.FC = () => {
                   : "No clients yet. Add your first client!"}
               </Text>
             )}
-          </ScrollView>
 
-          {/* Pagination */}
-          {totalPages > 1 && !isSearchActive && (
-            <View style={styles.paginationContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.paginationButton,
-                  page === 1 && styles.paginationButtonDisabled,
-                ]}
-                onPress={prevPage}
-                disabled={page === 1}
-              >
-                <ChevronLeft
-                  color={page === 1 ? COLORS.secondary : COLORS.primary}
-                  size={24}
-                />
-              </TouchableOpacity>
-              <Text style={styles.paginationText}>
-                Page {page} of {totalPages}
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.paginationButton,
-                  page === totalPages && styles.paginationButtonDisabled,
-                ]}
-                onPress={nextPage}
-                disabled={page === totalPages}
-              >
-                <ChevronRight
-                  color={
-                    page === totalPages ? COLORS.secondary : COLORS.primary
-                  }
-                  size={24}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
+            {/* Pagination is now inside the ScrollView */}
+            {renderPagination()}
+          </ScrollView>
         </>
       )}
 
@@ -333,10 +418,12 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: SPACING.md,
+    padding: SPACING.xs,
   },
   searchActive: {
     flexDirection: "row",
     alignItems: "center",
+    width: "100%",
   },
   searchInputContainer: {
     flex: 1,
@@ -364,9 +451,10 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: SPACING.md,
+    paddingBottom: SPACING.xxl + 34, // Add extra padding for the Add button
   },
   clientsContainer: {
-    marginBottom: SPACING.xxl + 34,
+    marginBottom: SPACING.md, // Reduced margin to make room for pagination
   },
   clientCard: {
     backgroundColor: COLORS.background,
@@ -432,7 +520,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: SPACING.md,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.md,
+    paddingTop: SPACING.sm,
     borderTopWidth: 1,
     borderTopColor: COLORS.background,
   },
@@ -449,33 +539,42 @@ const styles = StyleSheet.create({
   },
   selectionHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.xs,
+  },
+  selectionInfo: {
+    flexGrow: 1,
+    alignItems: "center",
   },
   selectionText: {
     color: COLORS.primary,
-    fontWeight: FONTS.weights.medium as any,
+    fontWeight: FONTS.weights.bold as any,
     fontSize: FONTS.sizes.md,
   },
   selectionActions: {
     flexDirection: "row",
     alignItems: "center",
   },
-  selectionButton: {
-    marginLeft: SPACING.sm,
-    paddingHorizontal: SPACING.sm,
+  selectAllButton: {
+    backgroundColor: COLORS.white,
+    paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
+    marginRight: SPACING.sm,
   },
-  actionText: {
+  selectAllText: {
     color: COLORS.primary,
     fontWeight: FONTS.weights.medium as any,
+    fontSize: FONTS.sizes.sm,
   },
   deleteButton: {
     backgroundColor: COLORS.error,
     padding: SPACING.sm,
     borderRadius: BORDER_RADIUS.sm,
-    marginLeft: SPACING.sm,
   },
   deleteButtonDisabled: {
     opacity: 0.5,
@@ -492,6 +591,18 @@ const styles = StyleSheet.create({
   },
   checkboxSelected: {
     backgroundColor: COLORS.primary,
+  },
+  searchingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: SPACING.xs,
+    backgroundColor: COLORS.background,
+  },
+  searchingText: {
+    marginLeft: SPACING.sm,
+    color: COLORS.secondary,
+    fontSize: FONTS.sizes.sm,
   },
 });
 

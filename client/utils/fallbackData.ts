@@ -25,6 +25,22 @@ const generateSampleClients = (count: number = 50): ApiClient[] => {
       });
     }
 
+    // Properly create an array of payment types
+    const paymentOptions = ["Credit Card", "Cash", "Venmo"];
+    // Randomly select 1 or 2 payment methods
+    const numPaymentTypes = Math.floor(Math.random() * 2) + 1;
+    const paymentTypes: string[] = [];
+
+    for (let k = 0; k < numPaymentTypes; k++) {
+      const randomIndex = Math.floor(Math.random() * paymentOptions.length);
+      const paymentType = paymentOptions[randomIndex];
+
+      // Avoid duplicates
+      if (!paymentTypes.includes(paymentType)) {
+        paymentTypes.push(paymentType);
+      }
+    }
+
     clients.push({
       id: i,
       fname: `First${i}`,
@@ -39,9 +55,7 @@ const generateSampleClients = (count: number = 50): ApiClient[] => {
       notes: i % 5 === 0 ? `Important notes for client ${i}` : null,
       disable_emails: false,
       pets,
-      payment_types: ["Credit Card", "Cash", "Venmo"][
-        Math.floor(Math.random() * 3)
-      ].split(""),
+      payment_types: paymentTypes,
       last_visit:
         i % 3 === 0
           ? `${
@@ -65,7 +79,7 @@ export const getPaginatedClients = (
   page: number,
   pageSize: number
 ): ApiResponse => {
-  const allClients = generateSampleClients(50); // Provide a default value for count
+  const allClients = generateSampleClients();
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedClients = allClients.slice(startIndex, endIndex);
