@@ -10,7 +10,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Add .env file
+
+   Create a `.env` file in the root of the client directory with the following content:
+
+   ```env
+   API_URL=https://api.example.com
+   ```
+
+   Replace `https://api.example.com` with the URL of your API.
+
+3. Start the app
 
    ```bash
     npx expo start
