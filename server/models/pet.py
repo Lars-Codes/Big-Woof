@@ -37,6 +37,18 @@ class Pet:
         pass 
     
     @classmethod 
+    def get_initial_image_data(cls, pet_id):
+        pass 
+    
+    @classmethod 
+    def get_cost_and_time_metadata(cls, pet_id):
+        pass
+    
+    @classmethod 
+    def get_document_metadata(cls, pet_id):
+        pass
+    
+    @classmethod 
     def edit_name(cls, pet_id, new_name): 
         pass 
     
@@ -72,6 +84,10 @@ class Pet:
         pass
     
     @classmethod 
+    def delete_image(cls, pet_id, image_id):
+        pass
+    
+    @classmethod 
     def add_profile_picture(cls, pet_id, picture_blob):
         pass
     
@@ -88,6 +104,18 @@ class Pet:
         pass # get low resolution images for previews 
     
     @classmethod 
+    def delete_document(cls, pet_id, document_id):
+        pass
+    
+    @classmethod 
+    def edit_behavioral_issue(cls, pet_id, problem_id, new_problem, new_solution):
+        pass 
+    
+    @classmethod 
+    def delete_behavioral_issue(cls, pet_id, problem_id):
+        pass 
+    
+    @classmethod 
     def get_image(cls, pet_id, image_id):
         pass 
     
@@ -100,14 +128,68 @@ class Pet:
     def add_document(cls, client_id, pet_id, document_name, document_type, document):
         pass 
     
-    # @classmethod 
-    # def get_vaccination_documents_metadata(cls, pet_id):
-    #     pass
+    @classmethod 
+    def deceased(cls, pet_id, deceased=False):
+        pass
     
-    # @classmethod 
-    # def get_rabies_documents_metadata(cls, pet_id):
-    #     pass
+    @classmethod
+    def get_pet_document(pet_id, document_id):
+        pass
+    
+    @classmethod 
+    def add_pet_document(pet_id, document_name, document_type, document):
+        pass
     
     @classmethod 
     def add_behavioral_issue(cls, pet_id, problem, solution=None):
+        pass 
+
+    @classmethod 
+    def assign_new_owner(cls, pet_id, new_owner_id):
+        pass
+    
+    @classmethod 
+    def pet_searchbar(cls, characters):
+        pass 
+    
+    @classmethod 
+    def create_frequency_recomendation(cls, pet_id, service_id, recommended_frequency, time_type):
+        pass 
+    
+    @classmethod 
+    def update_frequency_recomendation(cls, pet_id, service_id, recommended_frequency, time_type):
+        pass 
+    
+    @classmethod 
+    def delete_frequency_recomendation(cls, pet_id, frequency_rec_id):
+        pass
+    
+    @classmethod 
+    def add_client_homework(cls, pet_id, homework_title, homework_text, frequency, time_type_id):
+        pass 
+    
+    @classmethod 
+    def edit_client_homework(cls, pet_id, homework_id, homework_title, homework_text, frequency, time_type_id):
+        pass
+    
+    @classmethod 
+    def delete_client_homework(cls, pet_id, homework_id):
+        pass 
+    
+    def added_pet_time(cls, pet_id, time_type_id, additional_time, notes, service_id=None):
+        pass
+    
+    def edit_pet_time(cls, pet_id, added_time_id, time_type_id, additional_time, notes, service_id=None):
+        pass 
+    
+    def delete_pet_time(pet_id, added_time_id):
+        pass
+    
+    def added_pet_cost(cls, pet_id, is_percentage, is_per_mile, reason, price_change, service_id=None):
+        pass
+    
+    def edit_pet_cost(cls, pet_id, additional_costs_id, is_percentage, is_per_mile, reason, price_change, service_id=None):
+        pass 
+    
+    def delete_pet_cost(cls, pet_id, additional_costs_id):
         pass 

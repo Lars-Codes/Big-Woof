@@ -109,6 +109,9 @@ class Client:
         # Also pass preferred contact method 
         pass 
     
+    @classmethod 
+    def update_vet_information(cls, client_id, fname, lname, primary_phone=None, secondary_phone=None, address=None, email=None):
+        pass
     
     @classmethod 
     def delete_client(cls, client_id_array):
@@ -187,3 +190,22 @@ class Client:
     def client_searchbar(cls, letters_to_search): # If user types "lar" return all clients that start with lar
         pass
     
+    @classmethod 
+    def edit_client_cost(cls, client_id, additional_costs_id, is_percentage, is_per_mile, reason, price_change, service_id=None):
+        pass 
+    
+    @classmethod 
+    def delete_client_cost(cls, client_id, additional_costs_id):
+        pass 
+    
+    @classmethod 
+    def edit_client_time(client_id, added_time_id, time_type_id, additional_time, notes, service_id=None):
+        pass
+    
+    @classmethod 
+    def delete_client_time(client_id, added_time_id):
+        pass 
+    
+    @classmethod 
+    def delete_client_documents(client_id, document_id):
+        pass
