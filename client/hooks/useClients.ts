@@ -49,10 +49,22 @@ export const useClients = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [selectedClientIds, setSelectedClientIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPageChanging, setIsPageChanging] = useState(false);
 
   // Fetch clients
-  const fetchClients = async (pageNum: number, size: number) => {
-    setLoading(true);
+  const fetchClients = async (
+    pageNum: number,
+    size: number,
+    isPageChange = false
+  ) => {
+    // If this is a page change, we'll use the isPageChanging state
+    // Otherwise, use the main loading state
+    if (isPageChange) {
+      setIsPageChanging(true);
+    } else {
+      setLoading(true);
+    }
+
     setError(null);
 
     try {
@@ -63,13 +75,18 @@ export const useClients = () => {
       setError("Failed to fetch clients");
       console.error("Error fetching clients:", err);
     } finally {
-      setLoading(false);
+      if (isPageChange) {
+        setIsPageChanging(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
   // Load initial data
   useEffect(() => {
-    fetchClients(page, pageSize);
+    // When page changes, fetch with the page change flag
+    fetchClients(page, pageSize, true);
   }, [page, pageSize]);
 
   // Handle page change
@@ -155,6 +172,7 @@ export const useClients = () => {
     totalPages,
     selectedClientIds,
     isDeleting,
+    isPageChanging,
     goToPage,
     nextPage,
     prevPage,

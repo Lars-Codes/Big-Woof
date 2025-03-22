@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import {
   Plus,
@@ -41,6 +42,7 @@ const ClientsScreen: React.FC = () => {
   const [filteredClients, setFilteredClients] = useState<ApiClient[]>([]);
   const [allClients, setAllClients] = useState<ApiClient[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const {
     clients,
@@ -51,6 +53,7 @@ const ClientsScreen: React.FC = () => {
     totalPages,
     selectedClientIds,
     isDeleting,
+    isPageChanging,
     nextPage,
     prevPage,
     goToPage,
@@ -102,6 +105,16 @@ const ClientsScreen: React.FC = () => {
       setFilteredClients(clients);
     }
   }, [clients, isSearchActive]);
+
+  useEffect(() => {
+    // When isPageChanging changes from true to false (loading completes)
+    if (!isPageChanging && scrollViewRef.current) {
+      // Small timeout to ensure the content is rendered
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }, 100);
+    }
+  }, [isPageChanging]);
 
   const handleSearchInputChange = (text: string) => {
     setSearchQuery(text);
@@ -346,6 +359,15 @@ const ClientsScreen: React.FC = () => {
         )}
       </ScreenHeader>
 
+      {isPageChanging && (
+        <View style={styles.pageLoadingOverlay}>
+          <View style={styles.pageLoadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.pageLoadingText}>Loading page {page}...</Text>
+          </View>
+        </View>
+      )}
+
       {/* Loading/Error States */}
       {loading && !clients.length ? (
         <View style={styles.centerContainer}>
@@ -370,7 +392,14 @@ const ClientsScreen: React.FC = () => {
           )}
 
           {/* Client List */}
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={
+              totalPages > 1
+                ? styles.scrollContainerWithPagination
+                : styles.scrollContainer
+            }
+          >
             {filteredClients.length > 0 ? (
               <View style={styles.clientsContainer}>
                 {filteredClients.map(renderClientItem)}
@@ -453,6 +482,9 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: SPACING.xxl + 34, // Add extra padding for the Add button
   },
+  scrollContainerWithPagination: {
+    padding: SPACING.md,
+  },
   clientsContainer: {
     marginBottom: SPACING.md, // Reduced margin to make room for pagination
   },
@@ -490,6 +522,40 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: SPACING.md,
   },
+  pageLoadingOverlay: {
+    position: "absolute",
+    zIndex: 10,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pageLoadingContainer: {
+    backgroundColor: COLORS.white,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  pageLoadingText: {
+    marginTop: SPACING.md,
+    color: COLORS.primary,
+    fontSize: FONTS.sizes.md,
+    fontWeight: FONTS.weights.medium as any,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -520,11 +586,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: SPACING.md,
-    marginBottom: SPACING.md,
-    paddingTop: SPACING.sm,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.background,
+    marginVertical: SPACING.sm,
   },
   paginationButton: {
     padding: SPACING.sm,

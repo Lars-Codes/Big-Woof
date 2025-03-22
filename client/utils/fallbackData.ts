@@ -1,7 +1,7 @@
 import { ApiClient, ApiResponse } from "../hooks/useClients";
 
 // Generate a collection of sample clients for development/fallback
-const generateSampleClients = (count: number = 50): ApiClient[] => {
+const generateSampleClients = (count: number = 25): ApiClient[] => {
   const clients: ApiClient[] = [];
 
   for (let i = 1; i <= count; i++) {
