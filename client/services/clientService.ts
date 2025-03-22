@@ -126,3 +126,31 @@ export const createClient = async (clientData: any): Promise<any> => {
     throw error;
   }
 };
+
+// Function to search clients
+export const searchClients = async (searchQuery: string): Promise<any> => {
+  if (USE_FALLBACK_DATA) {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // For development, filter clients based on search query
+    const allClientsResponse = await getAllClients(1, 50);
+    const searchResults = allClientsResponse.clients.filter((client) => {
+      return (
+        client.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.pets.some((pet: any) =>
+          pet.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    });
+    return searchResults;
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/clientSearch/${searchQuery}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error searching clients:", error);
+    throw error;
+  }
+};

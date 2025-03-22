@@ -27,6 +27,7 @@ import { RootStackParamList } from "@/types/navigation";
 import ScreenHeader from "../../ui/ScreenHeader";
 import AddButton from "../../ui/AddButton";
 import { useClients, ApiClient } from "../../../hooks/useClients";
+import { searchClients } from "@/services/clientService";
 
 // Define the type for the navigation prop
 type ClientsScreenNavigationProp = StackNavigationProp<
@@ -37,12 +38,13 @@ type ClientsScreenNavigationProp = StackNavigationProp<
 const ClientsScreen: React.FC = () => {
   const navigation = useNavigation<ClientsScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [filteredClients, setFilteredClients] = useState<ApiClient[]>([]);
-  const [allClients, setAllClients] = useState<ApiClient[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     clients,
@@ -63,41 +65,50 @@ const ClientsScreen: React.FC = () => {
     refreshClients,
   } = useClients();
 
-  // Fetch all clients for searching
+  // Debounce search query
   useEffect(() => {
-    const fetchAllClients = async () => {
-      if (isSearchActive && searchQuery && searchQuery.length > 2) {
-        setIsSearching(true);
-        // This would typically be a separate API call to search all clients
-        // For now, we'll just use the current page data
-        try {
-          // In a real implementation, you would call an API endpoint that searches across all data
-          // setAllClients(await searchAllClients(searchQuery));
+    // Clear the previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
 
-          // For now, we'll just use the current clients as a placeholder
-          setFilteredClients(
-            clients.filter(
-              (client) =>
-                `${client.fname} ${client.lname}`
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase()) ||
-                client.pets.some((pet) =>
-                  pet.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-            )
-          );
+    // Set a new timeout
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 250); // 500ms delay
+
+    // Clean up function to clear timeout when component unmounts
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  // Fetch clients based on debounced search query
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (
+        isSearchActive &&
+        debouncedSearchQuery &&
+        debouncedSearchQuery.length > 2
+      ) {
+        setIsSearching(true);
+        try {
+          const searchResults = await searchClients(debouncedSearchQuery);
+          setFilteredClients(searchResults);
         } catch (err) {
           console.error("Error searching clients:", err);
         } finally {
           setIsSearching(false);
         }
-      } else if (!searchQuery) {
+      } else if (!debouncedSearchQuery) {
         setFilteredClients(clients);
       }
     };
 
-    fetchAllClients();
-  }, [searchQuery, isSearchActive, clients]);
+    fetchSearchResults();
+  }, [debouncedSearchQuery, isSearchActive, clients]);
 
   // Default to showing current page clients when not searching
   useEffect(() => {
@@ -118,6 +129,17 @@ const ClientsScreen: React.FC = () => {
 
   const handleSearchInputChange = (text: string) => {
     setSearchQuery(text);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+  };
+
+  const handleSearchCancel = () => {
+    setIsSearchActive(false);
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
   };
 
   const handleDeleteSelected = () => {
@@ -278,17 +300,14 @@ const ClientsScreen: React.FC = () => {
                 placeholderTextColor={COLORS.secondary}
               />
               {searchQuery ? (
-                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <TouchableOpacity onPress={handleClearSearch}>
                   <X color={COLORS.secondary} size={20} />
                 </TouchableOpacity>
               ) : null}
             </View>
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => {
-                setIsSearchActive(false);
-                setSearchQuery("");
-              }}
+              onPress={handleSearchCancel}
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
@@ -379,9 +398,11 @@ const ClientsScreen: React.FC = () => {
         <>
           {/* Search indicator */}
           {isSearching && (
-            <View style={styles.searchingIndicator}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
-              <Text style={styles.searchingText}>Searching...</Text>
+            <View style={styles.pageLoadingOverlay}>
+              <View style={styles.pageLoadingContainer}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Text style={styles.pageLoadingText}>Searching...</Text>
+              </View>
             </View>
           )}
 
@@ -400,7 +421,7 @@ const ClientsScreen: React.FC = () => {
               </View>
             ) : (
               <Text style={styles.emptyText}>
-                {searchQuery
+                {debouncedSearchQuery
                   ? "No matching clients found."
                   : "No clients yet. Add your first client!"}
               </Text>
