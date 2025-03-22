@@ -271,9 +271,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>
-              Phone <Text style={styles.required}>*</Text>
-            </Text>
+            <Text style={styles.inputLabel}>Phone</Text>
             <TextInput
               ref={phoneRef}
               style={styles.input}
@@ -587,11 +585,7 @@ export const validateClientForm = (formData: ClientFormData) => {
   let isValid = true;
 
   // Validate required fields
-  if (
-    !formData.firstName.trim() ||
-    !formData.lastName.trim() ||
-    !formData.phone.trim()
-  ) {
+  if (!formData.firstName.trim() || !formData.lastName.trim()) {
     isValid = false;
   }
 
@@ -608,7 +602,7 @@ export const validateClientForm = (formData: ClientFormData) => {
   }
 
   // Validate phone
-  if (!validatePhone(formData.phone)) {
+  if (formData.phone && !validatePhone(formData.phone)) {
     errors.phone = "Please enter a valid phone number";
     isValid = false;
   }
@@ -656,13 +650,15 @@ export const transformClientDataForApi = (formData: ClientFormData) => {
     fname: formData.firstName,
     lname: formData.lastName,
     email: formData.email || null,
-    phone_number: formData.phone.replace(/\D/g, "") || null,
-    address: fullAddress,
+    phone_number: formData.phone ? formData.phone.replace(/\D/g, "") : null,
+    address: fullAddress || null,
     secondary_email: formData.secondaryEmail || null,
-    secondary_phone: formData.secondaryPhone.replace(/\D/g, "") || null,
+    secondary_phone: formData.secondaryPhone
+      ? formData.secondaryPhone.replace(/\D/g, "")
+      : null,
     notes: formData.notes || null,
     disable_emails: !formData.enableReminders,
-    payment_types: [formData.paymentMethod],
+    payment_types: formData.paymentMethod ? [formData.paymentMethod] : [],
   };
 };
 

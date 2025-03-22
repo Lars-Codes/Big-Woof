@@ -132,11 +132,6 @@ const AddClientScreen = ({ navigation }: ScreenProps<"AddClient">) => {
       return false;
     }
 
-    if (!formData.phone.trim()) {
-      Alert.alert("Missing Information", "Phone number is required");
-      return false;
-    }
-
     // Validate email if provided
     if (formData.email && !validateEmailField("email", formData.email)) {
       isValid = false;
