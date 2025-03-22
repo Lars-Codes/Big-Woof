@@ -15,7 +15,7 @@ import {
 import { ChevronLeft, Check } from "lucide-react-native";
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../../styles/theme";
 import { ScreenProps } from "../../../types/navigation";
-import { addClient } from "../../../services/clientService";
+import { createClient } from "../../../services/clientService";
 import {
   ClientForm,
   ClientFormData,
@@ -181,7 +181,7 @@ const AddClientScreen = ({ navigation }: ScreenProps<"AddClient">) => {
       // Transform the data for the API
       const clientData = transformClientDataForApi(formData);
 
-      const response = await addClient(clientData);
+      const response = await createClient(clientData);
 
       if (response && response.success) {
         // Client was successfully added

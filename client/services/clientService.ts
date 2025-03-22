@@ -101,8 +101,8 @@ export const updateClient = async (
   }
 };
 
-// Function to add a new client
-export const addClient = async (clientData: any): Promise<any> => {
+// Function to create new client
+export const createClient = async (clientData: any): Promise<any> => {
   if (USE_FALLBACK_DATA) {
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -110,7 +110,7 @@ export const addClient = async (clientData: any): Promise<any> => {
     // For development, return a success response with a new ID
     return {
       success: true,
-      message: "Client added successfully",
+      message: "Client created successfully",
       client: {
         ...clientData,
         id: Math.floor(Math.random() * 10000) + 1000,
@@ -119,10 +119,10 @@ export const addClient = async (clientData: any): Promise<any> => {
   }
 
   try {
-    const response = await axios.post(`${API_URL}/addClient`, clientData);
+    const response = await axios.post(`${API_URL}/createClient`, clientData);
     return response.data;
   } catch (error) {
-    console.error("Error adding client:", error);
+    console.error("Error creating client:", error);
     throw error;
   }
 };
