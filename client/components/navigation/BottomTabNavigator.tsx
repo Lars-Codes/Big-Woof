@@ -5,7 +5,7 @@ import { HomeIcon, CalendarIcon, Users, Scissors } from "lucide-react-native";
 // Import actual screens
 import HomeScreen from "../screens/HomeScreen";
 import AppointmentsScreen from "../screens/AppointmentsScreen";
-import ClientsScreen from "../screens/ClientsScreen";
+import ClientsScreen from "../screens/Clients/ClientsScreen";
 import ServicesScreen from "../screens/ServicesScreen";
 
 // Define the param list for the bottom tab navigator

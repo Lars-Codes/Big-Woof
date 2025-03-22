@@ -20,13 +20,13 @@ import {
   ChevronLeft,
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
-import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../styles/theme";
-import Card from "../ui/Card";
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../../styles/theme";
+import Card from "../../ui/Card";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "@/types/navigation";
-import ScreenHeader from "../ui/ScreenHeader";
-import AddButton from "../ui/AddButton";
-import { useClients, ApiClient } from "../../hooks/useClients";
+import ScreenHeader from "../../ui/ScreenHeader";
+import AddButton from "../../ui/AddButton";
+import { useClients, ApiClient } from "../../../hooks/useClients";
 
 // Define the type for the navigation prop
 type ClientsScreenNavigationProp = StackNavigationProp<
@@ -194,18 +194,6 @@ const ClientsScreen: React.FC = () => {
           }
         }}
       >
-        {isSelectionMode && (
-          <View
-            style={[
-              styles.checkboxContainer,
-              selectedClientIds.includes(client.id) && styles.checkboxSelected,
-            ]}
-          >
-            {selectedClientIds.includes(client.id) && (
-              <Check color={COLORS.white} size={16} />
-            )}
-          </View>
-        )}
         <View style={styles.clientInfo}>
           <Text
             style={styles.clientName}
@@ -218,6 +206,18 @@ const ClientsScreen: React.FC = () => {
               : " No visits yet"}
           </Text>
         </View>
+        {isSelectionMode && (
+          <View
+            style={[
+              styles.checkboxContainer,
+              selectedClientIds.includes(client.id) && styles.checkboxSelected,
+            ]}
+          >
+            {selectedClientIds.includes(client.id) && (
+              <Check color={COLORS.white} size={16} />
+            )}
+          </View>
+        )}
         {!isSelectionMode && <ChevronRight color={COLORS.primary} size={24} />}
       </TouchableOpacity>
     </Card>
@@ -342,12 +342,6 @@ const ClientsScreen: React.FC = () => {
           <View style={styles.headerDefault}>
             <Text style={styles.headerTitle}>Clients</Text>
             <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => setIsSelectionMode(true)}
-              >
-                <Check color={COLORS.primary} size={24} />
-              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => setIsSearchActive(true)}
@@ -647,7 +641,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: COLORS.primary,
-    marginRight: SPACING.md,
     justifyContent: "center",
     alignItems: "center",
   },

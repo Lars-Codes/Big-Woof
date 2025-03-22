@@ -135,12 +135,27 @@ export const useClients = () => {
 
   // Select all clients on current page
   const selectAllClients = () => {
-    if (selectedClientIds.length === clients.length) {
-      // If all are selected, deselect all
-      setSelectedClientIds([]);
+    // Get IDs of all clients currently visible on this page
+    const currentPageClientIds = clients.map((client) => client.id);
+    
+    // Check if all clients on this page are already selected
+    const allCurrentPageSelected = currentPageClientIds.every(
+      (id) => selectedClientIds.includes(id)
+    );
+    
+    if (allCurrentPageSelected) {
+      // If all clients on this page are selected, deselect only them
+      // while preserving selections from other pages
+      setSelectedClientIds(
+        selectedClientIds.filter((id) => !currentPageClientIds.includes(id))
+      );
     } else {
-      // Otherwise, select all
-      setSelectedClientIds(clients.map((client) => client.id));
+      // Otherwise, add all clients from this page to the existing selection
+      // using Set to avoid duplicates
+      const updatedSelection = [
+        ...new Set([...selectedClientIds, ...currentPageClientIds]),
+      ];
+      setSelectedClientIds(updatedSelection);
     }
   };
 

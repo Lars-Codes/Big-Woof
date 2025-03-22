@@ -7,11 +7,11 @@ import BottomTabNavigator from './BottomTabNavigator';
 
 // Import screens
 import AddAppointmentScreen from '../screens/AddAppointmentScreen';
-import AddClientScreen from '../screens/AddClientScreen';
+import AddClientScreen from '../screens/Clients/AddClientScreen';
 import AddPetScreen from '../screens/AddPetScreen';
 import AddServiceScreen from '../screens/AddServiceScreen';
-import ClientDetailsScreen from '../screens/ClientDetailsScreen';
-import EditClientScreen from '../screens/EditClientScreen';
+import ClientDetailsScreen from '../screens/Clients/ClientDetailsScreen';
+import EditClientScreen from '../screens/Clients/EditClientScreen';
 import { RootStackParamList } from '../../types/navigation';
 
 // Import Header

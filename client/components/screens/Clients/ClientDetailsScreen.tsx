@@ -11,13 +11,13 @@ import {
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types/navigation';
-import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../styles/theme';
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../../styles/theme';
 import { Phone, Mail, MapPin, Edit, ChevronRight, ArrowLeft, Trash2 } from 'lucide-react-native';
-import Card from '../ui/Card';
-import ScreenHeader from '../ui/ScreenHeader';
-import { useClientDetails } from '../../hooks/useClientDetails';
-import { deleteClients } from '../../services/clientService';
-import { PetDetails } from '../../types/client';
+import Card from '../../ui/Card';
+import ScreenHeader from '../../ui/ScreenHeader';
+import { useClientDetails } from '../../../hooks/useClientDetails';
+import { deleteClients } from '../../../services/clientService';
+import { PetDetails } from '../../../types/client';
 
 type ClientDetailsRouteProp = RouteProp<RootStackParamList, 'ClientDetails'>;
 type ClientDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'ClientDetails'>;
