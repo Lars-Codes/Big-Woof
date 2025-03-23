@@ -23,7 +23,7 @@ import {
   validatePhone,
   formatPhoneNumber,
   transformClientDataForApi,
-} from "./ClientForm";
+} from "../../forms/ClientForm";
 
 const AddClientScreen = ({ navigation }: ScreenProps<"AddClient">) => {
   // Form state

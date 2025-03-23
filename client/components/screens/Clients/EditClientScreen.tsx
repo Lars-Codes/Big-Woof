@@ -28,7 +28,7 @@ import {
   formatPhoneNumber,
   parseAddress,
   transformClientDataForApi,
-} from "./ClientForm";
+} from "../../forms/ClientForm";
 
 // Define the types for navigation and route props
 type EditClientRouteProp = RouteProp<RootStackParamList, "EditClient">;

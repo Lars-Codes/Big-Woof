@@ -1,4 +1,4 @@
-import { ClientFormData } from "@/components/screens/Clients/ClientForm";
+import { ClientFormData } from "@/components/forms/ClientForm";
 
 // Format phone number (e.g., for display)
 export const formatPhoneNumber = (phone: string) => {

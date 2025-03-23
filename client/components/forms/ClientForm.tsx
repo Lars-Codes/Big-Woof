@@ -14,8 +14,8 @@ import {
   ScrollView,
 } from "react-native";
 import { ChevronDown, X, Search } from "lucide-react-native";
-import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../../styles/theme";
-import Card from "../../ui/Card";
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../styles/theme";
+import Card from "../ui/Card";
 
 // US States array for dropdown
 export const US_STATES = [
