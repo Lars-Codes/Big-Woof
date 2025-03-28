@@ -1,6 +1,13 @@
-class Emergency_Contact: 
+from models.db import db
+from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+from flask import jsonify, current_app
+
+class Emergency_Contact(db.Model): 
     
-    id = None 
+    id = db.Column(db.Integer, primary_key = True) 
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
+     
     user_type_id = None 
     relationship = None 
     fname = None 

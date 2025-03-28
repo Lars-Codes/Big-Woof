@@ -12,13 +12,14 @@ SCHEMA_SQL = """
     CREATE TABLE IF NOT EXISTS contact_info (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         user_type_id INTEGER,
-        fname varchar(10) NOT NULL,
-        lname varchar(10) NOT NULL,
+        fname varchar(50) NOT NULL,
+        lname varchar(50) NOT NULL,
         primary_phone varchar(10),
         secondary_phone varchar(10),
         email varchar(320),
         street_address varchar(255),
         city varchar(50),
+        state varchar(30)
         zip varchar(10),
         FOREIGN KEY (user_type_id) REFERENCES user_type(id) ON DELETE CASCADE
     );

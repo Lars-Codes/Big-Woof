@@ -17,16 +17,22 @@ class Client(db.Model):
     email = None 
     phone_number = None 
     street_address = None 
+    city = None 
+    state = None 
+    zip = None 
     secondary_phone = None 
     
     
     # Add more details later 
-    def __init__(self, fname, lname, user_type_id, email=None, phone_number=None, address=None, secondary_phone=None, notes=None, num_pets=0):
+    def __init__(self, fname, lname, user_type_id, email=None, phone_number=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0):
         self.fname = fname
         self.lname = lname  
         self.email = email 
         self.phone_number = phone_number
-        self.street_address = address
+        self.street_address = street_address
+        self.city = city 
+        self.state = state 
+        self.zip = zip 
         self.secondary_phone = secondary_phone
         self.notes = notes 
         self.num_pets = num_pets 
