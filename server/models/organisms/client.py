@@ -1,34 +1,36 @@
-"""
-    TODO: 
-    - Send messages CRUD 
-    -Time types table 
-    - Add document type table 
-"""
+from models.db import db
+from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+from flask import jsonify, current_app
 
-class Client:
-    
-    id = None 
+class Client(db.Model):
+    __tablename__ = 'clients'
+     
+    id = db.Column(db.Integer, primary_key = True) 
+    contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
+    num_pets = db.Column(db.Integer) 
+    contact_info = db.relationship('contact_info', backref='Client', lazy='select')
+    notes = db.Column(db.Text)
+    user_type_id = None 
     fname = None 
-    lname = None
+    lname = None 
     email = None 
     phone_number = None 
-    address = None 
-    secondary_email = None 
+    street_address = None 
     secondary_phone = None 
-    notes = None 
-    disable_emails = False 
+    
     
     # Add more details later 
-    def __init__(self, fname, lname, email=None, phone_number=None, address=None, secondary_email=None, secondary_phone=None, notes=None):
+    def __init__(self, fname, lname, user_type_id, email=None, phone_number=None, address=None, secondary_phone=None, notes=None, num_pets=0):
         self.fname = fname
         self.lname = lname  
         self.email = email 
         self.phone_number = phone_number
-        self.address = address
-        self.secondary_email = secondary_email
+        self.street_address = address
         self.secondary_phone = secondary_phone
         self.notes = notes 
-        self.disable_emails = False 
+        self.num_pets = num_pets 
+        self.user_type_id = user_type_id
     
     @classmethod 
     def create_client(cls, fname, lname, email=None, phone_number=None, address=None, secondary_email=None, secondary_phone=None, notes = None):
