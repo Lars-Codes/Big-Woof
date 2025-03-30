@@ -24,7 +24,7 @@ class Client(db.Model):
     
     
     # Add more details later 
-    def __init__(self, fname, lname, user_type_id, email=None, phone_number=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0):
+    def __init__(self, fname, lname, user_type_id, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0):
         self.fname = fname
         self.lname = lname  
         self.email = email 
@@ -39,7 +39,7 @@ class Client(db.Model):
         self.user_type_id = user_type_id
     
     @classmethod 
-    def create_client(cls, fname, lname, email=None, phone_number=None, address=None, secondary_email=None, secondary_phone=None, notes = None):
+    def create_client(cls, fname, lname, phone_number, email=None, address=None, secondary_email=None, secondary_phone=None, notes = None):
         client = cls(
             fname, 
             lname, 

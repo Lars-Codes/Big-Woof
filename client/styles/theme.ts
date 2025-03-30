@@ -1,6 +1,6 @@
 // This file centralizes the theme colors for your app
 export const COLORS = {
-  primary: "#503D42", // Brown/Gray - Main color
+  primary: "#8CAC2C", // Brown/Gray - Main color
   secondary: "#748B75", // Sage Green - Secondary color
   background: "#F5FBEF", // Light Mint - Background color
   white: "#FFFFFF",
