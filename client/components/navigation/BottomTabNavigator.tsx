@@ -7,6 +7,7 @@ import HomeScreen from "../screens/HomeScreen";
 import AppointmentsScreen from "../screens/AppointmentsScreen";
 import ClientsScreen from "../screens/Clients/ClientsScreen";
 import ServicesScreen from "../screens/ServicesScreen";
+import { COLORS, SPACING } from "../../styles/theme";
 
 // Define the param list for the bottom tab navigator
 export type BottomTabParamList = {
@@ -30,18 +31,18 @@ export default function BottomTabNavigator() {
           if (route.name === "Services") Icon = Scissors;
           return <Icon color={color} size={size} />;
         },
-        tabBarActiveTintColor: "#503D42", // Active icon color
-        tabBarInactiveTintColor: "#748B75", // Inactive icon color
+        tabBarActiveTintColor: COLORS.primary, // Active icon color
+        tabBarInactiveTintColor: COLORS.secondary, // Inactive icon color
         tabBarStyle: {
-          backgroundColor: "#F5FBEF",
-          height: 84,
-          paddingBottom: 8,
-          paddingTop: 8 ,
+          backgroundColor: COLORS.background,
+          height: SPACING.xxl,
+          paddingBottom: SPACING.sm + 60,
+          paddingTop: SPACING.sm,
         }, // Custom styling
         headerStyle: {
-          backgroundColor: "#F5FBEF",
+          backgroundColor: COLORS.background,
         },
-        headerTintColor: "#503D42",
+        headerTintColor: COLORS.primary,
         headerTitleStyle: {
           fontWeight: "bold",
         },
