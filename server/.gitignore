@@ -1,6 +1,7 @@
 myenv/
 migrations/
-__pycache__
+__pycache__/
+models/__pycache__/
 
 *.db
 
