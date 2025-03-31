@@ -1,59 +1,39 @@
 from models.db import db
+from models.contact_info import ContactInfo 
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
+from sqlalchemy.orm import joinedload
 
 class Client(db.Model):
     __tablename__ = 'clients'
      
     id = db.Column(db.Integer, primary_key = True) 
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
+    fname = db.Column(db.String(50), nullable = False)
+    lname = db.Column(db.String(50), nullable = False)
     num_pets = db.Column(db.Integer) 
-    contact_info = db.relationship('contact_info', backref='Client', lazy='select')
     notes = db.Column(db.Text)
     favorite = db.Column(db.Integer)
-    user_type_id = None 
-    fname = None 
-    lname = None 
-    email = None 
-    phone_number = None 
-    street_address = None 
-    city = None 
-    state = None 
-    zip = None 
-    secondary_phone = None 
     
+    contact_info = db.relationship('ContactInfo', lazy='select')
+
+    __table_args__ = (
+        db.Index('idx_lname_fname_favorite', 'lname', 'fname', 'favorite'),
+    ) 
     
     # Add more details later 
-    def __init__(self, fname, lname, user_type_id, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0, favorite=0):
+    def __init__(self, fname, lname, contact_info, notes=None, num_pets=0, favorite=0):
         self.fname = fname
-        self.lname = lname  
-        self.email = email 
-        self.phone_number = phone_number
-        self.street_address = street_address
-        self.city = city 
-        self.state = state 
-        self.zip = zip 
-        self.secondary_phone = secondary_phone
+        self.lname = lname
+        self.contact_info = contact_info
         self.notes = notes 
         self.num_pets = num_pets 
-        self.user_type_id = user_type_id
-        self.favorite = favorite 
+        self.favorite = favorite
     
     @classmethod 
-    def create_client(cls, fname, lname, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes = None):
-        client = cls(
-            fname, 
-            lname, 
-            phone_number, 
-            email,
-            street_address,
-            city, 
-            state, 
-            zip, 
-            secondary_phone, 
-            notes
-        )
-        
+    def create_client(cls, fname, lname, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes = None, favorite=0):        
+        contact = ContactInfo(primary_phone=phone_number, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
+        client = cls(fname=fname, lname=lname, contact_info=contact, notes=notes, favorite=favorite)
         try: 
             db.session.add(client)
             db.session.commit()
@@ -67,8 +47,14 @@ class Client(db.Model):
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to create client. Database error"}),
+                jsonify({"success": 0, "error": "Failed to create client. Database error"}), 500,
             )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client. Unknown error"}), 500,
+            )  
         
     
     # ON PAGE LOAD 
@@ -96,33 +82,35 @@ class Client(db.Model):
     @classmethod 
     def get_all_clients(cls, page, page_size, searchbar_chars=""): 
         try: 
-            query = cls.query
-
-            # If search criteria, filter fname and lname fields by search criteria 
-            if searchbar_chars != "":
-                query = query.filter(cls.fname.ilike(searchbar_chars))
-                query = query.filter(cls.lname.ilike(searchbar_chars))
-                
-            query = query.filter(cls.favorite == False)  # Only non-favorite clients
-            non_favorites = query
-            favorites = cls.query.filter(cls.favorite == True) # Only favorite clients 
-
-            combined_query = non_favorites.union(favorites) # Combine to queries
-            combined_query = combined_query.order_by(cls.fname.asc()) # Order alphabetically 
             
-            # Paginate query 
+            query = db.session.query(Client).options(
+                joinedload(Client.contact_info).load_only(ContactInfo.primary_phone)  # Corrected this line
+            )
+
+            # Apply search criteria if provided
+            if searchbar_chars:
+                search_pattern = f"%{searchbar_chars}%"
+                query = query.filter(
+                    (Client.fname.ilike(search_pattern)) | 
+                    (Client.lname.ilike(search_pattern))
+                )
+
+            # Order results alphabetically
+            query = query.order_by(Client.fname.asc())
+
+            # Paginate query
             pagination = query.paginate(page=page, per_page=page_size, error_out=False)
-            clients = pagination.items 
+            clients = pagination.items
             
             # Send up data 
             clients_data = [
                 {
-                    "client_id": clients.id, 
-                    "fname": clients.fname, 
-                    "lname": clients.lname, 
-                    "num_pets": clients.num_pets if clients.num_pets is not None else "", 
-                    "phone_number": clients.phone_number if clients.phone_number is not None else "", 
-                    "favorite": clients.favorite 
+                    "client_id": client.id, 
+                    "fname": client.fname,
+                    "lname": client.lname,
+                    "num_pets": client.num_pets, 
+                    "phone_number": client.contact_info.primary_phone, 
+                    "favorite": client.favorite,
                 }
                 for client in clients 
             ]
@@ -130,14 +118,22 @@ class Client(db.Model):
             return jsonify({
                 "success": 1, 
                 "data": clients_data, 
+                "total_pages": pagination.pages,
+                "current_page": pagination.page
             }) 
 
         except SQLAlchemyError as e: 
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to get all clients. Database error"}),
-            )     
+                jsonify({"success": 0, "error": "Failed to get all clients. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all clients. Unknown error"}), 500, 
+            )    
     
     @classmethod 
     def delete_clients(cls, client_id_array):
@@ -151,7 +147,7 @@ class Client(db.Model):
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to delete client(s). Database error"}),
+                jsonify({"success": 0, "error": "Failed to delete client(s). Database error"}), 500,
             )  
         
     @classmethod 

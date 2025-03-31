@@ -1,5 +1,5 @@
 1. Create a .env file and paste: 
-SQLALCHEMY_DATABASE_URI=sqlite:////<absolute/path/to/database>
+SQLALCHEMY_DATABASE_URI=sqlite:////C:\Users\19292\Documents\BW\Big-Woof\thewoofster.db
 
 2. Initialize database 
 flask db init 

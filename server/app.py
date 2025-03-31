@@ -34,6 +34,8 @@ database_file = os.path.join(basedir, os.environ.get('SQLALCHEMY_DATABASE_URI'))
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
+
 db.init_app(app)
 
 migrate = Migrate(app, db)
@@ -44,4 +46,4 @@ app.register_blueprint(client_bp)
 # TODO: ON APPLICATION DOWNLOAD SOME DATA SHOULD BE PRE-FILLED IN THE PRE-FILLED TABLES 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

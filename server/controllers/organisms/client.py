@@ -20,9 +20,10 @@ def getAllClients():
     
 @client_bp.route('/createClient', methods=["POST"])
 def createClient():
-    fname = request.form['fname']
-    lname = request.form['lname']
-    phone_number = request.form['phone_number']
+
+    fname = request.form.get('fname', '')
+    lname = request.form.get('lname', '')
+    phone_number = request.form.get('phone_number', '')
     email = request.form.get("email", None)
     street_address = request.form.get("street_address", None)
     city = request.form.get("city", None)
@@ -30,9 +31,9 @@ def createClient():
     zip = request.form.get("zip", None)
     secondary_phone = request.form.get("secondary_phone", None)
     notes = request.form.get("notes", None)
-    
+    favorite = int(request.form.get("favorite", 0))  # Default to 0 if 'favorite' is not provided
     try: 
-        res = Client.create_client(fname, lname, phone_number, email, street_address, city, state, zip, secondary_phone, notes)
+        res = Client.create_client(fname, lname, phone_number, email, street_address, city, state, zip, secondary_phone, notes, favorite)
         return res 
     except Exception as e:
         print(f"Unexpected error from /createClient: {e}")
