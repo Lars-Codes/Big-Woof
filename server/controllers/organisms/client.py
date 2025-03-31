@@ -21,9 +21,9 @@ def getAllClients():
 @client_bp.route('/createClient', methods=["POST"])
 def createClient():
 
-    fname = request.form.get('fname', '')
-    lname = request.form.get('lname', '')
-    phone_number = request.form.get('phone_number', '')
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    phone_number = request.form.get('phone_number')
     email = request.form.get("email", None)
     street_address = request.form.get("street_address", None)
     city = request.form.get("city", None)
@@ -40,10 +40,10 @@ def createClient():
         return res
     
 
-@client_bp.route('/deleteClient', methods=["POST"])
+@client_bp.route('/deleteClient', methods=["DELETE"])
 def deleteClients():
-    data = request.get_json()
-    client_arr = data['clientid_arr'] 
+    client_arr = request.get_json().get('clientid_arr', [])
+    print(client_arr)
     try: 
         res = Client.delete_clients(client_arr)
         return res 
