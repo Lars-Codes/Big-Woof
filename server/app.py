@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, Response, url_for
 from models.db import db
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os 
@@ -22,7 +23,8 @@ database_uri = os.environ.get('SQLALCHEMY_DATABASE_URI')
 basedir = os.path.abspath(os.path.dirname(__file__))
 database_file = os.path.join(basedir, os.environ.get('SQLALCHEMY_DATABASE_URI'))
 
-database_uri = 'sqlite:///' + database_file
+# database_uri = 'sqlite:///' + database_file
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
