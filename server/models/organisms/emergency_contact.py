@@ -1,55 +1,73 @@
 from models.db import db
+# from models.organisms.client import Client 
+# from models.prefilled_tables.user_type import UserType 
+from models.contact_info import ContactInfo
 from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from flask import jsonify, current_app
+from sqlalchemy.exc import SQLAlchemyError
 
 class EmergencyContact(db.Model): 
     
     id = db.Column(db.Integer, primary_key = True) 
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
-     
-    user_type_id = None 
-    relationship = None 
-    fname = None 
-    lname = None 
-    primary_phone = None 
-    primary_email = None 
-    secondary_phone = None 
-    address = None 
-    client_id = None 
-    employee_id = None 
+    fname = db.Column(db.String(50), nullable = False)
+    lname = db.Column(db.String(50), nullable = False)
+    relationship = db.Column(db.String(50), nullable=False)
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=True)
     
-    def __init__(self, user_type_id, relationship, fname, lname, primary_phone=None, primary_email=None, secondary_phone=None, address=None, client_id=None, employee_id=None):
-        self.user_type_id = user_type_id
-        self.relationship = relationship
-        self.fname = fname
+    contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
+
+    contact_info = db.relationship('ContactInfo', lazy='select')
+    
+    __table_args__ = (
+        db.Index('idx_user', 'client_id'),
+    ) 
+    
+    def __init__(self, fname, lname, contact_info, user_type, relationship=None, client_id=None):
+        self.fname = fname 
         self.lname = lname 
-        self.primary_phone = primary_phone
-        self.primary_email = primary_email
-        self.secondary_phone = secondary_phone
-        self.address = address
-        
-        if (client_id == None and employee_id == None) or (primary_email == None and primary_phone == None): 
-            # throw error 
-            pass 
-        else: 
-            self.client_id = client_id
-            self.employee_id = employee_id
+        self.contact_info = contact_info
+        self.user_type = user_type
+        self.client_id = client_id
+        self.relationship = relationship
     
+
     @classmethod 
-    def add_emergency_contact(cls, user_type_id, relationship, fname, lname, primary_phone, primary_email, secondary_phone=None, address=None, client_id=None, employee_id=None):
-        emergency_contact = cls(
-            user_type_id, 
-            relationship, 
-            fname, 
-            lname, 
-            primary_phone, 
-            primary_email, 
-            secondary_phone, 
-            address, 
-            client_id, 
-            employee_id
-        ) 
+    def create_emergency_contact(cls, relationship, fname, lname, primary_phone, email=None, secondary_phone=None, street_address=None, city=None, state=None, zip=None, client_id=None):
+        try: 
+            contact = ContactInfo(primary_phone=primary_phone, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
+            
+            print("CLIENT ID: ", client_id)
+            emergency_contact = cls(
+                fname, 
+                lname, 
+                contact, 
+                relationship, 
+                client_id
+            )
+            
+            db.session.add(emergency_contact)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Client created succesfully",
+                "emergency_contact_id": emergency_contact.id
+            })
+            
+        
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client emergency contact. Database error"}), 500,
+            )    
+    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client emergency contact. Unknown error"}), 500, 
+            )  
         
     @classmethod 
     def get_emergency_contacts(cls, user_type_id, id): 

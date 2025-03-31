@@ -6,12 +6,13 @@ import os
 from flask_migrate import Migrate
 
 from models.db import db
-from models.organisms.client import Client
-from models.contact_info import ContactInfo
-from models.prefilled_tables.user_type import UserType
-from models.organisms.emergency_contact import EmergencyContact
+# from models.organisms.client import Client
+# from models.contact_info import ContactInfo
+# from models.prefilled_tables.user_type import UserType
+# from models.organisms.emergency_contact import EmergencyContact
 
 from controllers.organisms.client import client_bp
+from controllers.organisms.emergency_contact import emergency_contact_bp
 
 app = Flask(__name__)
 
@@ -41,7 +42,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 app.register_blueprint(client_bp)
-
+app.register_blueprint(emergency_contact_bp)
 
 # TODO: ON APPLICATION DOWNLOAD SOME DATA SHOULD BE PRE-FILLED IN THE PRE-FILLED TABLES 
 

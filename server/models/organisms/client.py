@@ -1,5 +1,6 @@
 from models.db import db
 from models.contact_info import ContactInfo 
+from models.organisms.emergency_contact import EmergencyContact
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
 from sqlalchemy.orm import joinedload
@@ -9,6 +10,7 @@ class Client(db.Model):
      
     id = db.Column(db.Integer, primary_key = True) 
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
+    emergency_contact_id = db.Column(db.Integer, db.ForeignKey('emergency_contact.id'), nullable=True)
     fname = db.Column(db.String(50), nullable = False)
     lname = db.Column(db.String(50), nullable = False)
     num_pets = db.Column(db.Integer) 
@@ -16,6 +18,8 @@ class Client(db.Model):
     favorite = db.Column(db.Integer)
     
     contact_info = db.relationship('ContactInfo', lazy='select')
+    emergency_contact = db.relationship('EmergencyContact', backref='client', lazy='select', foreign_keys=[EmergencyContact.client_id])
+
 
     __table_args__ = (
         db.Index('idx_lname_fname_favorite', 'lname', 'fname', 'favorite'),
