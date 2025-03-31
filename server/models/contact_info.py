@@ -1,8 +1,4 @@
 from models.db import db
-from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from flask import jsonify, current_app
-
 class ContactInfo(db.Model):
     
     __tablename__ = 'contact_info'

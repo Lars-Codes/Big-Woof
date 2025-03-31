@@ -1,7 +1,6 @@
 from models.db import db
-from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from flask import jsonify, current_app
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
 
 class Client(db.Model):
     __tablename__ = 'clients'
@@ -11,6 +10,7 @@ class Client(db.Model):
     num_pets = db.Column(db.Integer) 
     contact_info = db.relationship('contact_info', backref='Client', lazy='select')
     notes = db.Column(db.Text)
+    favorite = db.Column(db.Integer)
     user_type_id = None 
     fname = None 
     lname = None 
@@ -24,7 +24,7 @@ class Client(db.Model):
     
     
     # Add more details later 
-    def __init__(self, fname, lname, user_type_id, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0):
+    def __init__(self, fname, lname, user_type_id, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes=None, num_pets=0, favorite=0):
         self.fname = fname
         self.lname = lname  
         self.email = email 
@@ -37,6 +37,7 @@ class Client(db.Model):
         self.notes = notes 
         self.num_pets = num_pets 
         self.user_type_id = user_type_id
+        self.favorite = favorite 
     
     @classmethod 
     def create_client(cls, fname, lname, phone_number, email=None, address=None, secondary_email=None, secondary_phone=None, notes = None):
@@ -51,6 +52,7 @@ class Client(db.Model):
             notes
         )
         
+    
     # ON PAGE LOAD 
     @classmethod 
     def get_client_metadata(cls, client_id): 
@@ -72,6 +74,47 @@ class Client(db.Model):
         # return all client document names and document types 
         pass 
     
+    
+    @classmethod 
+    def get_all_clients(cls, page, page_size, searchBarChars=""): 
+        try: 
+            query = cls.query
+
+            # If search criteria, filter fname and lname fields by search criteria 
+            if searchBarChars != "":
+                query = query.filter(cls.fname.ilike(searchBarChars))
+                query = query.filter(cls.lname.ilike(searchBarChars))
+                
+            query = query.filter(cls.favorite == False)  # Only non-favorite clients
+            non_favorites = query
+            favorites = cls.query.filter(cls.favorite == True) # Only favorite clients 
+
+            combined_query = non_favorites.union(favorites) # Combine to queries
+            combined_query = combined_query.order_by(cls.fname.asc()) # Order alphabetically 
+            
+            # Paginate query 
+            pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+            clients = pagination.items 
+            
+            # Send up data 
+            clients_data = [
+                {
+                    "fname": clients.fname, 
+                    "lname": clients.lname, 
+                    "num_pets": clients.num_pets if clients.num_pets is not None else "", 
+                    "phone_number": clients.phone_number if clients.phone_number is not None else "", 
+                    "favorite": clients.favorite 
+                }
+                for client in clients 
+            ]
+            
+            return clients_data 
+
+        except SQLAlchemyError as e: 
+            print(f"Database error: {e}")
+            return jsonify({"error": "Failed to retrieve client data. Database error"}), 500
+        
+        
     @classmethod 
     def update_fname(cls, client_id, newfname): 
         pass 
@@ -105,16 +148,6 @@ class Client(db.Model):
     
     @classmethod 
     def update_notes(cls, client_id, new_notes):
-        pass 
-    
-    @classmethod 
-    def get_all_clients(cls, page, page_size): 
-        # TODO: Pagination? Which data does this pass? 
-        # TODO: Also pass emergency contact information, some pet information, vet info, 
-        # client payment types, client documents, client message opt out, additional costs, preferred payment method, 
-        # additional time, upcoming appointments. Don't send all of the data up at once, just previews of some stuff. 
-        # Can click on pet and stuff for more details, but basically just send text for this. 
-        # Also pass preferred contact method 
         pass 
     
     @classmethod 

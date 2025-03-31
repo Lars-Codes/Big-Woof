@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os 
-from flask_migrate import Migrate
+# from flask_migrate import Migrate
 
 from models.db import db
 from models.organisms.client import Client
