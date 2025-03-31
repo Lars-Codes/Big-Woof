@@ -16,8 +16,12 @@ def handle_preflight():
         return res
     
 load_dotenv()
+
+database_uri = os.environ.get('SQLALCHEMY_DATABASE_URI')
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 database_file = os.path.join(basedir, os.environ.get('SQLALCHEMY_DATABASE_URI'))
+
 database_uri = 'sqlite:///' + database_file
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,7 +30,6 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # TODO: ON APPLICATION DOWNLOAD SOME DATA SHOULD BE PRE-FILLED IN THE PRE-FILLED TABLES 
-
 
 if __name__ == "__main__":
     app.run()
