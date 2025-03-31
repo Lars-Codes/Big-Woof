@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os 
-# from flask_migrate import Migrate
+from flask_migrate import Migrate
 
 from models.db import db
 from models.organisms.client import Client
@@ -11,6 +11,7 @@ from models.contact_info import ContactInfo
 from models.prefilled_tables.user_type import UserType
 from models.organisms.emergency_contact import EmergencyContact
 
+from controllers.organisms.client import client_bp
 
 app = Flask(__name__)
 
@@ -36,6 +37,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 migrate = Migrate(app, db)
+
+app.register_blueprint(client_bp)
+
 
 # TODO: ON APPLICATION DOWNLOAD SOME DATA SHOULD BE PRE-FILLED IN THE PRE-FILLED TABLES 
 

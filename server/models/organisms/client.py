@@ -40,17 +40,34 @@ class Client(db.Model):
         self.favorite = favorite 
     
     @classmethod 
-    def create_client(cls, fname, lname, phone_number, email=None, address=None, secondary_email=None, secondary_phone=None, notes = None):
+    def create_client(cls, fname, lname, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes = None):
         client = cls(
             fname, 
             lname, 
-            email, 
             phone_number, 
-            address, 
-            secondary_email, 
+            email,
+            street_address,
+            city, 
+            state, 
+            zip, 
             secondary_phone, 
             notes
         )
+        
+        try: 
+            db.session.add(client)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Client created succesfully",
+                "client_id": client.id
+            })
+            
+        except SQLAlchemyError as e:
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client. Database error"}),
+            )
         
     
     # ON PAGE LOAD 
@@ -76,14 +93,14 @@ class Client(db.Model):
     
     
     @classmethod 
-    def get_all_clients(cls, page, page_size, searchBarChars=""): 
+    def get_all_clients(cls, page, page_size, searchbar_chars=""): 
         try: 
             query = cls.query
 
             # If search criteria, filter fname and lname fields by search criteria 
-            if searchBarChars != "":
-                query = query.filter(cls.fname.ilike(searchBarChars))
-                query = query.filter(cls.lname.ilike(searchBarChars))
+            if searchbar_chars != "":
+                query = query.filter(cls.fname.ilike(searchbar_chars))
+                query = query.filter(cls.lname.ilike(searchbar_chars))
                 
             query = query.filter(cls.favorite == False)  # Only non-favorite clients
             non_favorites = query
@@ -108,12 +125,16 @@ class Client(db.Model):
                 for client in clients 
             ]
             
-            return clients_data 
+            return jsonify({
+                "success": 1, 
+                "data": clients_data, 
+            }) 
 
         except SQLAlchemyError as e: 
             print(f"Database error: {e}")
-            return jsonify({"error": "Failed to retrieve client data. Database error"}), 500
-        
+            return (
+                [{"success": 0, "error": "Failed to get all clients. Database error"}],
+            )        
         
     @classmethod 
     def update_fname(cls, client_id, newfname): 
