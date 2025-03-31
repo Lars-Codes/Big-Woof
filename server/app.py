@@ -1,10 +1,16 @@
 from flask import Flask, jsonify, request, Response, url_for
-from models.db import db
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os 
 from flask_migrate import Migrate
+
+from models.db import db
+from models.organisms.client import Client
+from models.contact_info import ContactInfo
+from models.prefilled_tables.user_type import UserType
+from models.organisms.emergency_contact import EmergencyContact
+
 
 app = Flask(__name__)
 

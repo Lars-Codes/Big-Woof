@@ -3,7 +3,7 @@ from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from flask import jsonify, current_app
 
-class Emergency_Contact(db.Model): 
+class EmergencyContact(db.Model): 
     
     id = db.Column(db.Integer, primary_key = True) 
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
