@@ -37,3 +37,15 @@ def createClient():
     except Exception as e:
         print(f"Unexpected error from /createClient: {e}")
         return res
+    
+
+@client_bp.route('/deleteClient', methods=["POST"])
+def deleteClients():
+    data = request.get_json()
+    client_arr = data['clientid_arr'] 
+    try: 
+        res = Client.delete_clients(client_arr)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deleteClient: {e}")
+        return res

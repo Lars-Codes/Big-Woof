@@ -64,6 +64,7 @@ class Client(db.Model):
             })
             
         except SQLAlchemyError as e:
+            db.session.rollback()
             print(f"Database error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to create client. Database error"}),
@@ -116,6 +117,7 @@ class Client(db.Model):
             # Send up data 
             clients_data = [
                 {
+                    "client_id": clients.id, 
                     "fname": clients.fname, 
                     "lname": clients.lname, 
                     "num_pets": clients.num_pets if clients.num_pets is not None else "", 
@@ -131,10 +133,26 @@ class Client(db.Model):
             }) 
 
         except SQLAlchemyError as e: 
+            db.session.rollback()
             print(f"Database error: {e}")
             return (
-                [{"success": 0, "error": "Failed to get all clients. Database error"}],
-            )        
+                jsonify({"success": 0, "error": "Failed to get all clients. Database error"}),
+            )     
+    
+    @classmethod 
+    def delete_clients(cls, client_id_array):
+        
+        try: 
+            ids_to_delete = [int(client_id) for client_id in client_id_array]    
+            num_deleted = Client.query.filter(Client.id.in_(ids_to_delete)).delete(synchronize_session=False)
+            db.session.commit()
+            return jsonify({"success": 1, "num_deleted": num_deleted})
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete client(s). Database error"}),
+            )  
         
     @classmethod 
     def update_fname(cls, client_id, newfname): 
@@ -175,9 +193,6 @@ class Client(db.Model):
     def update_vet_information(cls, client_id, fname, lname, primary_phone=None, secondary_phone=None, address=None, email=None):
         pass
     
-    @classmethod 
-    def delete_client(cls, client_id_array):
-        pass 
     
     @classmethod 
     def add_payment_type(cls, client_id, payment_type_id, online_payment_id=None):
