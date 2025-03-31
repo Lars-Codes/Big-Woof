@@ -15,10 +15,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    Create a `.env` file in the root of the client directory with the following content:
 
    ```env
-   API_URL=https://api.example.com
+   API_URL=http://127.0.0.1:5000
    ```
-
-   Replace `https://api.example.com` with the URL of your API.
 
 3. Start the app
 

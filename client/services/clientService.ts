@@ -4,7 +4,7 @@ import { ApiResponse } from "../hooks/useClients";
 import { API_URL } from "@env";
 
 // Flag to use fallback data for development (toggle this as needed)
-const USE_FALLBACK_DATA = true;
+const USE_FALLBACK_DATA = false;
 
 export const getAllClients = async (
   page: number,
@@ -16,9 +16,10 @@ export const getAllClients = async (
     return getPaginatedClients(page, pageSize);
   }
 
+  console.log('API_URL', API_URL + '/getAllClients', page, pageSize);
   try {
     const response = await axios.get(`${API_URL}/getAllClients`, {
-      params: { page, page_size: pageSize },
+      params: { page, page_size: pageSize, searchbar_chars: "" },
     });
     return response.data;
   } catch (error) {
