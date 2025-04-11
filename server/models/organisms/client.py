@@ -22,9 +22,9 @@ class Client(db.Model):
 
 
     __table_args__ = (
-        db.Index('idx_lname_fname_favorite', 'lname', 'fname', 'favorite'),
-    ) 
-    
+        db.Index('idx_lname_fname_favorite', 'lname', 'fname'),
+        db.Index('idx_favorite', 'favorite'),  # separate index for filtering by favorite only
+    )
     # Add more details later 
     def __init__(self, fname, lname, contact_info, notes=None, num_pets=0, favorite=0):
         self.fname = fname
@@ -152,8 +152,47 @@ class Client(db.Model):
             print(f"Database error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to delete client(s). Database error"}), 500,
-            )  
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete client(s). Unknown error"}), 500, 
+            )     
         
+    @classmethod 
+    def get_favorite_clients(cls): 
+        try: 
+            favorite_clients = Client.query.filter_by(favorite=1).all()
+            clients_data = [
+                {
+                    "client_id": client.id, 
+                    "fname": client.fname,
+                    "lname": client.lname,
+                    "num_pets": client.num_pets, 
+                    "phone_number": client.contact_info.primary_phone, 
+                    "favorite": client.favorite,
+                }
+                for client in favorite_clients 
+            ]
+            return jsonify({
+                "success": 1, 
+                "data": clients_data, 
+            }) 
+ 
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get favorited clients. Database error"}), 500,
+            )  
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get favorited clients. Unknown error"}), 500, 
+            )     
+    
     @classmethod 
     def update_fname(cls, client_id, newfname): 
         pass 

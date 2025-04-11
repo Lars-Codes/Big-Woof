@@ -21,7 +21,8 @@ class EmergencyContact(db.Model):
     contact_info = db.relationship('ContactInfo', lazy='select')
     
     __table_args__ = (
-        db.Index('idx_user', 'client_id', 'id'),
+        db.Index('idx_user', 'client_id'),
+        db.Index('idx_user', 'id'),
     ) 
     
     def __init__(self, fname, lname, contact_info, relationship=None, client_id=None, employee_id=None):
@@ -39,9 +40,10 @@ class EmergencyContact(db.Model):
             contact = ContactInfo(primary_phone=primary_phone, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
             
             if id==0:
+                db.session.rollback()
                 return jsonify({
                     "success": 0,
-                    "message": "Client ID or employee ID must be provided user the id key",
+                    "error": "Client ID or employee ID must be provided user the id key",
                 })
             
             
@@ -100,7 +102,7 @@ class EmergencyContact(db.Model):
 
             
             if not emergency_contact_id:
-                return {'success': False, 'error': 'Emergency contact not found'}
+                return {'success': 0, 'error': 'Emergency contact not found'}
 
             # Fields directly in EmergencyContact
             for field in ['relationship', 'fname', 'lname']:
@@ -146,9 +148,10 @@ class EmergencyContact(db.Model):
 
 
             if not emergency_contact:
+                db.session.rollback()
                 return jsonify({
                     "success": 0, 
-                    "message": "Emergency contact not found for specified user ID and emergency contact ID",
+                    "error": "Emergency contact not found for specified user ID and emergency contact ID",
                 })
                 
             db.session.delete(emergency_contact)
