@@ -62,3 +62,15 @@ def getFavoriteClients():
     except Exception as e: 
         print(f"Unexpected error from /getFavoriteClients: {e}")
         return res
+    
+    
+@client_bp.route('/getClientMetadata', methods=['GET'])
+def getClientMetadata():
+    try: 
+        client_id = request.form.get("client_id")
+        res = Client.get_client_metadata(client_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getFavoriteClients: {e}")
+        return res
+        

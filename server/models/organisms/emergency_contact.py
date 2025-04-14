@@ -9,6 +9,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 class EmergencyContact(db.Model): 
     
+    __tablename__ = "emergency_contact"
+    
     id = db.Column(db.Integer, primary_key = True) 
     fname = db.Column(db.String(50), nullable = False)
     lname = db.Column(db.String(50), nullable = False)
@@ -21,7 +23,7 @@ class EmergencyContact(db.Model):
     contact_info = db.relationship('ContactInfo', lazy='select')
     
     __table_args__ = (
-        db.Index('idx_user', 'client_id'),
+        db.Index('idx_client', 'client_id'),
         db.Index('idx_user', 'id'),
     ) 
     
@@ -69,7 +71,7 @@ class EmergencyContact(db.Model):
             db.session.commit()
             return jsonify({
                 "success": 1, 
-                "message": "Client created succesfully",
+                "message": "Client emergency contact created succesfully",
                 "emergency_contact_id": emergency_contact.id
             })
             

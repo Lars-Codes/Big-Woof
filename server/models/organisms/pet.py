@@ -1,24 +1,30 @@
-"""
-    TODO: 
-    - breed class
-"""
+from models.db import db
 
-class Pet: 
+class Pet(db.Model): 
+    __tablename__ = "pets"
     
-    id = None 
-    client_id = None 
-    name = None 
-    age = None 
-    breed = None 
-    size_tier = None 
-    notes = None 
+    id = db.Column(db.Integer, primary_key = True)  
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False) 
+    name = db.Column(db.String(50), nullable = False) 
+    age = db.Column(db.Integer, nullable = True) 
+    deceased = db.Column(db.Integer, nullable = True) 
     
-    def __init__(self, client_id, name, age=None, breed=None, size_tier=None, notes=None):
+    breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
+    size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
+    
+    notes = db.Column(db.Text, nullable = True) 
+    
+    breed = db.relationship('Breed', backref='pets', lazy='select')
+    size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
+
+    
+    def __init__(self, client_id, name, deceased=None, age=None, breed_id=None, size_tier_id=None, notes=None):
         self.client_id = client_id
         self.name = name 
         self.age = age 
-        self.breed = breed 
-        self.size_tier = size_tier
+        self.deceased = deceased
+        self.breed_id = breed_id 
+        self.size_tier_id = size_tier_id
         self.notes = notes 
     
     @classmethod 
@@ -128,9 +134,9 @@ class Pet:
     def add_document(cls, client_id, pet_id, document_name, document_type, document):
         pass 
     
-    @classmethod 
-    def deceased(cls, pet_id, deceased=False):
-        pass
+    # @classmethod 
+    # def deceased(cls, pet_id, deceased=False):
+    #     pass
     
     @classmethod
     def get_pet_document(pet_id, document_id):

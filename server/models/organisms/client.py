@@ -1,6 +1,7 @@
 from models.db import db
 from models.contact_info import ContactInfo 
-from models.organisms.emergency_contact import EmergencyContact
+# from models.organisms.emergency_contact import EmergencyContact
+# from models.organisms.pet import Pet 
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
 from sqlalchemy.orm import joinedload
@@ -10,7 +11,7 @@ class Client(db.Model):
      
     id = db.Column(db.Integer, primary_key = True) 
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
-    emergency_contact_id = db.Column(db.Integer, db.ForeignKey('emergency_contact.id'), nullable=True)
+    # emergency_contact_id = db.Column(db.Integer, db.ForeignKey('emergency_contact.id'), nullable=True)
     fname = db.Column(db.String(50), nullable = False)
     lname = db.Column(db.String(50), nullable = False)
     num_pets = db.Column(db.Integer) 
@@ -18,10 +19,12 @@ class Client(db.Model):
     favorite = db.Column(db.Integer)
     
     contact_info = db.relationship('ContactInfo', lazy='select')
-    emergency_contact = db.relationship('EmergencyContact', backref='client', lazy='select', foreign_keys=[EmergencyContact.client_id])
-
+    emergency_contacts = db.relationship('EmergencyContact', backref='client', lazy='select', foreign_keys='EmergencyContact.client_id')
+    pets = db.relationship('Pet', backref='client', lazy='select', foreign_keys='Pet.client_id')
+    vet = db.relationship('Vet', uselist=False, backref='client', lazy='select', foreign_keys='Vet.client_id')
 
     __table_args__ = (
+        db.Index('idx_client_id', 'id'),
         db.Index('idx_lname_fname_favorite', 'lname', 'fname'),
         db.Index('idx_favorite', 'favorite'),  # separate index for filtering by favorite only
     )
@@ -64,9 +67,95 @@ class Client(db.Model):
     # ON PAGE LOAD 
     @classmethod 
     def get_client_metadata(cls, client_id): 
-        # Return contact info and notes, emergency contact data, pet metadata 
-        pass 
-    
+        try: 
+            # Return contact info and notes, emergency contact data, pet metadata 
+            client = Client.query.options(
+                joinedload(Client.vet),
+                joinedload(Client.contact_info),
+                joinedload(Client.emergency_contacts),
+                joinedload(Client.pets)
+            ).filter_by(id=client_id).first()
+            
+            clients_data = {
+                "client_data": {
+                    "client_id": client.id, 
+                    "fname": client.fname,
+                    "lname": client.lname,
+                    "num_pets": client.num_pets, 
+                    "favorite": client.favorite,
+                    "notes": client.notes, 
+                }, 
+                "client_contact": {
+                    "primary_phone": client.contact_info.primary_phone, 
+                    "secondary_phone": client.contact_info.secondary_phone if client.contact_info.secondary_phone else "",
+                    "street_address":  client.contact_info.street_address if client.contact_info.street_address else "", 
+                    "city": client.contact_info.city if client.contact_info.city else "", 
+                    "state": client.contact_info.state if client.contact_info.state else "", 
+                    "zip": client.contact_info.zip if client.contact_info.zip else "", 
+                    "email": client.contact_info.email if client.contact_info.email else "",
+                },
+                "client_vet": {
+                    "fname": client.vet.fname if client.vet else "",
+                    "lname": client.vet.lname if client.vet else "", 
+                    "notes": client.vet.notes if client.vet else "",
+                    "primary_phone": client.vet.primary_phone if client.vet else "", 
+                    "secondary_phone": client.vet.secondary_phone if client.vet else "",
+                    "street_address": client.vet.street_address if client.vet else "",
+                    "city": client.vet.city if client.vet else "",
+                    "state": client.vet.state if client.vet else "",
+                    "zip": client.vet.zip if client.vet else "",
+                    "email": client.vet.email if client.vet else "",
+                },
+                "emergency_contacts": [], 
+                "pets": []
+            }
+            for ec in client.emergency_contacts:
+                ec_info = {
+                    "emergency_contact_id": ec.id,
+                    "fname": ec.fname,
+                    "lname": ec.lname,
+                    "relationship": ec.relationship,
+                    "primary_phone": ec.contact_info.primary_phone, 
+                    "secondary_phone": ec.contact_info.secondary_phone if ec.contact_info.secondary_phone else "", 
+                    "street_address": ec.contact_info.street_address if ec.contact_info.street_address else "", 
+                    "city": ec.contact_info.city if ec.contact_info.city else "", 
+                    "state": ec.contact_info.state if ec.contact_info.state else "", 
+                    "zip": ec.contact_info.zip if ec.contact_info.zip else "", 
+                    "email": ec.contact_info.email if ec.contact_info.email else "",
+                }
+                clients_data["emergency_contacts"].append(ec_info)
+            
+            for p in client.pets:
+                pet_info = {
+                    "pet_id": p.id, 
+                    "name": p.name, 
+                    "age": p.age if p.age else -1, 
+                    "breed": p.breed if p.breed else "", 
+                }
+                clients_data["pets"].append(pet_info)
+            
+            return jsonify({
+                "success": 1, 
+                "data": clients_data, 
+            }) 
+
+            
+            
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client data. Unknown error"}), 500,
+            )  
+        
+
+            
     @classmethod 
     def get_cost_and_time_stats_metadata(cls, client_id):
         # returns list of payment types/ids, added costs, added time
