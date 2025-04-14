@@ -16,7 +16,7 @@ class EmergencyContact(db.Model):
     lname = db.Column(db.String(50), nullable = False)
     relationship = db.Column(db.String(50), nullable=False)
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=True)
-    # employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)
 
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
 
@@ -33,7 +33,7 @@ class EmergencyContact(db.Model):
         self.contact_info = contact_info
         self.client_id = client_id
         self.relationship = relationship
-        # self.employee_id = employee_id
+        self.employee_id = employee_id
     
 
     @classmethod 
