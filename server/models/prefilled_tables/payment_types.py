@@ -1,7 +1,5 @@
 from models.db import db 
 from sqlalchemy.exc import SQLAlchemyError
-from flask import jsonify
-from sqlalchemy.orm import joinedload
 
 class PaymentTypes(db.Model): 
     

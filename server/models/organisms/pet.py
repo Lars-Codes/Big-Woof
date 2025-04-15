@@ -17,6 +17,9 @@ class Pet(db.Model):
     breed = db.relationship('Breed', backref='pets', lazy='select')
     size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
 
+    additional_costs = db.relationship('AdditionalCosts', backref='pets', lazy='select', foreign_keys='AdditionalCosts.pet_id')
+    additional_time = db.relationship('AddedTime', backref='pets', lazy='select', foreign_keys='AddedTime.pet_id')
+
     
     def __init__(self, client_id, name, deceased=None, age=None, breed_id=None, size_tier_id=None, notes=None):
         self.client_id = client_id

@@ -28,6 +28,8 @@ class Client(db.Model):
 
     payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', foreign_keys='ClientPaymentTypes.client_id')
 
+    additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select', foreign_keys='AdditionalCosts.client_id')
+    added_time = db.relationship('AddedTime', backref='client', lazy='select', foreign_keys='AddedTime.client_id')
 
     __table_args__ = (
         db.Index('idx_client_id', 'id'),
@@ -178,6 +180,8 @@ class Client(db.Model):
             client = Client.query.options(
                 joinedload(Client.online_payments),
                 joinedload(Client.payment_types),
+                joinedload(Client.additional_costs),
+                joinedload(Client.added_time),
             ).filter_by(id=client_id).first() 
             
             if client: 
@@ -187,7 +191,12 @@ class Client(db.Model):
                         "paypal_id": client.online_payments.paypal_user if client.online_payments else "",
                         "venmo_id": client.online_payments.venmo_user if client.online_payments else "",
                     },
-                    "payment_methods": []
+                    "payment_methods": [],
+                    "added_cost_per_service": [],
+                    "added_cost_travel": [],
+                    "added_cost_other": [],
+                    "added_time_per_service": [],
+                    "added_time_other": [],
                 }
                 
                 for p in client.payment_types:
@@ -195,6 +204,47 @@ class Client(db.Model):
                         "payment_type": p.payment_type.payment_type, 
                     }
                     clients_data["payment_methods"].append(payments)
+                
+                for a in client.additional_costs:
+                    if a.added_for_service == 1: 
+                        service_addition = {
+                            "service_name": a.service.name, 
+                            "added_cost": a.added_cost,
+                            "is_percentage": a.is_percentage,
+                            "reason": a.reason if a.reason else "",
+                        }
+                        clients_data["added_cost_per_service"].append(service_addition)
+                    if a.added_for_mile == 1: 
+                        mile_addition = {
+                            "added_cost_per_mile": a.added_cost_per_mile, 
+                            "is_percentage": a.added_cost_per_mile_is_percent, 
+                            "reason": a.reason if a.reason else "",
+                        }
+                        clients_data["added_cost_travel"].append(mile_addition)
+                    else: 
+                        other_addition = {
+                            "added_cost": a.added_cost,
+                            "is_percentage": a.is_percentage,
+                            "reason": a.reasonm if a.reason else "",
+                        }
+                        clients_data["added_cost_other"].append(other_addition)
+                        
+                for t in client.added_time:
+                    if t.added_for_service == 1: 
+                        time_data = {
+                            "service_name": t.service.name, 
+                            "additional_time": t.additional_time, 
+                            "time_type": "minutes", 
+                            "reason": t.reason if t.reason else "",
+                        }
+                        clients_data["added_time_per_service"].append(time_data)
+                    else: 
+                        time_data = {
+                            "additional_time": t.additional_time, 
+                            "time_type": "minutes", 
+                            "reason": t.reason if t.reason else "",
+                        }
+                        clients_data["added_time_other"].append(time_data)
                 
                 return jsonify({
                     "success": 1, 

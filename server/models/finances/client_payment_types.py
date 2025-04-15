@@ -10,6 +10,9 @@ class ClientPaymentTypes(db.Model):
     payment_type_id = db.Column(db.Integer, db.ForeignKey("payment_types.id"), nullable=False)
     payment_type = db.relationship('PaymentTypes', lazy='select')
 
-    
+    __table_args__ = (
+        db.Index('idx_client_id_payment', 'client_id'),
+    )
+        
     def __init__():
         pass 
