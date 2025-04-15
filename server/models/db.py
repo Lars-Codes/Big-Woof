@@ -9,5 +9,7 @@ from models.organisms.vet import Vet
 from models.organisms.employee import Employee
 from models.prefilled_tables.breed import Breed
 from models.prefilled_tables.size_tier import SizeTier
+from models.prefilled_tables.payment_types import PaymentTypes
 from models.finances.bonus import Bonus 
-
+from models.finances.online_payment_ids import OnlinePaymentIds
+from models.finances.client_payment_types import ClientPaymentTypes

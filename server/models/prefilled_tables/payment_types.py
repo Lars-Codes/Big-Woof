@@ -1,10 +1,46 @@
-class Payment_Types: 
+from models.db import db 
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
+from sqlalchemy.orm import joinedload
+
+class PaymentTypes(db.Model): 
     
-    id = None 
-    payment_type = None 
+    __tablename__="payment_types"
+    
+    id = db.Column(db.Integer, primary_key = True) 
+    payment_type = db.Column(db.String(20), nullable = False)
     
     def __init__(self, payment_type):
         self.payment_type = payment_type
+        
+    @classmethod 
+    def populate_prefilled_values(cls):
+        if db.session.query(cls).first():
+            print("Payment types already populated. Skipping.")
+            return
+        else: 
+            cash = PaymentTypes("cash")
+            credit = PaymentTypes("credit")
+            debit = PaymentTypes("debit")
+            venmo = PaymentTypes("venmo")
+            paypal = PaymentTypes("paypal")
+            zelle = PaymentTypes("zelle")
+            
+            try: 
+                db.session.add(cash)
+                db.session.add(credit)
+                db.session.add(debit)
+                db.session.add(venmo)
+                db.session.add(paypal)
+                db.session.add(zelle)
+                db.session.commit()
+                print("Prefilled values for payment types.")
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                print(f"Error inserting prefilled payment types on app start: {e}")
+            except Exception as e: 
+                db.session.rollback()
+                print(f"Error inserting prefilled payment types on app start:: {e}")
         
     @classmethod 
     def create_payment_type(cls, payment_type): 

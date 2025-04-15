@@ -23,8 +23,11 @@ class Client(db.Model):
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
     typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
     
-    # online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    # online_payments = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
+    online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
+    online_payments = db.relationship('OnlinePaymentIds', lazy='select')
+
+    payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', foreign_keys='ClientPaymentTypes.client_id')
+
 
     __table_args__ = (
         db.Index('idx_client_id', 'id'),
@@ -150,8 +153,8 @@ class Client(db.Model):
                 }) 
             else: 
                 return jsonify({
-                    "success": 1, 
-                    "data": [], 
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
                 }) 
 
         except SQLAlchemyError as e:
@@ -171,9 +174,51 @@ class Client(db.Model):
             
     @classmethod 
     def get_cost_and_time_stats_metadata(cls, client_id):
-        # returns list of payment types/ids, added costs, added time
-        
-        pass 
+        try: 
+            client = Client.query.options(
+                joinedload(Client.online_payments),
+                joinedload(Client.payment_types),
+            ).filter_by(id=client_id).first() 
+            
+            if client: 
+                clients_data = {
+                    "client_online_payments": {
+                        "zelle_id": client.online_payments.zelle_user if client.online_payments else "", 
+                        "paypal_id": client.online_payments.paypal_user if client.online_payments else "",
+                        "venmo_id": client.online_payments.venmo_user if client.online_payments else "",
+                    },
+                    "payment_methods": []
+                }
+                
+                for p in client.payment_types:
+                    payments = {
+                        "payment_type": p.payment_type.payment_type, 
+                    }
+                    clients_data["payment_methods"].append(payments)
+                
+                return jsonify({
+                    "success": 1, 
+                    "data": clients_data, 
+                }) 
+                
+            else:
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Unknown error"}), 500,
+            )  
     
     @classmethod 
     def get_appointment_metadata(cls, client_id):

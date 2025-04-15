@@ -6,6 +6,7 @@ import os
 from flask_migrate import Migrate
 
 from models.db import db
+from models.prefilled_tables.payment_types import PaymentTypes
 # from models.organisms.client import Client
 # from models.contact_info import ContactInfo
 # from models.prefilled_tables.user_type import UserType
@@ -44,7 +45,10 @@ migrate = Migrate(app, db)
 app.register_blueprint(client_bp)
 app.register_blueprint(emergency_contact_bp)
 
-# TODO: ON APPLICATION DOWNLOAD SOME DATA SHOULD BE PRE-FILLED IN THE PRE-FILLED TABLES 
+
+with app.app_context():
+    # Prefill tables 
+    PaymentTypes.populate_prefilled_values()
 
 if __name__ == "__main__":
     app.run(debug=True)
