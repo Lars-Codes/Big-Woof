@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from models.db import db
 from models.prefilled_tables.payment_types import PaymentTypes
 from models.prefilled_tables.time_types import TimeTypes
+from models.prefilled_tables.document_types import DocumentTypes
 # from models.organisms.client import Client
 # from models.contact_info import ContactInfo
 # from models.prefilled_tables.user_type import UserType
@@ -56,5 +57,6 @@ if __name__ == "__main__":
     # Prefill tables 
         PaymentTypes.populate_prefilled_values()
         TimeTypes.populate_prefilled_values()
+        DocumentTypes.populate_prefilled_values()
 
     app.run(debug=True)
