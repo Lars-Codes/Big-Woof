@@ -71,7 +71,7 @@ def getClientMetadata():
         res = Client.get_client_metadata(client_id)
         return res 
     except Exception as e: 
-        print(f"Unexpected error from /getFavoriteClients: {e}")
+        print(f"Unexpected error from /getClientMetadata: {e}")
         return res
         
     
@@ -82,5 +82,15 @@ def getCostAndTimeStatsMetadata():
         res = Client.get_cost_and_time_stats_metadata(client_id)
         return res 
     except Exception as e: 
-        print(f"Unexpected error from /getFavoriteClients: {e}")
+        print(f"Unexpected error from /getClientDocumentsMetadata: {e}")
+        return res
+
+@client_bp.route('/getClientDocumentsMetadata', methods=['GET'])
+def getClientDocumentMetadata():
+    try: 
+        client_id = request.form.get("client_id")
+        res = Client.get_client_document_metadata(client_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getClientDocumentsMetadata: {e}")
         return res

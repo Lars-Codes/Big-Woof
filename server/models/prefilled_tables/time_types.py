@@ -13,7 +13,7 @@ class TimeTypes(db.Model):
     @classmethod 
     def populate_prefilled_values(cls):
         if db.session.query(cls).first():
-            print("Payment types already populated. Skipping.")
+            print("Time types already populated. Skipping.")
             return
         else: 
             minutes = TimeTypes("minutes")

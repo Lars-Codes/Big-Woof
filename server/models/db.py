@@ -23,3 +23,4 @@ from models.logistics.appointment import Appointment
 
 from models.timemachine.added_time import AddedTime
 
+from models.files.client_files import ClientFiles

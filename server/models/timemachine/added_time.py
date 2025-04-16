@@ -15,7 +15,8 @@ class AddedTime(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True) 
     service = db.relationship('Services', backref='added_time', lazy='joined')
     
-    time_type = db.Column(db.Integer, db.ForeignKey('time_types.id'), nullable=False) # User can type in x hours, x minutes, gets all converted to minutes 
+    # Time type name will be exactly how it is stored in the prefilled table. 
+    time_type = db.Column(db.String(20), nullable = False)#db.Column(db.Integer, db.ForeignKey('time_types.id'), nullable=False) # User can type in x hours, x minutes, gets all converted to minutes 
 
     additional_time = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
     

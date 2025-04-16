@@ -9,12 +9,12 @@ class DocumentTypes(db.Model):
     name = db.Column(db.String(50), nullable = False)  
     
     def __init__(self, document_type):
-        self.document_type = document_type
+        self.name = document_type
         
     @classmethod 
     def populate_prefilled_values(cls):
         if db.session.query(cls).first():
-            print("Payment types already populated. Skipping.")
+            print("Document types already populated. Skipping.")
             return
         else: 
             vaccination = DocumentTypes("Vaccination record")

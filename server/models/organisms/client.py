@@ -31,6 +31,9 @@ class Client(db.Model):
     additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select', foreign_keys='AdditionalCosts.client_id')
     added_time = db.relationship('AddedTime', backref='client', lazy='select', foreign_keys='AddedTime.client_id')
 
+    files = db.relationship('ClientFiles', backref='client', lazy='select', foreign_keys='ClientFiles.client_id')
+
+
     __table_args__ = (
         db.Index('idx_client_id', 'id'),
         db.Index('idx_lname_fname_favorite', 'lname', 'fname'),
@@ -82,7 +85,7 @@ class Client(db.Model):
                 joinedload(Client.contact_info),
                 joinedload(Client.emergency_contacts),
                 joinedload(Client.pets),
-                joinedload(Client.typical_groomer)
+                joinedload(Client.typical_groomer).load_only("fname", "lname", "id")
             ).filter_by(id=client_id).first()
             
             if client: 
@@ -277,8 +280,50 @@ class Client(db.Model):
     
     @classmethod 
     def get_client_document_metadata(cls, client_id):
-        # return all client document names and document types 
-        pass 
+        try: 
+            client = Client.query.options(
+                joinedload(Client.files)
+            ).filter_by(id=client_id).first()       
+        
+            if client: 
+                clients_data = {
+                    "documents":[]
+                }
+                
+                for d in client.files:
+                    files = {
+                        "id": d.id,  
+                        "name": d.document_name,
+                        "pet_id": d.pet_id if d.pet_id else -1, 
+                        "appointment_id": d.appointment_id if d.appointment_id else -1, 
+                        "document_type": d.document_type,
+                        "description": d.description if d.description else "", 
+                    }
+                    clients_data["documents"].append(files)
+                    
+                return jsonify({
+                    "success": 1, 
+                    "data": clients_data, 
+                }) 
+            else:
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Unknown error"}), 500,
+            )  
+       
     
     
     @classmethod 

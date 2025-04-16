@@ -48,15 +48,12 @@ app.register_blueprint(client_bp)
 app.register_blueprint(emergency_contact_bp)
 
 
-# with app.app_context():
-#     # Prefill tables 
-#     PaymentTypes.populate_prefilled_values()
+with app.app_context():
+    # Prefill tables 
+    print("Populating prefilled values...")
+    PaymentTypes.populate_prefilled_values()
+    TimeTypes.populate_prefilled_values()
+    DocumentTypes.populate_prefilled_values()
 
 if __name__ == "__main__":
-    with app.app_context():
-    # Prefill tables 
-        PaymentTypes.populate_prefilled_values()
-        TimeTypes.populate_prefilled_values()
-        DocumentTypes.populate_prefilled_values()
-
     app.run(debug=True)
