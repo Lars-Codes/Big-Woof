@@ -635,39 +635,34 @@ class Client(db.Model):
        
     
     @classmethod 
-    def update_fname(cls, client_id, newfname): 
-        pass 
-        
-    @classmethod 
-    def update_lname(cls, client_id, newlname): 
-        pass 
-    
-    @classmethod 
-    def update_email(cls, client_id, new_email): 
-        # TODO: VALIDATE EMAIL 
-        pass 
-    
-    @classmethod 
-    def update_phone(cls, client_id, new_phone):
-        #TODO: FRONTEND MAKE SURE VALID PHONE 
-        pass 
-    
-    @classmethod 
-    def change_address(cls, client_id, new_address): 
-        # TODO: VALIDATE ADDRESS 
-        pass 
-    
-    @classmethod 
-    def change_secondary_email(cls, client_id, new_email):
-        pass 
-    
-    @classmethod 
-    def change_secondary_phone(cls, client_id, new_phone):
-        pass 
-    
-    @classmethod 
-    def update_notes(cls, client_id, new_notes):
-        pass 
+    def update_client_is_favorite(cls, client_id, favorite):
+        try: 
+            client = cls.query.filter_by(id=client_id).first()
+            if client: 
+                client.favorite = favorite 
+                db.session.commit()
+                return jsonify({
+                    "success": 1, 
+                    "message": "Client favorite data succesfully updated",
+                    "client_id": client_id
+                })
+            else:  
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client basic data. Database error"}), 500,
+            )  
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client basic data. Unknown error"}), 500, 
+            )
     
     @classmethod 
     def update_vet_information(cls, client_id, fname, lname, primary_phone=None, secondary_phone=None, address=None, email=None):

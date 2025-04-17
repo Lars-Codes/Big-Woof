@@ -127,7 +127,7 @@ def editClientContact():
         res = Client.edit_client_contact(**data)
         return res
     except Exception as e:
-        print(f"Unexpected error from /editEmergencyContact: {e}")
+        print(f"Unexpected error from /editClientContact: {e}")
         return res
 
 @client_bp.route('/editClientBasicData', methods=['PATCH'])
@@ -152,6 +152,16 @@ def editClientBasicData():
         res = Client.edit_client_basic_data(**data)
         return res
     except Exception as e:
-        print(f"Unexpected error from /editEmergencyContact: {e}")
+        print(f"Unexpected error from /editClientBasicData: {e}")
         return res
-    
+
+@client_bp.route('/updateClientIsFavorite', methods=['PATCH'])
+def updateClientIsFavorite():
+    try:
+        client_id = request.form.get("client_id")
+        favorite = request.form.get("favorite")
+        res = Client.update_client_is_favorite(client_id, favorite)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /addClientToFavorites: {e}")
+        return res
