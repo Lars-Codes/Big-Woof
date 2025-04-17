@@ -100,7 +100,7 @@ class Client(db.Model):
                         "lname": client.lname,
                         "num_pets": client.num_pets, 
                         "favorite": client.favorite,
-                        "notes": client.notes, 
+                        "notes": client.notes if client.notes else "", 
                     }, 
                     "client_contact": {
                         "primary_phone": client.contact_info.primary_phone, 
@@ -573,7 +573,7 @@ class Client(db.Model):
                 db.session.commit()
                 return jsonify({
                     "success": 1, 
-                    "message": "Client contact contact updated succesfully",
+                    "message": "Client contact updated succesfully",
                     "client_id": client_id
                 })
             
@@ -595,6 +595,43 @@ class Client(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to update client contact. Unknown error"}), 500, 
             )   
+    @classmethod 
+    def edit_client_basic_data(cls, **kwargs):
+        client_id = kwargs.get('client_id')
+        
+        try: 
+            client = cls.query.filter_by(id=client_id).first()
+
+            if client:                
+                for field in ['fname', 'lname', 'notes']:
+                    if field in kwargs:
+                        setattr(client, field, kwargs[field])
+
+                db.session.commit()
+                return jsonify({
+                    "success": 1, 
+                    "message": "Client basic data updated succesfully",
+                    "client_id": client_id
+                })
+            
+            else: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+        
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client basic data. Database error"}), 500,
+            )  
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client basic data. Unknown error"}), 500, 
+            )
        
     
     @classmethod 
