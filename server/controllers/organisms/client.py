@@ -160,6 +160,7 @@ def updateClientIsFavorite():
     try:
         client_id = request.form.get("client_id")
         favorite = request.form.get("favorite")
+        
         res = Client.update_client_is_favorite(client_id, favorite)
         return res
     except Exception as e:

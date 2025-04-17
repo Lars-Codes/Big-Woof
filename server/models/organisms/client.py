@@ -638,7 +638,7 @@ class Client(db.Model):
     def update_client_is_favorite(cls, client_id, favorite):
         try: 
             client = cls.query.filter_by(id=client_id).first()
-            if client: 
+            if client and favorite: 
                 client.favorite = favorite 
                 db.session.commit()
                 return jsonify({
@@ -649,7 +649,7 @@ class Client(db.Model):
             else:  
                 return jsonify({
                     "success": 0, 
-                    "error": "No client found for client id: " + client_id, 
+                    "error": "Either no client found for client id: " + client_id + " or favorite attribute not provided", 
                 }) 
         except SQLAlchemyError as e: 
             db.session.rollback()
