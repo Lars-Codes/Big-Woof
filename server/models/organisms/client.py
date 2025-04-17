@@ -89,7 +89,7 @@ class Client(db.Model):
                 joinedload(Client.contact_info),
                 joinedload(Client.emergency_contacts),
                 joinedload(Client.pets),
-                joinedload(Client.typical_groomer).load_only("fname", "lname", "id")
+                joinedload(Client.typical_groomer)#.load_only("fname", "lname", "id")
             ).filter_by(id=client_id).first()
             
             if client: 
@@ -554,7 +554,48 @@ class Client(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to get favorited clients. Unknown error"}), 500, 
-            )     
+            )   
+            
+    @classmethod 
+    def edit_client_contact(cls, **kwargs):
+        client_id = kwargs.get('client_id')
+        
+        try: 
+            client = Client.query.options(
+                joinedload(Client.contact_info),
+            ).filter_by(id=client_id).first()
+            
+            if client:                
+                for field in ['primary_phone', 'secondary_phone', 'email', 'street_address', 'city', 'state', 'zip']:
+                    if field in kwargs:
+                        setattr(client.contact_info, field, kwargs[field])
+
+                db.session.commit()
+                return jsonify({
+                    "success": 1, 
+                    "message": "Client contact contact updated succesfully",
+                    "client_id": client_id
+                })
+            
+            else: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+        
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client contact. Database error"}), 500,
+            )  
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update client contact. Unknown error"}), 500, 
+            )   
+       
     
     @classmethod 
     def update_fname(cls, client_id, newfname): 

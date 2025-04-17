@@ -104,3 +104,29 @@ def getAppointmentMetadata():
     except Exception as e: 
         print(f"Unexpected error from /getAppointmentMetadata: {e}")
         return res
+
+@client_bp.route('/editClientContact', methods=['PATCH'])
+def editEmergencyContact():
+    # USER TYPE IS REQUIRED AS "client" or "employee"
+    data = {}
+    possible_fields = [
+        'client_id', 'primary_phone', 'secondary_phone', 'email', 'street_address', 'city', 'state', 'zip'
+    ]
+    
+    for field in possible_fields:
+        value = request.form.get(field)
+        if value is not None:
+            data[field] = value
+            
+    if data.get('client_id') == None: 
+        return (
+            jsonify({"success": 0, "error": "Key client_id must be provided"}), 500, 
+        )  
+        
+    try:
+        res = Client.edit_client_contact(**data)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /editEmergencyContact: {e}")
+        return res
+    
