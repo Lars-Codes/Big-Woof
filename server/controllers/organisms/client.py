@@ -94,3 +94,13 @@ def getClientDocumentMetadata():
     except Exception as e: 
         print(f"Unexpected error from /getClientDocumentsMetadata: {e}")
         return res
+    
+@client_bp.route('/getAppointmentMetadata', methods=['GET'])
+def getAppointmentMetadata():
+    try: 
+        client_id = request.form.get("client_id")
+        res = Client.get_appointment_metadata(client_id)
+        return res
+    except Exception as e: 
+        print(f"Unexpected error from /getAppointmentMetadata: {e}")
+        return res

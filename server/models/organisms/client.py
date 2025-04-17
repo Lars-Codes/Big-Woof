@@ -1,5 +1,7 @@
 from models.db import db
 from models.contact_info import ContactInfo 
+from models.logistics.appointment import Appointment
+from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
 from sqlalchemy.orm import joinedload
@@ -19,7 +21,9 @@ class Client(db.Model):
     emergency_contacts = db.relationship('EmergencyContact', backref='client', lazy='select', foreign_keys='EmergencyContact.client_id')
     pets = db.relationship('Pet', backref='client', lazy='select', foreign_keys='Pet.client_id')
     vet = db.relationship('Vet', uselist=False, backref='client', lazy='select', foreign_keys='Vet.client_id')
-    
+    appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
+    appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', foreign_keys='AppointmentStats.client_id')
+
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
     typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
     
@@ -275,8 +279,124 @@ class Client(db.Model):
     
     @classmethod 
     def get_appointment_metadata(cls, client_id):
-        # returns upcoming appointments, past appointments, appointment stats 
-        pass
+        # returns upcoming appointments, past appointments, appointment stats
+        try: 
+            client = Client.query.options(
+                joinedload(Client.appointments),
+                joinedload(Client.appointment_stats)
+            ).filter_by(id=client_id).first() 
+            
+            if client: 
+                now = datetime.now().date()
+
+                upcoming_appointments = (
+                    db.session.query(Appointment)
+                    .filter(Appointment.client_id == client.id, Appointment.date > now)
+                    .order_by(Appointment.date.asc())
+                    .all()
+                )
+
+                past_appointments_preview = (
+                    db.session.query(Appointment)
+                    .filter(Appointment.client_id == client.id, Appointment.date <= now)
+                    .order_by(Appointment.date.desc())
+                    .limit(3)
+                    .all()
+                )
+                
+                saved_appointments = (
+                    db.session.query(Appointment)
+                    .filter(
+                        Appointment.client_id == client.id,
+                        Appointment.type == "saved"
+                    )
+                    .order_by(Appointment.date.desc())  # Optional: order by latest
+                    .all()
+                )
+                
+                recurring_appointments = (
+                    db.session.query(Appointment)
+                    .filter(
+                        Appointment.client_id == client.id,
+                        Appointment.type == "recurring"
+                    )
+                    .order_by(Appointment.date.desc())  # Optional: order by latest
+                    .all()
+                )
+                            
+                clients_data = {
+                    "appointment_stats": {
+                        "num_late": client.appointment_stats.late if client.appointment_stats else 0,
+                        "num_no_shows": client.appointment_stats.no_shows if client.appointment_stats else 0, 
+                        "num_cancelled": client.appointment_stats.cancelled if client.appointment_stats else 0, 
+                        "num_cancelled_late": client.appointment_stats.cancelled_late if client.appointment_stats else 0,  
+                    },
+                    "recurring_appointments": [],
+                    "upcoming_non_recurring_appointments": [],
+                    "past_appointments_preview": [],
+                    "saved_appointment_config": [],
+                }
+                
+                for up in upcoming_appointments:
+                    if up.type=="single": 
+                        upcoming = {
+                            "id": up.id,
+                            "date": up.date.strftime('%Y-%m-%d'), 
+                            "start_time": up.start_time, 
+                            "end_time": up.end_time, 
+                        }
+                        clients_data["upcoming_appointments"].append(upcoming)
+                        
+                for recur in recurring_appointments: 
+                    recurring = {
+                        "id": recur.id,
+                        "start_recur_date": recur.start_recur_date.strftime('%Y-%m-%d') if recur.start_recur_date else "", 
+                        "end_recur_date": recur.end_recur_date.strftime('%Y-%m-%d') if recur.end_recur_date else "",
+                        "start_time": recur.start_time, 
+                        "end_time": recur.end_time, 
+                    }
+                    clients_data["recurring_appointments"].append(recurring)
+
+                for saved in saved_appointments: 
+                    save = {
+                        "id": saved.id, 
+                        "saved_appointment_name": saved.saved_appointment_config_name, 
+                    }
+                    clients_data["saved_appointment_config"].append(save)
+                    
+                for p in past_appointments_preview: 
+                    past = {
+                        "id": p.id,
+                        "date": p.date.strftime('%Y-%m-%d'), 
+                        "start_time": p.start_time.strftime('%H:%M:%S'), 
+                        "end_time": p.end_time.strftime('%H:%M:%S'), 
+                        "appointment_status": p.appointment_status if p.appointment_status else "", 
+                        "payment_status": p.payment_status if p.payment_status else "",
+                    }
+                    clients_data["past_appointments_preview"].append(past)
+                    
+                return jsonify({
+                    "success": 1, 
+                    "data": clients_data, 
+                }) 
+            else: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No client found for client id: " + client_id, 
+                }) 
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client appointment data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client appointment data. Unknown error"}), 500,
+            )  
     
     @classmethod 
     def get_client_document_metadata(cls, client_id):
@@ -516,11 +636,6 @@ class Client(db.Model):
             notes (_type_): notes 
             service_id (_type_, optional): Defaults to None. If no service specified, apply time change to all services for this client. 
         """
-        pass
-    
-    @classmethod 
-    def get_appointment_metadata(cls, client_id):
-        # return time/date and potential other details
         pass
     
     @classmethod 

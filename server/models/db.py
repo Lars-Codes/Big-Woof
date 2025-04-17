@@ -20,6 +20,7 @@ from models.finances.additional_costs import AdditionalCosts
 
 from models.logistics.services import Services 
 from models.logistics.appointment import Appointment
+from models.logistics.appointment_stats import AppointmentStats
 
 from models.timemachine.added_time import AddedTime
 
