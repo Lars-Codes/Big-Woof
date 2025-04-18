@@ -17,25 +17,30 @@ class Client(db.Model):
     notes = db.Column(db.Text)
     favorite = db.Column(db.Integer)
     
-    contact_info = db.relationship('ContactInfo', lazy='select')
-    emergency_contacts = db.relationship('EmergencyContact', backref='client', lazy='select', foreign_keys='EmergencyContact.client_id')
-    pets = db.relationship('Pet', backref='client', lazy='select', foreign_keys='Pet.client_id')
-    vet = db.relationship('Vet', uselist=False, backref='client', lazy='select', foreign_keys='Vet.client_id')
+    contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
+    contact_info = db.relationship('ContactInfo', lazy='select', cascade="all, delete", single_parent=True, uselist=False, foreign_keys=[contact_info_id])
+    
+    emergency_contacts = db.relationship('EmergencyContact', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='EmergencyContact.client_id')
+    
+    pets = db.relationship('Pet', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='Pet.client_id')
+    
+    vet = db.relationship('Vet', uselist=False, backref='client', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='Vet.client_id')
+    
     appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
-    appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', foreign_keys='AppointmentStats.client_id')
+    appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AppointmentStats.client_id')
 
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
     typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
     
     online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    online_payments = db.relationship('OnlinePaymentIds', lazy='select')
+    online_payments = db.relationship('OnlinePaymentIds', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
 
-    payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', foreign_keys='ClientPaymentTypes.client_id')
+    payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
 
-    additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select', foreign_keys='AdditionalCosts.client_id')
-    added_time = db.relationship('AddedTime', backref='client', lazy='select', foreign_keys='AddedTime.client_id')
+    additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AdditionalCosts.client_id')
+    added_time = db.relationship('AddedTime', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AddedTime.client_id')
 
-    files = db.relationship('ClientFiles', backref='client', lazy='select', foreign_keys='ClientFiles.client_id')
+    files = db.relationship('ClientFiles', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='ClientFiles.client_id')
 
 
     __table_args__ = (
@@ -89,9 +94,9 @@ class Client(db.Model):
                 joinedload(Client.contact_info),
                 joinedload(Client.emergency_contacts),
                 joinedload(Client.pets),
-                joinedload(Client.typical_groomer)#.load_only("fname", "lname", "id")
+                joinedload(Client.typical_groomer)
             ).filter_by(id=client_id).first()
-            
+
             if client: 
                 clients_data = {
                     "client_data": {
@@ -111,26 +116,33 @@ class Client(db.Model):
                         "zip": client.contact_info.zip if client.contact_info.zip else "", 
                         "email": client.contact_info.email if client.contact_info.email else "",
                     },
-                    "client_vet": {
-                        "fname": client.vet.fname if client.vet else "",
-                        "lname": client.vet.lname if client.vet else "", 
-                        "notes": client.vet.notes if client.vet else "",
-                        "primary_phone": client.vet.primary_phone if client.vet else "", 
-                        "secondary_phone": client.vet.secondary_phone if client.vet else "",
-                        "street_address": client.vet.street_address if client.vet else "",
-                        "city": client.vet.city if client.vet else "",
-                        "state": client.vet.state if client.vet else "",
-                        "zip": client.vet.zip if client.vet else "",
-                        "email": client.vet.email if client.vet else "",
-                    },
-                    "typical_groomer": {
+                    "typical_groomer": {},
+                    "emergency_contacts": [], 
+                    "pets": [],
+                    "client_vet": {}
+                }
+                
+                if client.typical_groomer: 
+                    clients_data['typical_groomer'] = {
                         "groomer_fname": client.typical_groomer.fname if client.typical_groomer else "",
                         "groomer_lname": client.typical_groomer.lname if client.typical_groomer else "",
                         "employee_id": client.typical_groomer.id if client.typical_groomer else -1, 
-                    },
-                    "emergency_contacts": [], 
-                    "pets": []
-                }
+                    }
+                
+                if client.vet: 
+                    clients_data['client_vet'] = {
+                        "fname": getattr(client.vet, "fname"),
+                        "lname": getattr(client.vet, "lname"),
+                        "notes": client.vet.notes if client.vet.notes else "",
+                        "primary_phone": client.vet.contact_info.primary_phone if client.vet.contact_info.primary_phone else "",
+                        "secondary_phone": client.vet.contact_info.secondary_phone if client.vet.contact_info.secondary_phone else "",#getattr(client.vet.contact_info, "secondary_phone", ""),
+                        "street_address": client.vet.contact_info.street_address if client.vet.contact_info.street_address else "",
+                        "city": client.vet.contact_info.city if client.vet.contact_info.city else "",
+                        "state": client.vet.contact_info.state if client.vet.contact_info.state else "",
+                        "zip": client.vet.contact_info.zip if client.vet.contact_info.zip else "",
+                        "email": client.vet.contact_info.email if client.vet.contact_info.email else ""
+                    }
+                
                 for ec in client.emergency_contacts:
                     ec_info = {
                         "emergency_contact_id": ec.id,
@@ -506,8 +518,15 @@ class Client(db.Model):
     def delete_clients(cls, client_id_array):
         
         try: 
-            ids_to_delete = [int(client_id) for client_id in client_id_array]    
-            num_deleted = Client.query.filter(Client.id.in_(ids_to_delete)).delete(synchronize_session=False)
+            ids_to_delete = [int(client_id) for client_id in client_id_array]
+            num_deleted = 0
+
+            for client_id in ids_to_delete:
+                client = Client.query.get(client_id)
+                if client:
+                    db.session.delete(client)
+                    num_deleted += 1
+
             db.session.commit()
             return jsonify({"success": 1, "num_deleted": num_deleted})
         except SQLAlchemyError as e: 
@@ -664,10 +683,7 @@ class Client(db.Model):
                 jsonify({"success": 0, "error": "Failed to update client basic data. Unknown error"}), 500, 
             )
     
-    @classmethod 
-    def update_vet_information(cls, client_id, fname, lname, primary_phone=None, secondary_phone=None, address=None, email=None):
-        pass
-    
+
     
     @classmethod 
     def add_payment_type(cls, client_id, payment_type_id, online_payment_id=None):

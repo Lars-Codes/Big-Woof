@@ -1,6 +1,7 @@
 from models.db import db
-# from models.organisms.client import Client 
+from models.organisms.client import Client 
 # from models.prefilled_tables.user_type import UserType 
+from models.organisms.employee import Employee
 from models.contact_info import ContactInfo
 from sqlalchemy import Column, String, LargeBinary, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -20,7 +21,7 @@ class EmergencyContact(db.Model):
 
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
 
-    contact_info = db.relationship('ContactInfo', lazy='select')
+    contact_info = db.relationship('ContactInfo', lazy='select', cascade="all, delete", single_parent=True, uselist=False, foreign_keys=[contact_info_id])
     
     __table_args__ = (
         db.Index('idx_client', 'client_id'),
@@ -51,6 +52,13 @@ class EmergencyContact(db.Model):
             
             emergency_contact = None 
             if user_type == 'client': 
+                client = Client.query.filter_by(id=id).first()
+                if not client: 
+                    return (
+                    jsonify({"success": 0, "error": "Client does not exist for client_id"}), 500,
+                    )    
+        
+
                 emergency_contact = cls(
                     fname=fname, 
                     lname=lname, 
@@ -59,6 +67,11 @@ class EmergencyContact(db.Model):
                     client_id=id
                 )
             elif user_type=="employee":
+                employee = Employee.query.filter_by(id=id).first()
+                if not employee: 
+                    return (
+                    jsonify({"success": 0, "error": "Employee does not exist for employee_id"}), 500,
+                    )    
                 emergency_contact = cls(
                     fname=fname, 
                     lname=lname, 

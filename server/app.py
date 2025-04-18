@@ -16,6 +16,7 @@ from models.prefilled_tables.document_types import DocumentTypes
 
 from controllers.organisms.client import client_bp
 from controllers.organisms.emergency_contact import emergency_contact_bp
+from controllers.organisms.vet import vet_bp
 
 app = Flask(__name__)
 
@@ -46,6 +47,7 @@ migrate = Migrate(app, db)
 
 app.register_blueprint(client_bp)
 app.register_blueprint(emergency_contact_bp)
+app.register_blueprint(vet_bp)
 
 
 # with app.app_context():
