@@ -5,7 +5,7 @@ vet_bp = Blueprint("vet", __name__)
 
 
 @vet_bp.route('/createVet', methods=["POST"])
-def createClient():
+def createVet():
     client_id = request.form.get('client_id')
     fname = request.form.get('fname')
     lname = request.form.get('lname')
@@ -22,7 +22,7 @@ def createClient():
         res = Vet.create_vet(client_id, fname, lname, notes, primary_phone, secondary_phone, email, street_address, city, state, zip)
         return res 
     except Exception as e:
-        print(f"Unexpected error from /createClient: {e}")
+        print(f"Unexpected error from /createVet: {e}")
         return res
     
     
@@ -47,7 +47,7 @@ def updateVetContact():
         res = Vet.update_vet_contact(**data)
         return res
     except Exception as e:
-        print(f"Unexpected error from /editClientBasicData: {e}")
+        print(f"Unexpected error from /updateVetContact: {e}")
         return res
 
 @vet_bp.route('/deleteVet', methods=["DELETE"])
@@ -57,6 +57,6 @@ def deleteVet():
         res = Vet.delete_vet(client_id)
         return res
     except Exception as e:
-        print(f"Unexpected error from /editClientBasicData: {e}")
+        print(f"Unexpected error from /deleteVet: {e}")
         return res
 

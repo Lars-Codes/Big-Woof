@@ -130,7 +130,6 @@ class Vet(db.Model):
         try: 
             vet = cls.query.filter_by(client_id=client_id).first()
 
-
             if not vet:
                 db.session.rollback()
                 return jsonify({
