@@ -18,6 +18,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    API_URL=http://127.0.0.1:5000
    ```
 
+   If developing locally on mobile devices, the API_URL should be set to the local IP address of your computer. You can find your local IP address by running `ipconfig` on Windows or `ifconfig` on Mac/Linux. Mine looks like this:
+
+   ```env
+   API_URL=http://10.2.1.220:5000
+   ```
+
 3. Start the app
 
    ```bash
