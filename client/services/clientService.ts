@@ -1,5 +1,17 @@
 import axios from "axios";
-import { getPaginatedClients, mockDeleteClients } from "../utils/fallbackData";
+import {
+  getPaginatedClients,
+  mockDeleteClients,
+  mockCreateClient,
+  mockGetFavoriteClients,
+  mockGetClientMetadata,
+  mockGetCostAndTimeStatsMetadata,
+  mockGetClientDocumentsMetadata,
+  mockGetAppointmentMetadata,
+  mockEditClientContact,
+  mockEditClientBasicData,
+  mockUpdateClientIsFavorite,
+} from "../utils/fallbackData";
 import { ApiResponse } from "../hooks/useClients";
 import { API_URL } from "@env";
 
@@ -8,18 +20,25 @@ const USE_FALLBACK_DATA = false;
 
 export const getAllClients = async (
   page: number,
-  pageSize: number
+  pageSize: number,
+  searchbarChars: string = ""
 ): Promise<ApiResponse> => {
   if (USE_FALLBACK_DATA) {
     // Simulate network delay for better testing
     await new Promise((resolve) => setTimeout(resolve, 500));
-    return getPaginatedClients(page, pageSize);
+    return getPaginatedClients(page, pageSize, searchbarChars);
   }
 
-  console.log('API_URL', API_URL + '/getAllClients', page, pageSize);
+  console.log(
+    "API_URL",
+    API_URL + "/getAllClients",
+    page,
+    pageSize,
+    searchbarChars
+  );
   try {
     const response = await axios.get(`${API_URL}/getAllClients`, {
-      params: { page, page_size: pageSize, searchbar_chars: "" },
+      params: { page, page_size: pageSize, searchbar_chars: searchbarChars },
     });
     return response.data;
   } catch (error) {
@@ -28,16 +47,52 @@ export const getAllClients = async (
   }
 };
 
-export const deleteClients = async (clientIdArray: number[]): Promise<any> => {
+export const createClient = async (clientData: {
+  fname: string;
+  lname: string;
+  phone_number: string;
+  email?: string;
+  street_address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  secondary_phone?: string;
+  notes?: string;
+  favorite?: number;
+}): Promise<ApiResponse> => {
   if (USE_FALLBACK_DATA) {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return mockDeleteClients(clientIdArray);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockCreateClient(clientData);
   }
 
   try {
-    const response = await axios.delete(`${API_URL}/deleteClients`, {
-      data: { client_ids: clientIdArray },
+    const formData = new FormData();
+
+    Object.entries(clientData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    const response = await axios.post(`${API_URL}/createClient`, formData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating client:", error);
+    throw error;
+  }
+};
+
+export const deleteClients = async (
+  clientIds: number[]
+): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockDeleteClients(clientIds);
+  }
+
+  try {
+    const response = await axios.delete(`${API_URL}/deleteClient`, {
+      data: { clientid_arr: clientIds },
     });
     return response.data;
   } catch (error) {
@@ -46,112 +101,191 @@ export const deleteClients = async (clientIdArray: number[]): Promise<any> => {
   }
 };
 
-export const getClientDetails = async (clientId: string): Promise<any> => {
+export const getFavoriteClients = async (): Promise<ApiResponse> => {
   if (USE_FALLBACK_DATA) {
-    // Get all clients and find the requested one
-    const allClientsResponse = await getAllClients(1, 50);
-    const client = allClientsResponse.clients.find(
-      (c) => c.id.toString() === clientId
-    );
-
-    if (!client) {
-      throw new Error("Client not found");
-    }
-
-    return client;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockGetFavoriteClients();
   }
 
   try {
-    const response = await axios.get(`${API_URL}/getClientDetails/${clientId}`);
+    const response = await axios.get(`${API_URL}/getFavoriteClients`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching client details:", error);
+    console.error("Error fetching favorite clients:", error);
     throw error;
   }
 };
 
-// New function to update client details
-export const updateClient = async (
-  clientId: string,
-  clientData: any
-): Promise<any> => {
+export const getClientMetadata = async (
+  clientId: number
+): Promise<ApiResponse> => {
   if (USE_FALLBACK_DATA) {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // For development, just return a success response
-    return {
-      success: true,
-      message: "Client updated successfully",
-      client: {
-        ...clientData,
-        id: clientId,
-      },
-    };
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockGetClientMetadata(clientId);
   }
 
   try {
-    const response = await axios.put(
-      `${API_URL}/updateClient/${clientId}`,
-      clientData
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error updating client:", error);
-    throw error;
-  }
-};
-
-// Function to create new client
-export const createClient = async (clientData: any): Promise<any> => {
-  if (USE_FALLBACK_DATA) {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // For development, return a success response with a new ID
-    return {
-      success: true,
-      message: "Client created successfully",
-      client: {
-        ...clientData,
-        id: Math.floor(Math.random() * 10000) + 1000,
-      },
-    };
-  }
-
-  try {
-    const response = await axios.post(`${API_URL}/createClient`, clientData);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating client:", error);
-    throw error;
-  }
-};
-
-// Function to search clients
-export const searchClients = async (searchQuery: string): Promise<any> => {
-  if (USE_FALLBACK_DATA) {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // For development, filter clients based on search query
-    const allClientsResponse = await getAllClients(1, 50);
-    const searchResults = allClientsResponse.clients.filter((client) => {
-      return (
-        client.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.pets.some((pet: any) =>
-          pet.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
+    const response = await axios.get(`${API_URL}/getClientMetadata`, {
+      params: { client_id: clientId },
     });
-    return searchResults;
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching client metadata:", error);
+    throw error;
+  }
+};
+
+export const getCostAndTimeStatsMetadata = async (
+  clientId: number
+): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockGetCostAndTimeStatsMetadata(clientId);
   }
 
   try {
-    const response = await axios.get(`${API_URL}/clientSearch/${searchQuery}`);
+    const response = await axios.get(`${API_URL}/getCostAndTimeStatsMetadata`, {
+      params: { client_id: clientId },
+    });
     return response.data;
   } catch (error) {
-    console.error("Error searching clients:", error);
+    console.error("Error fetching cost and time stats metadata:", error);
+    throw error;
+  }
+};
+
+export const getClientDocumentsMetadata = async (
+  clientId: number
+): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockGetClientDocumentsMetadata(clientId);
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/getClientDocumentsMetadata`, {
+      params: { client_id: clientId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching client documents metadata:", error);
+    throw error;
+  }
+};
+
+export const getAppointmentMetadata = async (
+  clientId: number
+): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockGetAppointmentMetadata(clientId);
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/getAppointmentMetadata`, {
+      params: { client_id: clientId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching appointment metadata:", error);
+    throw error;
+  }
+};
+
+export const editClientContact = async (data: {
+  client_id: string;
+  primary_phone?: string;
+  secondary_phone?: string;
+  email?: string;
+  street_address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+}): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockEditClientContact(data);
+  }
+
+  try {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    const response = await axios.patch(
+      `${API_URL}/editClientContact`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating client contact:", error);
+    throw error;
+  }
+};
+
+export const editClientBasicData = async (data: {
+  client_id: string;
+  fname?: string;
+  lname?: string;
+  notes?: string;
+}): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockEditClientBasicData(data);
+  }
+
+  try {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    const response = await axios.patch(
+      `${API_URL}/editClientBasicData`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating client basic data:", error);
+    throw error;
+  }
+};
+
+export const updateClientIsFavorite = async (
+  clientId: number,
+  favorite: boolean | number
+): Promise<ApiResponse> => {
+  if (USE_FALLBACK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockUpdateClientIsFavorite(clientId, favorite);
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("client_id", clientId.toString());
+    formData.append(
+      "favorite",
+      typeof favorite === "boolean"
+        ? favorite
+          ? "1"
+          : "0"
+        : favorite.toString()
+    );
+
+    const response = await axios.patch(
+      `${API_URL}/updateClientIsFavorite`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating client favorite status:", error);
     throw error;
   }
 };
