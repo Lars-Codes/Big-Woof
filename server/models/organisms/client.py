@@ -227,6 +227,7 @@ class Client(db.Model):
                 for a in client.additional_costs:
                     if a.added_for_service == 1: 
                         service_addition = {
+                            "id": a.id, 
                             "service_name": a.service.name, 
                             "added_cost": a.added_cost,
                             "is_percentage": a.is_percentage,
@@ -235,6 +236,7 @@ class Client(db.Model):
                         clients_data["added_cost_per_service"].append(service_addition)
                     if a.added_for_mile == 1: 
                         mile_addition = {
+                            "id": a.id, 
                             "added_cost_per_mile": a.added_cost_per_mile, 
                             "is_percentage": a.added_cost_per_mile_is_percent, 
                             "reason": a.reason if a.reason else "",
@@ -242,6 +244,7 @@ class Client(db.Model):
                         clients_data["added_cost_travel"].append(mile_addition)
                     else: 
                         other_addition = {
+                            "id": a.id, 
                             "added_cost": a.added_cost,
                             "is_percentage": a.is_percentage,
                             "reason": a.reasonm if a.reason else "",

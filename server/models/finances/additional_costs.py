@@ -34,3 +34,5 @@ class AdditionalCosts(db.Model):
 
     def __init__():
         pass 
+    
+    # def add_cost_per_client_per
