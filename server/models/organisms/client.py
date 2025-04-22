@@ -29,8 +29,8 @@ class Client(db.Model):
     appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
     appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AppointmentStats.client_id')
 
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
+    # employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
+    # typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
     
     online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
     online_payments = db.relationship('OnlinePaymentIds', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
@@ -116,18 +116,18 @@ class Client(db.Model):
                         "zip": client.contact_info.zip if client.contact_info.zip else "", 
                         "email": client.contact_info.email if client.contact_info.email else "",
                     },
-                    "typical_groomer": {},
+                    # "typical_groomer": {},
                     "emergency_contacts": [], 
                     "pets": [],
                     "client_vet": {}
                 }
                 
-                if client.typical_groomer: 
-                    clients_data['typical_groomer'] = {
-                        "groomer_fname": client.typical_groomer.fname if client.typical_groomer else "",
-                        "groomer_lname": client.typical_groomer.lname if client.typical_groomer else "",
-                        "employee_id": client.typical_groomer.id if client.typical_groomer else -1, 
-                    }
+                # if client.typical_groomer: 
+                #     clients_data['typical_groomer'] = {
+                #         "groomer_fname": client.typical_groomer.fname if client.typical_groomer else "",
+                #         "groomer_lname": client.typical_groomer.lname if client.typical_groomer else "",
+                #         "employee_id": client.typical_groomer.id if client.typical_groomer else -1, 
+                #     }
                 
                 if client.vet: 
                     clients_data['client_vet'] = {

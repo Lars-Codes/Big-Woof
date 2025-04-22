@@ -1,4 +1,7 @@
 from models.db import db 
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
+from sqlalchemy.orm import joinedload
 
 class Employee(db.Model):
     
@@ -23,3 +26,35 @@ class Employee(db.Model):
   
     def __init__():
         pass
+    
+    @classmethod 
+    def get_all_employees(cls):
+        try: 
+            employees = cls.query.with_entities(cls.fname, cls.lname).all()
+            
+            employee_data = [
+                {
+                    "fname": employee.fname, 
+                    "lname": employee.lname, 
+                } 
+                for employee in employees
+            ]
+            
+                    
+            return jsonify({
+                "success": 1, 
+                "data": employee_data, 
+            }) 
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get employees fname and lname. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get employees fname and lname. Unknown error"}), 500, 
+            )    
