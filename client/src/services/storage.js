@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+// import users sign in token or what not
 
 export const setItem = async (key, value) => {
   try {
+    // const serializedValue = JSON.stringify(value) + user sign in token to make storage more secure
     const serializedValue = JSON.stringify(value);
     await AsyncStorage.setItem(key, serializedValue);
   } catch (error) {
