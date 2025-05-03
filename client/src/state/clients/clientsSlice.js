@@ -83,3 +83,5 @@ export const selectContactsResultSetUnfiltered = (state) =>
   state.clients.contactsResultSetUnfiltered;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
+
+export default clientsSlice.reducer;

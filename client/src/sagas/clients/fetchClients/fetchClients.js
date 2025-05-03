@@ -5,12 +5,11 @@ import { api } from "../../../services/api";
 export default function* fetchClients() {
   try {
     yield put(setLoading(true));
-    const res = yield call(api, "/clients", null, "GET", {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    });
-    yield put(setClients(res));
+    const res = yield call(api, "/getAllClients", "GET");
+    const clients = res.data;
+    yield put(setClients(clients));
   } catch (error) {
-    console.error("Failed to fetch clients:", error);
+    console.error("Error fetching clients:", error);
   } finally {
     yield put(setLoading(false));
   }

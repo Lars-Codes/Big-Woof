@@ -1,4 +1,4 @@
-import { call, delya, fork, put, select } from "redux-saga/effects";
+import { call, delay, fork, put, select } from "redux-saga/effects";
 
 import fetchClients from "../clients/fetchClients/fetchClients";
 
