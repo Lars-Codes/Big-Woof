@@ -27,7 +27,7 @@ export default function* processSearchResultSet() {
       }
     }
 
-    console.log("clientsSearchArr", clientsSearchArr);
+    // console.log("clientsSearchArr", clientsSearchArr);
     yield put(clientState.setSearchResultSet(clientsSearchArr));
   }
 }

@@ -7,11 +7,24 @@ import { clientsFilteredByAction } from "../../sagas/clients/clientsFilteredBy/a
 import { clientsSearchByAction } from "../../sagas/clients/clientsSearchBy/action";
 import { clientsSortedByAction } from "../../sagas/clients/clientsSortedBy/action";
 import { clientsSortedDirection } from "../../sagas/clients/clientsSortedDirection/action";
-import { selectClientsResultSet, selectSearchResultSet } from "../../state/clients/clientsSlice";
+import {
+  selectClientsResultSet,
+  selectSearchedResultSet,
+  selectSearchBy,
+} from "../../state/clients/clientsSlice";
+import { processSearchedResultSetAction } from "../../sagas/clients/processSearchedResultSet/action";
 
 export default function TestScreen() {
   const dispatch = useDispatch();
-  const clients = useSelector(selectClientsResultSet); // Access clients from Redux store
+  const clientsResultSet = useSelector(selectClientsResultSet); // Access clients from Redux store
+  const searchedResultsSet = useSelector(selectSearchedResultSet); // Access search results
+  const searchBy = useSelector(selectSearchBy); // Check if a search is active
+
+  let dataSet = clientsResultSet;
+  if (searchBy !== '' && searchedResultsSet) {
+    dataSet = searchedResultsSet; // Use search results if a search is active
+    // console.log("Search results:", searchedResultsSet);
+  }
 
   const handleLoggedIn = () => {
     dispatch(loggedInAction());
@@ -23,6 +36,7 @@ export default function TestScreen() {
 
   const handleSearchClients = () => {
     dispatch(clientsSearchByAction("john")); // Example: search for "john"
+    dispatch(processSearchedResultSetAction("john")); // Process search results
   };
 
   const handleSortClients = () => {
@@ -32,6 +46,7 @@ export default function TestScreen() {
   const handleSortDirection = () => {
     dispatch(clientsSortedDirection("desc")); // Example: sort in descending order
   };
+
 
   return (
     <View>
@@ -48,8 +63,8 @@ export default function TestScreen() {
       />
 
       <Text style={{ marginTop: 20 }}>Clients will be displayed here:</Text>
-      {clients.length > 0 ? (
-        clients.map((client, index) => (
+      {dataSet.length > 0 ? (
+        dataSet.map((client, index) => (
           <Text key={index} style={{ marginTop: 5 }}>
             {client.fname} {client.lname} - {client.phone_number}
           </Text>

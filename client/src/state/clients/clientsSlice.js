@@ -13,6 +13,7 @@ export const clientsSlice = createSlice({
     searchBy: "",
     clientsResultSet: [], // sorted, filtered list used for the client-list component
     searchResultSet: [], // optimized client list used for searching
+    searchedResultSet: null, // process search result set flag
   },
   reducers: {
     setLoading: (state, action) => {
@@ -45,6 +46,10 @@ export const clientsSlice = createSlice({
     setSearchResultSet: (state, action) => {
       state.searchResultSet = action.payload;
     },
+    setSearchedResultSet: (state, action) => {
+      state.searchedResultSet = action.payload;
+      console.log('search results in slice:', state.searchedResultSet);
+    },
   },
 });
 
@@ -60,6 +65,7 @@ export const {
   setSearchBy,
   setClientsResultSet,
   setSearchResultSet,
+  setSearchedResultSet,
 } = clientsSlice.actions;
 
 // Selectors
@@ -73,5 +79,6 @@ export const selectSortedDirection = (state) => state.clients.sortedDirection;
 export const selectSearchBy = (state) => state.clients.searchBy;
 export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
+export const selectSearchedResultSet = (state) => state.clients.searchedResultSet;
 
 export default clientsSlice.reducer;
