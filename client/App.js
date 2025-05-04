@@ -1,26 +1,22 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Provider, useDispatch } from "react-redux";
+import React from "react";
+import { Provider } from "react-redux";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import store from "./src/state/store";
-import './src/sagas/rootSaga'; // Import the root saga
+import "./src/sagas/rootSaga";
+
 import TestScreen from "./src/components/screens/testScreen";
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
     <Provider store={store}>
-      <View style={styles.container}>
-        <TestScreen />
-      </View>
+      <NavigationContainer>
+        <Tab.Navigator>
+          <Tab.Screen name="Clients" component={TestScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
     </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
