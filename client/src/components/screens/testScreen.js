@@ -1,30 +1,52 @@
-// test screen
-
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Button } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 import { loggedInAction } from "../../sagas/loggedIn/action";
-import { selectClients } from "../../state/clients/clientsSlice";
+import { clientsFilteredByAction } from "../../sagas/clients/clientsFilteredBy/action";
+import { clientsSearchByAction } from "../../sagas/clients/clientsSearchBy/action";
+import { clientsSortedByAction } from "../../sagas/clients/clientsSortedBy/action";
+import { clientsSortedDirection } from "../../sagas/clients/clientsSortedDirection/action";
+import { selectClientsResultSet, selectSearchResultSet } from "../../state/clients/clientsSlice";
 
 export default function TestScreen() {
   const dispatch = useDispatch();
-  const clients = useSelector(selectClients); // Access clients from Redux store
+  const clients = useSelector(selectClientsResultSet); // Access clients from Redux store
 
-  const handleButtonClick = () => {
+  const handleLoggedIn = () => {
     dispatch(loggedInAction());
+  };
+
+  const handleFilterClients = () => {
+    dispatch(clientsFilteredByAction("favorite")); // Example: filter by "favorite"
+  };
+
+  const handleSearchClients = () => {
+    dispatch(clientsSearchByAction("john")); // Example: search for "john"
+  };
+
+  const handleSortClients = () => {
+    dispatch(clientsSortedByAction("fname")); // Example: sort by "fname"
+  };
+
+  const handleSortDirection = () => {
+    dispatch(clientsSortedDirection("desc")); // Example: sort in descending order
   };
 
   return (
     <View>
       <Text>Test Screen</Text>
       <Text>This is a test screen.</Text>
-      <Text
-        onPress={handleButtonClick}
-        style={{ color: "blue", marginTop: 20 }}
-      >
-        Click me to dispatch loggedInAction (gets clients)
-      </Text>
+
+      <Button title="Dispatch loggedInAction" onPress={handleLoggedIn} />
+      <Button title="Filter Clients (Favorite)" onPress={handleFilterClients} />
+      <Button title="Search Clients (John)" onPress={handleSearchClients} />
+      <Button title="Sort Clients (First Name)" onPress={handleSortClients} />
+      <Button
+        title="Sort Direction (Descending)"
+        onPress={handleSortDirection}
+      />
+
       <Text style={{ marginTop: 20 }}>Clients will be displayed here:</Text>
       {clients.length > 0 ? (
         clients.map((client, index) => (

@@ -4,18 +4,15 @@ export const clientsSlice = createSlice({
   name: "clients",
   initialState: {
     loading: true,
-    clients: [],
-
+    clients: [], // List of all clients
+    selectedClient: null, // Detailed data for a selected client
     filteredBy: "all",
-    filteredClients: true,
-    sortedBy: "last_name",
+    filteredClients: [],
+    sortedBy: "lname",
     sortedDirection: "asc",
     searchBy: "",
-
-    clientsResultSet: [], // sorted, filter list used for the client-list component
+    clientsResultSet: [], // sorted, filtered list used for the client-list component
     searchResultSet: [], // optimized client list used for searching
-    contactsResultSetUnfiltered: [],
-    searchedResultSet: null, // processed search result set flag
   },
   reducers: {
     setLoading: (state, action) => {
@@ -23,6 +20,9 @@ export const clientsSlice = createSlice({
     },
     setClients: (state, action) => {
       state.clients = action.payload;
+    },
+    setSelectedClient: (state, action) => {
+      state.selectedClient = action.payload;
     },
     setFilteredBy: (state, action) => {
       state.filteredBy = action.payload;
@@ -45,19 +45,14 @@ export const clientsSlice = createSlice({
     setSearchResultSet: (state, action) => {
       state.searchResultSet = action.payload;
     },
-    setContactsResultSetUnfiltered: (state, action) => {
-      state.contactsResultSetUnfiltered = action.payload;
-    },
-    setSearchedResultSet: (state, action) => {
-      state.searchedResultSet = action.payload;
-    },
   },
 });
 
-// action creators are generated for each case reducer function
+// Action creators are generated for each case reducer function
 export const {
   setLoading,
   setClients,
+  setSelectedClient,
   setFilteredBy,
   setFilteredClients,
   setSortedBy,
@@ -65,13 +60,12 @@ export const {
   setSearchBy,
   setClientsResultSet,
   setSearchResultSet,
-  setContactsResultSetUnfiltered,
-  setSearchedResultSet,
 } = clientsSlice.actions;
 
-// selectors
+// Selectors
 export const selectLoading = (state) => state.clients.loading;
 export const selectClients = (state) => state.clients.clients;
+export const selectSelectedClient = (state) => state.clients.selectedClient;
 export const selectFilteredBy = (state) => state.clients.filteredBy;
 export const selectFilteredClients = (state) => state.clients.filteredClients;
 export const selectSortedBy = (state) => state.clients.sortedBy;
@@ -79,9 +73,5 @@ export const selectSortedDirection = (state) => state.clients.sortedDirection;
 export const selectSearchBy = (state) => state.clients.searchBy;
 export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
-export const selectContactsResultSetUnfiltered = (state) =>
-  state.clients.contactsResultSetUnfiltered;
-export const selectSearchedResultSet = (state) =>
-  state.clients.searchedResultSet;
 
 export default clientsSlice.reducer;
