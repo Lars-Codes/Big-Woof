@@ -23,7 +23,6 @@ export default function TestScreen() {
   let dataSet = clientsResultSet;
   if (searchBy !== '' && searchedResultsSet) {
     dataSet = searchedResultsSet; // Use search results if a search is active
-    // console.log("Search results:", searchedResultsSet);
   }
 
   const handleLoggedIn = () => {

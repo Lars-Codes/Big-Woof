@@ -48,7 +48,6 @@ export const clientsSlice = createSlice({
     },
     setSearchedResultSet: (state, action) => {
       state.searchedResultSet = action.payload;
-      console.log('search results in slice:', state.searchedResultSet);
     },
   },
 });
@@ -79,6 +78,7 @@ export const selectSortedDirection = (state) => state.clients.sortedDirection;
 export const selectSearchBy = (state) => state.clients.searchBy;
 export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
-export const selectSearchedResultSet = (state) => state.clients.searchedResultSet;
+export const selectSearchedResultSet = (state) =>
+  state.clients.searchedResultSet;
 
 export default clientsSlice.reducer;

@@ -9,8 +9,5 @@ export default function* processSearchedResultSet({ payload: searchStr }) {
   const clientsResultSet = yield select(selectClientsResultSet);
   const searchResults = searchClients(searchStr, clientsResultSet);
 
-  console.log("searching for", searchStr);
-  console.log("searchResults", searchResults);
-
   yield put(setSearchedResultSet(searchResults));
 }
