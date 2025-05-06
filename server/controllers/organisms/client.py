@@ -52,16 +52,16 @@ def deleteClients():
         return res
     
     
-@client_bp.route('/getFavoriteClients', methods=["GET"])
-def getFavoriteClients(): 
-    try: 
+# @client_bp.route('/getFavoriteClients', methods=["GET"])
+# def getFavoriteClients(): 
+#     try: 
         
-        res = Client.get_favorite_clients()
-        return res 
+#         res = Client.get_favorite_clients()
+#         return res 
         
-    except Exception as e: 
-        print(f"Unexpected error from /getFavoriteClients: {e}")
-        return res
+#     except Exception as e: 
+#         print(f"Unexpected error from /getFavoriteClients: {e}")
+#         return res
     
     
 @client_bp.route('/getClientMetadata', methods=['GET'])
