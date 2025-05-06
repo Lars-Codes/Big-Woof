@@ -79,6 +79,16 @@ def getProfilePicture():
         print(f"Unexpected error from /getProfilePicture: {e}")
         return res   
     
+@client_bp.route('/deleteProfilePicture', methods=["DELETE"])
+def deleteProfilePicture():
+    try: 
+        client_id = request.form.get("client_id")
+        res = Client.delete_profile_picture(client_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getProfilePicture: {e}")
+        return res   
+    
 # @client_bp.route('/getFavoriteClients', methods=["GET"])
 # def getFavoriteClients(): 
 #     try: 
