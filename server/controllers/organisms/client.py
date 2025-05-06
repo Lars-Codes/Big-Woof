@@ -57,14 +57,27 @@ def uploadProfilePicture():
         client_id = request.form.get("client_id")
         image = request.files.get("image")
         ext = request.form.get("ext")
-        filename = "profile." + ext
-
+        
+        if not ext or not image or not client_id: 
+            return (
+            jsonify({"success": 0, "error": "Key ext and image and client_id must be provided"}), 500, 
+            ) 
+        filename = "profile-" + client_id + "." + ext
         res = Client.upload_profile_picture(client_id, image, filename, ext)
         return res 
     except Exception as e: 
         print(f"Unexpected error from /uploadProfilePicture: {e}")
         return res
-             
+    
+@client_bp.route('/getProfilePicture', methods=["GET"])
+def getProfilePicture():
+    try: 
+        client_id = request.form.get("client_id")
+        res = Client.get_profile_picture(client_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getProfilePicture: {e}")
+        return res   
     
 # @client_bp.route('/getFavoriteClients', methods=["GET"])
 # def getFavoriteClients(): 

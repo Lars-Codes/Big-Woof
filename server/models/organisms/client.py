@@ -3,7 +3,7 @@ from models.contact_info import ContactInfo
 from models.logistics.appointment import Appointment
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
-from flask import jsonify
+from flask import jsonify, send_from_directory
 from sqlalchemy.orm import joinedload
 from dotenv import load_dotenv
 import os 
@@ -549,12 +549,13 @@ class Client(db.Model):
     @classmethod  
     def upload_profile_picture(cls, client_id, image, filename, ext):
         try: 
+            
             load_dotenv()
             image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
 
             # Secure the filename and save the image to disk
             secure_name = secure_filename(filename)
-            local_path = os.path.join(image_store, secure_name)
+            local_path = os.path.join(image_store, client_id, secure_name)
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
             # Save the FileStorage image to the local path
@@ -568,20 +569,22 @@ class Client(db.Model):
             img.save(local_path, format=ext, quality=85)
 
             # Construct the final image URL
-            image_url = image_store + secure_name
+            image_url = secure_name
 
             # Update client record in DB
             client = Client.query.get(client_id)
             if not client:
-                raise ValueError("Client not found.")
-
+                return jsonify({
+                    "success": 0, 
+                    "error": "Client not found"
+                }) 
             client.profile_pic_url = image_url
             db.session.commit()
 
             return jsonify({
                 "success": 1, 
                 "client_id": client_id,
-                "image_url": local_path
+                "image_url": image_url
             }) 
         except SQLAlchemyError as e: 
             db.session.rollback()
@@ -594,6 +597,44 @@ class Client(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to upload profile picture. Unknown error"}), 500, 
+            )  
+
+    @classmethod 
+    def get_profile_picture(cls, client_id):
+        try: 
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL').strip()
+            
+            client = Client.query.with_entities(Client.profile_pic_url).filter_by(id=client_id).first()
+            
+            print("afer cloent")
+            if not client or not client.profile_pic_url:
+                return jsonify({"success": 0, "error": "Failed to fetch profile picture. Profile picture not found"}), 500, 
+
+            
+            print("b4 image dir")
+            image_dir = os.path.join(image_store, client_id)
+            print("helo")
+            print("image dir: ", image_dir)
+            print("url: ", client.profile_pic_url)
+            
+            full_path = os.path.join(image_dir, client.profile_pic_url)
+            if not os.path.exists(full_path):
+                return jsonify({"success": 1, "exists": 0, "message": "No profile picture associated with this user."}), 404
+            
+            return send_from_directory(image_dir, client.profile_pic_url)
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Unknown error"}), 500, 
             )  
 
         
