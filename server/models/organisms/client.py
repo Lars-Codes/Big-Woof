@@ -5,6 +5,10 @@ from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
 from sqlalchemy.orm import joinedload
+from dotenv import load_dotenv
+import os 
+from PIL import Image
+from werkzeug.utils import secure_filename
 
 class Client(db.Model):
     __tablename__ = 'clients'
@@ -16,6 +20,8 @@ class Client(db.Model):
     num_pets = db.Column(db.Integer) 
     notes = db.Column(db.Text)
     favorite = db.Column(db.Integer)
+    
+    profile_pic_url = db.Column(db.String(50))
     
     contact_info_id = db.Column(db.Integer, db.ForeignKey('contact_info.id'), nullable=False)
     contact_info = db.relationship('ContactInfo', lazy='select', cascade="all, delete", single_parent=True, uselist=False, foreign_keys=[contact_info_id])
@@ -94,7 +100,6 @@ class Client(db.Model):
                 joinedload(Client.contact_info),
                 joinedload(Client.emergency_contacts),
                 joinedload(Client.pets),
-                joinedload(Client.typical_groomer)
             ).filter_by(id=client_id).first()
 
             if client: 
@@ -540,6 +545,57 @@ class Client(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to delete client(s). Unknown error"}), 500, 
             )     
+      
+    @classmethod  
+    def upload_profile_picture(cls, client_id, image, filename, ext):
+        try: 
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
+
+            # Secure the filename and save the image to disk
+            secure_name = secure_filename(filename)
+            local_path = os.path.join(image_store, secure_name)
+            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+            # Save the FileStorage image to the local path
+            image.save(local_path)
+
+            # Resize the image
+            img = Image.open(local_path)
+            img.thumbnail((512, 512))  # Resize to 512x512
+
+            # Save the resized image (overwrite or create new file)
+            img.save(local_path, format=ext, quality=85)
+
+            # Construct the final image URL
+            image_url = image_store + secure_name
+
+            # Update client record in DB
+            client = Client.query.get(client_id)
+            if not client:
+                raise ValueError("Client not found.")
+
+            client.profile_pic_url = image_url
+            db.session.commit()
+
+            return jsonify({
+                "success": 1, 
+                "client_id": client_id,
+                "image_url": local_path
+            }) 
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Unknown error"}), 500, 
+            )  
+
         
     # @classmethod 
     # def get_favorite_clients(cls): 

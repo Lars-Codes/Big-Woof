@@ -51,6 +51,20 @@ def deleteClients():
         print(f"Unexpected error from /deleteClient: {e}")
         return res
     
+@client_bp.route('/uploadProfilePicture', methods=["POST"])
+def uploadProfilePicture():
+    try: 
+        client_id = request.form.get("client_id")
+        image = request.files.get("image")
+        ext = request.form.get("ext")
+        filename = "profile." + ext
+
+        res = Client.upload_profile_picture(client_id, image, filename, ext)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /uploadProfilePicture: {e}")
+        return res
+             
     
 # @client_bp.route('/getFavoriteClients', methods=["GET"])
 # def getFavoriteClients(): 
