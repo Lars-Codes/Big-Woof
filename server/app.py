@@ -9,15 +9,13 @@ from models.db import db
 from models.prefilled_tables.payment_types import PaymentTypes
 from models.prefilled_tables.time_types import TimeTypes
 from models.prefilled_tables.document_types import DocumentTypes
-# from models.organisms.client import Client
-# from models.contact_info import ContactInfo
-# from models.prefilled_tables.user_type import UserType
-# from models.organisms.emergency_contact import EmergencyContact
+
 
 from controllers.organisms.client import client_bp
 from controllers.organisms.emergency_contact import emergency_contact_bp
 from controllers.organisms.vet import vet_bp
 from controllers.organisms.employee import employee_bp
+from controllers.prefilled_tables.payment_types import payment_types_bp
 
 app = Flask(__name__)
 
@@ -50,14 +48,15 @@ app.register_blueprint(client_bp)
 app.register_blueprint(emergency_contact_bp)
 app.register_blueprint(vet_bp)
 app.register_blueprint(employee_bp)
+app.register_blueprint(payment_types_bp)
 
 
-# with app.app_context():
-#     # Prefill tables 
-#     print("Populating prefilled values...")
-#     PaymentTypes.populate_prefilled_values()
-#     TimeTypes.populate_prefilled_values()
-#     DocumentTypes.populate_prefilled_values()
+with app.app_context():
+    # Prefill tables 
+    print("Populating prefilled values...")
+    PaymentTypes.populate_prefilled_values()
+    TimeTypes.populate_prefilled_values()
+    DocumentTypes.populate_prefilled_values()
 
 if __name__ == "__main__":
     app.run(debug=True)

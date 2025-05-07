@@ -1,5 +1,6 @@
 from models.db import db 
 from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
 
 class PaymentTypes(db.Model): 
     
@@ -46,8 +47,32 @@ class PaymentTypes(db.Model):
     
     @classmethod 
     def get_all_payment_types(cls): 
-        # Get all configured payment types
-        pass 
+        try: 
+            query = db.session.query(PaymentTypes)
+            payment_data = [
+                {
+                    "payment_type_id": payment_type.id, 
+                    "payment_type": payment_type.payment_type
+                }
+                for payment_type in query  
+            ] 
+            return jsonify({
+                "success": 1, 
+                "data": payment_data, 
+            }) 
+
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all payment types. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all payment types. Unknown error"}), 500, 
+            )    
 
     @classmethod 
     def get_payment_types_for_client(cls, client_id):
