@@ -41,7 +41,7 @@ class Client(db.Model):
     online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
     online_payments = db.relationship('OnlinePaymentIds', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
 
-    payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
+    payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
 
     additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AdditionalCosts.client_id')
     added_time = db.relationship('AddedTime', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AddedTime.client_id')
@@ -229,49 +229,51 @@ class Client(db.Model):
                     }
                     clients_data["payment_methods"].append(payments)
                 
-                for a in client.additional_costs:
-                    if a.added_for_service == 1: 
-                        service_addition = {
-                            "id": a.id, 
-                            "service_name": a.service.name, 
-                            "added_cost": a.added_cost,
-                            "is_percentage": a.is_percentage,
-                            "reason": a.reason if a.reason else "",
-                        }
-                        clients_data["added_cost_per_service"].append(service_addition)
-                    if a.added_for_mile == 1: 
-                        mile_addition = {
-                            "id": a.id, 
-                            "added_cost_per_mile": a.added_cost_per_mile, 
-                            "is_percentage": a.added_cost_per_mile_is_percent, 
-                            "reason": a.reason if a.reason else "",
-                        }
-                        clients_data["added_cost_travel"].append(mile_addition)
-                    else: 
-                        other_addition = {
-                            "id": a.id, 
-                            "added_cost": a.added_cost,
-                            "is_percentage": a.is_percentage,
-                            "reason": a.reasonm if a.reason else "",
-                        }
-                        clients_data["added_cost_other"].append(other_addition)
-                        
-                for t in client.added_time:
-                    if t.added_for_service == 1: 
-                        time_data = {
-                            "service_name": t.service.name, 
-                            "additional_time": t.additional_time, 
-                            "time_type": "minutes", 
-                            "reason": t.reason if t.reason else "",
-                        }
-                        clients_data["added_time_per_service"].append(time_data)
-                    else: 
-                        time_data = {
-                            "additional_time": t.additional_time, 
-                            "time_type": "minutes", 
-                            "reason": t.reason if t.reason else "",
-                        }
-                        clients_data["added_time_other"].append(time_data)
+                if client.additional_costs: 
+                    for a in client.additional_costs:
+                        if a.added_for_service == 1: 
+                            service_addition = {
+                                "id": a.id, 
+                                "service_name": a.service.name, 
+                                "added_cost": a.added_cost,
+                                "is_percentage": a.is_percentage,
+                                "reason": a.reason if a.reason else "",
+                            }
+                            clients_data["added_cost_per_service"].append(service_addition)
+                        if a.added_for_mile == 1: 
+                            mile_addition = {
+                                "id": a.id, 
+                                "added_cost_per_mile": a.added_cost_per_mile, 
+                                "is_percentage": a.added_cost_per_mile_is_percent, 
+                                "reason": a.reason if a.reason else "",
+                            }
+                            clients_data["added_cost_travel"].append(mile_addition)
+                        else: 
+                            other_addition = {
+                                "id": a.id, 
+                                "added_cost": a.added_cost,
+                                "is_percentage": a.is_percentage,
+                                "reason": a.reasonm if a.reason else "",
+                            }
+                            clients_data["added_cost_other"].append(other_addition)
+                   
+                if client.added_time:      
+                    for t in client.added_time:
+                        if t.added_for_service == 1: 
+                            time_data = {
+                                "service_name": t.service.name, 
+                                "additional_time": t.additional_time, 
+                                "time_type": "minutes", 
+                                "reason": t.reason if t.reason else "",
+                            }
+                            clients_data["added_time_per_service"].append(time_data)
+                        else: 
+                            time_data = {
+                                "additional_time": t.additional_time, 
+                                "time_type": "minutes", 
+                                "reason": t.reason if t.reason else "",
+                            }
+                            clients_data["added_time_other"].append(time_data)
                 
                 return jsonify({
                     "success": 1, 
