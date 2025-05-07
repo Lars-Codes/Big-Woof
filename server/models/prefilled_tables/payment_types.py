@@ -43,7 +43,29 @@ class PaymentTypes(db.Model):
         
     @classmethod 
     def create_payment_type(cls, payment_type): 
-        pass 
+        try: 
+            new_payment_type = PaymentTypes(payment_type) 
+            db.session.add(new_payment_type)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Payment type created succesfully",
+                "payment_type_id": new_payment_type.id,
+                "payment_type": new_payment_type.payment_type
+            })
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create payment type. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create payment type. Unknown error"}), 500, 
+            )   
+        
     
     @classmethod 
     def get_all_payment_types(cls): 
@@ -84,4 +106,32 @@ class PaymentTypes(db.Model):
     
     @classmethod 
     def delete_payment_type(cls, payment_type_id): 
-        pass 
+        try:
+            payment_type = PaymentTypes.query.get(payment_type_id)
+            if payment_type:
+                db.session.delete(payment_type)
+                db.session.commit()
+                return jsonify({
+                "success": 1, 
+                "message": "Payment type deleted succesfully",
+                })
+            else: 
+                return jsonify({
+                "success": 0, 
+                "error": "No payment type associated with specified id",
+                })
+
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete payment type. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete payment type. Unknown error"}), 500, 
+            )    
+ 
