@@ -16,6 +16,7 @@ from controllers.organisms.emergency_contact import emergency_contact_bp
 from controllers.organisms.vet import vet_bp
 from controllers.organisms.employee import employee_bp
 from controllers.prefilled_tables.payment_types import payment_types_bp
+from controllers.prefilled_tables.document_types import document_types_bp
 
 app = Flask(__name__)
 
@@ -49,6 +50,7 @@ app.register_blueprint(emergency_contact_bp)
 app.register_blueprint(vet_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(payment_types_bp)
+app.register_blueprint(document_types_bp)
 
 
 with app.app_context():

@@ -20,5 +20,11 @@ class ClientFiles(db.Model):
         db.Index('idx_appointment_id_files', 'appointment_id'),
     )
     
-    def __init__(): # DOCUMENT TYPE DEFAULTS TO "Other"
+    # def __init__(self, document_name, document, document_type, client_id, description=None, pet_id=None, appointment_id=None): # DOCUMENT TYPE DEFAULTS TO "Other"
+    #     self.client_id = client_id
+    #     self.pet_id = pet_id
+    #     self.appointment_id = appointment_id
+    
+    @classmethod 
+    def upload_client_document(cls, client_id, document_name, document, document_type, description):
         pass

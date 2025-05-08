@@ -1,9 +1,7 @@
 from models.db import db 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload, load_only
 
 from flask import jsonify
-# from models.finances.client_payment_types import ClientPaymentTypes
 
 class PaymentTypes(db.Model): 
     
@@ -11,6 +9,11 @@ class PaymentTypes(db.Model):
     
     id = db.Column(db.Integer, primary_key = True) 
     payment_type = db.Column(db.String(20), nullable = False)
+    
+    __table_args__ = (
+        db.Index('idx_payment_type_id', 'id'),
+    )
+    
     
     def __init__(self, payment_type):
         self.payment_type = payment_type

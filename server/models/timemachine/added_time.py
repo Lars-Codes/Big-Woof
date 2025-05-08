@@ -31,3 +31,8 @@ class AddedTime(db.Model):
     
     def __init__():
         pass
+    
+    
+    @classmethod 
+    def add_time_for_client(cls, client_id, added_for_service, service_id, service, time_type, additional_time, reason):
+        pass 
