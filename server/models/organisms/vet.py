@@ -35,12 +35,12 @@ class Vet(db.Model):
             return (
             jsonify({"success": 0, "error": "Client does not exist for client_id"}), 500,
         )    
-        if vet: 
-            return jsonify({
-                "success": 0, 
-                "message": "Vet already assigned to client",
-                "vet_id": vet.id
-            })
+        # if vet: 
+        #     return jsonify({
+        #         "success": 0, 
+        #         "message": "Vet already assigned to client",
+        #         "vet_id": vet.id
+        #     })
                 
         contact_info = ContactInfo(primary_phone=primary_phone, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
         vet = cls(fname, lname, client_id, contact_info, notes)

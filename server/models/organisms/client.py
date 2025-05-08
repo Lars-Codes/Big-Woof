@@ -30,7 +30,7 @@ class Client(db.Model):
     
     pets = db.relationship('Pet', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='Pet.client_id')
     
-    vet = db.relationship('Vet', uselist=False, backref='client', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='Vet.client_id')
+    vet = db.relationship('Vet', uselist=True, backref='client', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='Vet.client_id')
     
     appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
     appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AppointmentStats.client_id')
@@ -124,7 +124,7 @@ class Client(db.Model):
                     # "typical_groomer": {},
                     "emergency_contacts": [], 
                     "pets": [],
-                    "client_vet": {}
+                    "client_vets": []
                 }
                 
                 # if client.typical_groomer: 
@@ -134,19 +134,20 @@ class Client(db.Model):
                 #         "employee_id": client.typical_groomer.id if client.typical_groomer else -1, 
                 #     }
                 
-                if client.vet: 
-                    clients_data['client_vet'] = {
-                        "fname": getattr(client.vet, "fname"),
-                        "lname": getattr(client.vet, "lname"),
-                        "notes": client.vet.notes if client.vet.notes else "",
-                        "primary_phone": client.vet.contact_info.primary_phone if client.vet.contact_info.primary_phone else "",
-                        "secondary_phone": client.vet.contact_info.secondary_phone if client.vet.contact_info.secondary_phone else "",#getattr(client.vet.contact_info, "secondary_phone", ""),
-                        "street_address": client.vet.contact_info.street_address if client.vet.contact_info.street_address else "",
-                        "city": client.vet.contact_info.city if client.vet.contact_info.city else "",
-                        "state": client.vet.contact_info.state if client.vet.contact_info.state else "",
-                        "zip": client.vet.contact_info.zip if client.vet.contact_info.zip else "",
-                        "email": client.vet.contact_info.email if client.vet.contact_info.email else ""
+                for vet in client.vet: 
+                    vet_info = {
+                        "fname": getattr(vet, "fname"),
+                        "lname": getattr(vet, "lname"),
+                        "notes": vet.notes if vet.notes else "",
+                        "primary_phone": vet.contact_info.primary_phone if vet.contact_info.primary_phone else "",
+                        "secondary_phone": vet.contact_info.secondary_phone if vet.contact_info.secondary_phone else "",#getattr(vet.contact_info, "secondary_phone", ""),
+                        "street_address": vet.contact_info.street_address if vet.contact_info.street_address else "",
+                        "city": vet.contact_info.city if vet.contact_info.city else "",
+                        "state": vet.contact_info.state if vet.contact_info.state else "",
+                        "zip": vet.contact_info.zip if vet.contact_info.zip else "",
+                        "email": vet.contact_info.email if vet.contact_info.email else ""
                     }
+                    clients_data["client_vet"].append(vet_info)
                 
                 for ec in client.emergency_contacts:
                     ec_info = {
