@@ -39,7 +39,7 @@ class Client(db.Model):
     # typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
     
     online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    online_payments = db.relationship('OnlinePaymentIds', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
+    online_payments = db.relationship('OnlinePaymentIds', lazy='select', cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
 
     payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
 
@@ -226,6 +226,7 @@ class Client(db.Model):
                 for p in client.payment_types:
                     payments = {
                         "payment_type": p.payment_type.payment_type, 
+                        "payment_type_id": p.payment_type.id,
                     }
                     clients_data["payment_methods"].append(payments)
                 

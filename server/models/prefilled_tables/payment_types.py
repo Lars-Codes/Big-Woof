@@ -1,6 +1,9 @@
 from models.db import db 
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload, load_only
+
 from flask import jsonify
+# from models.finances.client_payment_types import ClientPaymentTypes
 
 class PaymentTypes(db.Model): 
     
@@ -71,6 +74,7 @@ class PaymentTypes(db.Model):
     def get_all_payment_types(cls): 
         try: 
             query = db.session.query(PaymentTypes)
+            # query = db.session.query(PaymentTypes)
             payment_data = [
                 {
                     "payment_type_id": payment_type.id, 
