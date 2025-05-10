@@ -8,7 +8,9 @@ export default function* fetchClients() {
   try {
     yield put(setLoading(true));
     const res = yield call(api, "/getAllClients", "GET");
+    console.log("Response from API:", res);
     const clients = res.data;
+    console.log("Fetched clients:", clients);
     yield put(setClients(clients));
     yield call(processResultSet);
     yield fork(processSearchResultSet);
