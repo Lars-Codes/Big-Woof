@@ -1,7 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
 const API_URL = process.env.API_URL;
 
+// eslint-disable-next-line no-unused-vars
 export function api(url, method, body = null, headers = {}) {
   return new Promise((resolve, reject) => {
     const options = {

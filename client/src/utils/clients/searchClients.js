@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 export default function searchClients(str, clientResultSet) {
   const searchStr = str.toLowerCase();

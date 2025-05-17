@@ -1,5 +1,5 @@
-import { put, select } from "redux-saga/effects";
-import * as clientState from "../../../state/clients/clientsSlice";
+import { put, select } from 'redux-saga/effects';
+import * as clientState from '../../../state/clients/clientsSlice';
 
 export default function* processSearchResultSet() {
   const clientsArr = yield select(clientState.selectClients);

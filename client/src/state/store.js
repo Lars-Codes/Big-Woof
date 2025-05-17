@@ -1,7 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit";
-const createSagaMiddleware = require("redux-saga").default;
-
-import clientsReducer from "./clients/clientsSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import clientsReducer from './clients/clientsSlice';
+const createSagaMiddleware = require('redux-saga').default;
 
 export const sagaMiddleware = createSagaMiddleware();
 
@@ -19,7 +18,7 @@ const store = configureStore({
     getDefaultMiddleware({
       thunk: false,
       serializableCheck: false,
-    }).prepend(sagaMiddleware), 
+    }).prepend(sagaMiddleware),
 });
 
 export default store;

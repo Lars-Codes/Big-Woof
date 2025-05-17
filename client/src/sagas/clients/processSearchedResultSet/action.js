@@ -1,7 +1,7 @@
-import { createAction } from "@reduxjs/toolkit";
+import { createAction } from '@reduxjs/toolkit';
 
 export const PROCESSED_SEARCHED_RESULT_SET_TYPE =
-  "saga/processSearchedResultSet";
+  'saga/processSearchedResultSet';
 export const processSearchedResultSetAction = createAction(
-  PROCESSED_SEARCHED_RESULT_SET_TYPE
+  PROCESSED_SEARCHED_RESULT_SET_TYPE,
 );

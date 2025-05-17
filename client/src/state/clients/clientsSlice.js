@@ -1,16 +1,16 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 export const clientsSlice = createSlice({
-  name: "clients",
+  name: 'clients',
   initialState: {
     loading: true,
     clients: [], // List of all clients
     selectedClient: null, // Detailed data for a selected client
-    filteredBy: "all",
+    filteredBy: 'all',
     filteredClients: [],
-    sortedBy: "lname",
-    sortedDirection: "asc",
-    searchBy: "",
+    sortedBy: 'lname',
+    sortedDirection: 'asc',
+    searchBy: '',
     clientsResultSet: [], // sorted, filtered list used for the client-list component
     searchResultSet: [], // optimized client list used for searching
     searchedResultSet: null, // process search result set flag

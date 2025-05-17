@@ -1,17 +1,17 @@
-import filterClientList from "./filterClientList";
-import sortClientList from "./sortClients";
+import filterClientList from './filterClientList';
+import sortClientList from './sortClients';
 
 export default function getClientResultSet(
   clientList,
   filterBy,
   sortBy,
-  sortedDirection
+  sortedDirection,
 ) {
   let clientsList = filterClientList(clientList, filterBy);
 
   clientsList = sortClientList(clientsList, sortBy);
 
-  if (sortedDirection === "desc") {
+  if (sortedDirection === 'desc') {
     clientsList.reverse();
   }
 

@@ -1,10 +1,10 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 export default function filterClientList(clientList, filterBy) {
   switch (filterBy) {
-    case "all":
+    case 'all':
       return clientList;
-    case "favorite":
+    case 'favorite':
       return _.filter(clientList, (client) => client.favorite === 1);
     // has an upcoming appointment
     // hasnt paid for the last appointment

@@ -1,6 +1,6 @@
-import { put, call, select } from "redux-saga/effects";
-import * as clientState from "../../../state/clients/clientsSlice";
-import getClientResultSet from "../../../utils/clients/getClientResultSet";
+import { put, call, select } from 'redux-saga/effects';
+import * as clientState from '../../../state/clients/clientsSlice';
+import getClientResultSet from '../../../utils/clients/getClientResultSet';
 
 export default function* processResultSet(updateLoading = false) {
   const clientsArr = yield select(clientState.selectClients);
@@ -13,7 +13,7 @@ export default function* processResultSet(updateLoading = false) {
     clientsArr,
     filteredBy,
     sortedBy,
-    sortedDirection
+    sortedDirection,
   );
 
   // dispatch result set
