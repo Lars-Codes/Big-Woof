@@ -6,9 +6,9 @@ client_bp = Blueprint("clients", __name__)
 @client_bp.route('/getAllClients', methods=["GET"])
 def getAllClients():
     # page = request.args.get('page', default=1, type=int)
-    page = request.form.get('page', 1)
-    page_size = request.form.get('page_size', 10)
-    searchbar_chars = request.form.get('searchbar_chars', "")
+    page = request.args.get('page', 1)
+    page_size = request.args.get('page_size', 10)
+    searchbar_chars = request.args.get('searchbar_chars', "")
     
     try: 
         res = Client.get_all_clients(page=page, page_size=page_size, searchbar_chars=searchbar_chars)
@@ -72,7 +72,7 @@ def uploadProfilePicture():
 @client_bp.route('/getProfilePicture', methods=["GET"])
 def getProfilePicture():
     try: 
-        client_id = request.form.get("client_id")
+        client_id = request.args.get("client_id")
         res = Client.get_profile_picture(client_id)
         return res 
     except Exception as e: 
@@ -104,7 +104,7 @@ def deleteProfilePicture():
 @client_bp.route('/getClientMetadata', methods=['GET'])
 def getClientMetadata():
     try: 
-        client_id = request.form.get("client_id")
+        client_id = request.args.get("client_id")
         res = Client.get_client_metadata(client_id)
         return res 
     except Exception as e: 
