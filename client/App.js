@@ -9,11 +9,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useCallback } from 'react';
 import { View } from 'react-native';
 import { Provider, useDispatch } from 'react-redux';
-import Clients from './src/components/pages/Clients/Clients';
+import ClientsNavigator from './src/components/templates/Clients/ClientsNavigator';
 import { initAction } from './src/sagas/init/action';
 import store from './src/state/store';
 import './src/sagas/rootSaga';
-
 const Tab = createBottomTabNavigator();
 
 function AppContent({ onLayout }) {
@@ -43,7 +42,7 @@ function AppContent({ onLayout }) {
         >
           <Tab.Screen
             name="Clients"
-            component={Clients}
+            component={ClientsNavigator}
             options={{
               tabBarIcon: ({ color }) => (
                 <HugeiconsIcon icon={UserListIcon} size={32} color={color} />
