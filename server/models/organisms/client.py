@@ -35,11 +35,8 @@ class Client(db.Model):
     appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
     appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AppointmentStats.client_id')
 
-    # employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    # typical_groomer = db.relationship('Employee', backref='clients', lazy='select', foreign_keys=[employee_id])
-    
-    online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
-    online_payments = db.relationship('OnlinePaymentIds', lazy='select', cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
+    # online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
+    # online_payments = db.relationship('OnlinePaymentIds', lazy='select', cascade="all, delete", single_parent=True, foreign_keys=[online_payments_id])
 
     payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
 
@@ -147,7 +144,7 @@ class Client(db.Model):
                         "zip": vet.contact_info.zip if vet.contact_info.zip else "",
                         "email": vet.contact_info.email if vet.contact_info.email else ""
                     }
-                    clients_data["client_vet"].append(vet_info)
+                    clients_data["client_vets"].append(vet_info)
                 
                 for ec in client.emergency_contacts:
                     ec_info = {

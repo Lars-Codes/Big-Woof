@@ -9,6 +9,7 @@ from models.db import db
 from models.prefilled_tables.payment_types import PaymentTypes
 from models.prefilled_tables.time_types import TimeTypes
 from models.prefilled_tables.document_types import DocumentTypes
+from models.prefilled_tables.size_tier import SizeTier
 
 
 from controllers.organisms.client import client_bp
@@ -59,6 +60,7 @@ with app.app_context():
     PaymentTypes.populate_prefilled_values()
     TimeTypes.populate_prefilled_values()
     DocumentTypes.populate_prefilled_values()
+    SizeTier.populate_prefilled_values()
 
 if __name__ == "__main__":
     app.run(debug=True)
