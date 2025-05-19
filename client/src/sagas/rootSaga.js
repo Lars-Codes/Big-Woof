@@ -10,6 +10,10 @@ import { CLIENTS_SORTED_BY_ACTION_TYPE } from './clients/clientsSortedBy/action'
 import clientsSortedBySaga from './clients/clientsSortedBy/clientsSortedBy';
 import { CLIENTS_SORTED_DIRECTION_ACTION_TYPE } from './clients/clientsSortedDirection/action';
 import clientsSortedDirectionSaga from './clients/clientsSortedDirection/clientsSortedDirection';
+import { FETCH_CLIENT_DETAILS_ACTION_TYPE } from './clients/fetchClientDetails/action';
+import fetchClientDetailsSaga from './clients/fetchClientDetails/fetchClientDetails';
+import { FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/fetchClientProfilePicture/action';
+import fetchClientProfilePictureSaga from './clients/fetchClientProfilePicture/fetchClientProfilePicture';
 import { FETCH_CLIENTS_ACTION_TYPE } from './clients/fetchClients/action';
 import fetchClientsSaga from './clients/fetchClients/fetchClients';
 import { PROCESSED_SEARCHED_RESULT_SET_TYPE } from './clients/processSearchedResultSet/action';
@@ -27,6 +31,11 @@ export default function* rootSaga() {
     takeEvery(CLIENTS_SORTED_DIRECTION_ACTION_TYPE, clientsSortedDirectionSaga),
     takeEvery(PROCESSED_SEARCHED_RESULT_SET_TYPE, processSearchedResultSetSaga),
     takeLatest(FETCH_CLIENTS_ACTION_TYPE, fetchClientsSaga),
+    takeLatest(FETCH_CLIENT_DETAILS_ACTION_TYPE, fetchClientDetailsSaga),
+    takeLatest(
+      FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE,
+      fetchClientProfilePictureSaga,
+    ),
     takeLeading(INIT_ACTION_TYPE, initSaga),
     takeLatest(LOGGED_IN_ACTION_TYPE, loggedInSaga),
   ]);

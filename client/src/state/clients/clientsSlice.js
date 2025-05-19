@@ -5,7 +5,6 @@ export const clientsSlice = createSlice({
   initialState: {
     loading: true,
     clients: [], // List of all clients
-    selectedClient: null, // Detailed data for a selected client
     filteredBy: 'all',
     filteredClients: [],
     sortedBy: 'lname',
@@ -21,9 +20,6 @@ export const clientsSlice = createSlice({
     },
     setClients: (state, action) => {
       state.clients = action.payload;
-    },
-    setSelectedClient: (state, action) => {
-      state.selectedClient = action.payload;
     },
     setFilteredBy: (state, action) => {
       state.filteredBy = action.payload;
@@ -56,7 +52,6 @@ export const clientsSlice = createSlice({
 export const {
   setLoading,
   setClients,
-  setSelectedClient,
   setFilteredBy,
   setFilteredClients,
   setSortedBy,
@@ -70,7 +65,6 @@ export const {
 // Selectors
 export const selectLoading = (state) => state.clients.loading;
 export const selectClients = (state) => state.clients.clients;
-export const selectSelectedClient = (state) => state.clients.selectedClient;
 export const selectFilteredBy = (state) => state.clients.filteredBy;
 export const selectFilteredClients = (state) => state.clients.filteredClients;
 export const selectSortedBy = (state) => state.clients.sortedBy;

@@ -1,13 +1,20 @@
-import { StarIcon, StarOffIcon } from '@hugeicons/core-free-icons';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { setSelectedClient } from '../../state/clients/clientsSlice';
+import { useDispatch } from 'react-redux';
+import { fetchClientDetailsAction } from '../../sagas/clients/fetchClientDetails/action';
+import { fetchClientProfilePictureAction } from '../../sagas/clients/fetchClientProfilePicture/action';
 
 export default function ClientItem({ client }) {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   const handleClientPress = (client) => {
-    setSelectedClient(client);
-    // Navigate to the client details page
+    dispatch(fetchClientDetailsAction(client.client_id));
+    dispatch(fetchClientProfilePictureAction(client.client_id));
+    navigation.navigate('ClientDetails');
   };
 
   return (
@@ -20,11 +27,7 @@ export default function ClientItem({ client }) {
         <Text className="text-3xl text-gray-800 font-lexend-regular">
           {client.fname} {client.lname}
         </Text>
-        <HugeiconsIcon
-          icon={client.favorite ? StarIcon : StarOffIcon}
-          size={32}
-          className="text-gold"
-        />
+        <HugeiconsIcon icon={ArrowRight01Icon} size={32} />
       </View>
     </TouchableOpacity>
   );
