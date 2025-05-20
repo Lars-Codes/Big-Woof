@@ -10,9 +10,10 @@ from models.prefilled_tables.payment_types import PaymentTypes
 from models.prefilled_tables.time_types import TimeTypes
 from models.prefilled_tables.document_types import DocumentTypes
 from models.prefilled_tables.size_tier import SizeTier
-
+from models.prefilled_tables.breed import Breed
 
 from controllers.organisms.client import client_bp
+from controllers.organisms.pet import pet_bp
 from controllers.organisms.emergency_contact import emergency_contact_bp
 from controllers.organisms.vet import vet_bp
 from controllers.organisms.employee import employee_bp
@@ -52,7 +53,7 @@ app.register_blueprint(vet_bp)
 app.register_blueprint(employee_bp)
 app.register_blueprint(payment_types_bp)
 app.register_blueprint(document_types_bp)
-
+app.register_blueprint(pet_bp)
 
 with app.app_context():
     # Prefill tables 
@@ -61,6 +62,7 @@ with app.app_context():
     TimeTypes.populate_prefilled_values()
     DocumentTypes.populate_prefilled_values()
     SizeTier.populate_prefilled_values()
+    Breed.populate_prefilled_values()
 
 if __name__ == "__main__":
     app.run(debug=True)

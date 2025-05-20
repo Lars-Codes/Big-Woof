@@ -8,6 +8,7 @@ class Pet(db.Model):
     name = db.Column(db.String(50), nullable = False) 
     age = db.Column(db.Integer, nullable = True) 
     deceased = db.Column(db.Integer, nullable = True) 
+    weight = db.Column(db.Integer, nullable=True)
     
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
