@@ -46,3 +46,13 @@ def editPetBasicData():
     except Exception as e:
         print(f"Unexpected error from /editClientBasicData: {e}")
         return res
+
+@pet_bp.route('/deletePet', methods=["DELETE"])
+def deleteClients():
+    pet_arr = request.get_json().get('petid_arr', [])
+    try: 
+        res = Pet.delete_pets(pet_arr)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deleteClient: {e}")
+        return res

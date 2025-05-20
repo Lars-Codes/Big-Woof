@@ -19,6 +19,7 @@ class Pet(db.Model):
     breed = db.relationship('Breed', backref='pets', lazy='select')
     size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
     coat_type = db.relationship('CoatTypes', backref='pets', lazy='select')
+    client = db.relationship('Client', back_populates='pets', lazy='select')
     
     notes = db.Column(db.Text, nullable = True) 
     additional_costs = db.relationship('AdditionalCosts', backref='pets', lazy='select', foreign_keys='AdditionalCosts.pet_id')
@@ -119,7 +120,34 @@ class Pet(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to update pet basic data. Unknown error"}), 500, 
             )
-       
+
+    @classmethod 
+    def delete_pets(cls, pet_id_array):
+        try: 
+            ids_to_delete = [int(pet_id) for pet_id in pet_id_array]
+            num_deleted = 0
+
+            for pet_id in ids_to_delete:
+                pet = Pet.query.get(pet_id)
+                if pet:
+                    db.session.delete(pet)
+                    num_deleted += 1
+                    pet.client.num_pets = pet.client.num_pets - 1 
+
+            db.session.commit()
+            return jsonify({"success": 1, "num_deleted": num_deleted})
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete pet(s). Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete pet(s). Unknown error"}), 500, 
+            )     
    
     @classmethod 
     def get_client_pet_metadata(cls, client_id):

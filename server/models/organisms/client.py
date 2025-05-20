@@ -28,7 +28,7 @@ class Client(db.Model):
     
     emergency_contacts = db.relationship('EmergencyContact', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='EmergencyContact.client_id')
     
-    pets = db.relationship('Pet', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='Pet.client_id')
+    pets = db.relationship('Pet', back_populates='client', lazy='select', cascade='all, delete-orphan', foreign_keys='Pet.client_id')
     
     vet = db.relationship('Vet', uselist=True, backref='client', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='Vet.client_id')
     
