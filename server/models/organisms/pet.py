@@ -146,7 +146,59 @@ class Pet(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to delete pet(s). Unknown error"}), 500, 
             )     
-   
+
+
+    @classmethod 
+    def get_all_pets(cls, page, page_size, searchbar_chars): 
+        try: 
+            query = db.session.query(Pet)
+
+            # Apply search criteria if provided
+            if searchbar_chars:
+                search_pattern = f"%{searchbar_chars}%"
+                query = query.filter(
+                (Pet.name.ilike(search_pattern)) 
+            )
+
+            # Order results alphabetically
+            query = query.order_by(Pet.name.asc())
+
+            # Paginate query
+            pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+            pets = pagination.items
+
+            # Send up data 
+            pets_data = [
+            {
+            "pet_id": pet.id, 
+            "name": pet.name,
+            "client_fname": pet.client.fname,
+            "client_lname": pet.client.lname,
+            "breed": pet.breed.name if pet.breed else "", 
+            }
+            for pet in pets 
+            ]
+
+            return jsonify({
+            "success": 1, 
+            "data": pets_data, 
+            "total_pages": pagination.pages,
+            "current_page": pagination.page
+            }) 
+
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+            jsonify({"success": 0, "error": "Failed to get all pets. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+            jsonify({"success": 0, "error": "Failed to get all pets. Unknown error"}), 500, 
+            )  
+                    
     @classmethod 
     def get_client_pet_metadata(cls, client_id):
         pass 
@@ -182,10 +234,6 @@ class Pet(db.Model):
     @classmethod
     def edit_notes(cls, pet_id, new_notes):
         pass 
-    
-    @classmethod 
-    def get_all_pets(cls, page, page_size): 
-        pass
     
     @classmethod 
     def get_pet(cls, pet_id):

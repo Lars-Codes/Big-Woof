@@ -4,20 +4,19 @@ from models.organisms.pet import Pet
 pet_bp = Blueprint("pets", __name__)
 
 @pet_bp.route('/createPet', methods=["POST"])
-def createClient():
+def createPet():
 
     client_id = request.form.get('client_id')
     name = request.form.get("name")
     age = request.form.get("age")
     weight = request.form.get("weight")
-    deceased = request.form.get("deceased")
     notes = request.form.get("notes")
     
     breed_id = request.form.get("breed_id")
     size_id = request.form.get("size_tier_id")
     coat_type_id = request.form.get("coat_type_id")
     try: 
-        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, deceased, coat_type_id)
+        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, coat_type_id)
         return res 
     except Exception as e:
         print(f"Unexpected error from /createClient: {e}")
@@ -56,3 +55,22 @@ def deleteClients():
     except Exception as e: 
         print(f"Unexpected error from /deleteClient: {e}")
         return res
+    
+
+@pet_bp.route('/getAllPets', methods=["GET"])
+def getAllPets():
+    print(Pet.get_all_pets)  # Should show it's a bound method to the class
+
+    # page = request.args.get('page', default=1, type=int)
+    page = request.args.get('page', default=1, type=int)
+    page_size = request.args.get('page_size', default=10, type=int)
+    searchbar_chars = request.args.get('searchbar_chars', default="", type=str)
+    
+    try: 
+        res = Pet.get_all_pets(page, page_size, searchbar_chars)
+        return res
+    
+    except Exception as e:
+        print(f"Unexpected error from /getAllPets: {e}")
+        return res
+    
