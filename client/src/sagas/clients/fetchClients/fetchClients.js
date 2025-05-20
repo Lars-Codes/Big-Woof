@@ -18,6 +18,7 @@ export default function* fetchClients(page = 1, pageSize, search = '') {
     const res = yield call(
       api,
       `/getAllClients?page=${page}&page_size=${effectivePageSize}&searchbar_chars=${search}`,
+      'GET',
     );
     const clients = res.data;
     const currentPage = res.current_page;

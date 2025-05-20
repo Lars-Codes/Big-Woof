@@ -17,6 +17,8 @@ export const clientsSlice = createSlice({
     currentPage: 1,
     totalPages: 0,
     pageSize: 10,
+
+    createClientResult: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -58,6 +60,9 @@ export const clientsSlice = createSlice({
     setPageSize: (state, action) => {
       state.pageSize = action.payload;
     },
+    setCreateClientResult: (state, action) => {
+      state.createClientResult = action.payload;
+    },
   },
 });
 
@@ -76,6 +81,7 @@ export const {
   setCurrentPage,
   setTotalPages,
   setPageSize,
+  setCreateClientResult,
 } = clientsSlice.actions;
 
 // Selectors
@@ -93,5 +99,7 @@ export const selectSearchedResultSet = (state) =>
 export const selectCurrentPage = (state) => state.clients.currentPage;
 export const selectTotalPages = (state) => state.clients.totalPages;
 export const selectPageSize = (state) => state.clients.pageSize;
+export const selectCreateClientResult = (state) =>
+  state.clients.createClientResult;
 
 export default clientsSlice.reducer;

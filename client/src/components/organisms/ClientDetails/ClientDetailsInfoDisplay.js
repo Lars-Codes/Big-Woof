@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectClientSelectedInfo } from '../../state/clientDetails/clientDetailsSlice';
+import { selectClientSelectedInfo } from '../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientDetailsInfoDisplay() {
   const selectedInfo = useSelector(selectClientSelectedInfo);

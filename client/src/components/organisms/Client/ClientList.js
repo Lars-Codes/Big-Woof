@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, FlatList, Text, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchClientsAction } from '../../sagas/clients/fetchClients/action';
-import { selectLoading } from '../../state/clients/clientsSlice';
-import ClientItem from '../molecules/ClientItem';
+import { fetchClientsAction } from '../../../sagas/clients/fetchClients/action';
+import { selectLoading } from '../../../state/clients/clientsSlice';
+import ClientItem from '../../molecules/Client/ClientItem';
 
 export default function ClientList({ clients }) {
   const loading = useSelector(selectLoading);

@@ -9,7 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useCallback } from 'react';
 import { View } from 'react-native';
 import { Provider, useDispatch } from 'react-redux';
-import ClientsNavigator from './src/components/templates/Clients/ClientsNavigator';
+import ClientsNavigator from './src/components/templates/navigation/Clients/ClientsNavigator';
 import { initAction } from './src/sagas/init/action';
 import store from './src/state/store';
 import './src/sagas/rootSaga';
@@ -27,11 +27,7 @@ function AppContent({ onLayout }) {
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={{
-            headerTitle: 'App Name',
-            headerTitleStyle: {
-              fontFamily: 'lexend-regular',
-              fontSize: 28,
-            },
+            headerShown: false,
             tabBarLabelStyle: {
               fontFamily: 'lexend-bold',
               fontSize: 14,

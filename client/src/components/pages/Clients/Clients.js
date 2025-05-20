@@ -17,7 +17,7 @@ import {
   selectSortedBy,
   selectSortedDirection,
 } from '../../../state/clients/clientsSlice';
-import ClientList from '../../organisms/ClientList';
+import ClientList from '../../organisms/Client/ClientList';
 
 export default function Clients() {
   const dispatch = useDispatch();
