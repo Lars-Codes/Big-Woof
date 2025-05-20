@@ -4,6 +4,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os 
 from flask_migrate import Migrate
+from flask_migrate import upgrade
+from sqlalchemy import inspect
 
 from models.db import db
 from models.prefilled_tables.payment_types import PaymentTypes
@@ -56,16 +58,29 @@ app.register_blueprint(payment_types_bp)
 app.register_blueprint(document_types_bp)
 app.register_blueprint(pet_bp)
 
-with app.app_context():
-    # Prefill tables 
-    print("Populating prefilled values...")
-    PaymentTypes.populate_prefilled_values()
-    TimeTypes.populate_prefilled_values()
-    DocumentTypes.populate_prefilled_values()
-    SizeTier.populate_prefilled_values()
-    Breed.populate_prefilled_values()
-    CoatTypes.populate_prefilled_values()
 
+with app.app_context():
+    # Check if migrations directory exists before trying to upgrade
+    if os.path.exists(os.path.join(os.path.dirname(__file__), 'migrations')):
+        try:
+            upgrade()
+        except Exception as e:
+            print(f"Migration upgrade skipped or failed: {e}")
+    else:
+        print("Migrations folder not found — skipping upgrade.")
+
+    # Check if DB tables exist before populating
+    inspector = inspect(db.engine)
+    if 'payment_types' in inspector.get_table_names():
+        print("Populating prefilled values...")
+        PaymentTypes.populate_prefilled_values()
+        TimeTypes.populate_prefilled_values()
+        DocumentTypes.populate_prefilled_values()
+        SizeTier.populate_prefilled_values()
+        Breed.populate_prefilled_values()
+        CoatTypes.populate_prefilled_values()
+    else:
+        print("Tables not created yet — skipping prefill.")
 
 if __name__ == "__main__":
     app.run(debug=True)

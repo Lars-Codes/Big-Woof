@@ -264,6 +264,8 @@ client_url = "http://localhost:5000/createClient"
 emergency_contact_url = "http://localhost:5000/createEmergencyContact"  
 vet_url = "http://localhost:5000/createVet"  
 payment_type_url = "http://localhost:5000/assignPaymentTypeToClient"
+create_pet_url = "http://localhost:5000/createPet"
+
 
 for i in range(1, num_clients_to_create): 
     client_data = {
@@ -326,3 +328,18 @@ for i in range(1, num_clients_to_create):
         create_vet_response = requests.post(vet_url, data=vet_data).json()
         if create_vet_response.get("success") == 0: 
             print(create_vet_response.get("error"))
+            
+    for l in range(0, random.randint(1, 3)):
+        pet_data = {
+            "client_id": i, 
+            "name": random.choice(first_name), 
+            "age": random.randint(1, 20), 
+            "breed_id": random.randint(1, 25), 
+            "size_tier_id": random.randint(1, 4),
+            "notes": random.choice(pet_grooming_notes), 
+            "weight": random.randint(5, 60),
+            "coat_type_id": random.randint(1, 4)
+        }
+        create_pet_response = requests.post(create_pet_url, data=pet_data).json()
+        if create_pet_response.get("success") == 0: 
+            print(create_pet_response.get("error"))

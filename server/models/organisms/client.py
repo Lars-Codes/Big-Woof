@@ -200,7 +200,7 @@ class Client(db.Model):
     def get_cost_and_time_stats_metadata(cls, client_id):
         try: 
             client = Client.query.options(
-                joinedload(Client.online_payments),
+                # joinedload(Client.online_payments),
                 joinedload(Client.payment_types),
                 joinedload(Client.additional_costs),
                 joinedload(Client.added_time),
@@ -208,11 +208,11 @@ class Client(db.Model):
             
             if client: 
                 clients_data = {
-                    "client_online_payments": {
-                        "zelle_id": client.online_payments.zelle_user if client.online_payments else "", 
-                        "paypal_id": client.online_payments.paypal_user if client.online_payments else "",
-                        "venmo_id": client.online_payments.venmo_user if client.online_payments else "",
-                    },
+                    # "client_online_payments": {
+                    #     "zelle_id": client.online_payments.zelle_user if client.online_payments else "", 
+                    #     "paypal_id": client.online_payments.paypal_user if client.online_payments else "",
+                    #     "venmo_id": client.online_payments.venmo_user if client.online_payments else "",
+                    # },
                     "payment_methods": [],
                     "added_cost_per_service": [],
                     "added_cost_travel": [],
@@ -428,19 +428,19 @@ class Client(db.Model):
         
             if client: 
                 clients_data = {
-                    "documents":[]
+                    "documents": []
                 }
-                
-                for d in client.files:
-                    files = {
-                        "id": d.id,  
-                        "name": d.document_name,
-                        "pet_id": d.pet_id if d.pet_id else -1, 
-                        "appointment_id": d.appointment_id if d.appointment_id else -1, 
-                        "document_type": d.document_type,
-                        "description": d.description if d.description else "", 
-                    }
-                    clients_data["documents"].append(files)
+                if client.files: 
+                    for d in client.files:
+                        files = {
+                            "id": d.id,  
+                            "name": d.document_name,
+                            "pet_id": d.pet_id if d.pet_id else -1, 
+                            "appointment_id": d.appointment_id if d.appointment_id else -1, 
+                            "document_type": d.document_type,
+                            "description": d.description if d.description else "", 
+                        }
+                        clients_data["documents"].append(files)
                     
                 return jsonify({
                     "success": 1, 
@@ -456,13 +456,13 @@ class Client(db.Model):
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Database error"}), 500,
+                jsonify({"success": 0, "error": "Failed to fetch client document data. Database error"}), 500,
             )
         except Exception as e: 
             db.session.rollback()
             print(f"Unknown error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Unknown error"}), 500,
+                jsonify({"success": 0, "error": "Failed to fetch client document data. Unknown error"}), 500,
             )  
        
     
