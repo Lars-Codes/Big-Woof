@@ -10,6 +10,8 @@ import { CLIENTS_SORTED_BY_ACTION_TYPE } from './clients/clientsSortedBy/action'
 import clientsSortedBySaga from './clients/clientsSortedBy/clientsSortedBy';
 import { CLIENTS_SORTED_DIRECTION_ACTION_TYPE } from './clients/clientsSortedDirection/action';
 import clientsSortedDirectionSaga from './clients/clientsSortedDirection/clientsSortedDirection';
+import { CREATE_CLIENT_ACTION_TYPE } from './clients/createClient/action';
+import createClientSaga from './clients/createClient/createClient';
 import { FETCH_CLIENT_DETAILS_ACTION_TYPE } from './clients/fetchClientDetails/action';
 import fetchClientDetailsSaga from './clients/fetchClientDetails/fetchClientDetails';
 import { FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/fetchClientProfilePicture/action';
@@ -29,6 +31,7 @@ export default function* rootSaga() {
     takeEvery(CLIENTS_FILTERED_BY_ACTION_TYPE, clientsFilteredBySaga),
     takeEvery(CLIENTS_SORTED_BY_ACTION_TYPE, clientsSortedBySaga),
     takeEvery(CLIENTS_SORTED_DIRECTION_ACTION_TYPE, clientsSortedDirectionSaga),
+    takeLeading(CREATE_CLIENT_ACTION_TYPE, createClientSaga),
     takeEvery(PROCESSED_SEARCHED_RESULT_SET_TYPE, processSearchedResultSetSaga),
     takeLatest(FETCH_CLIENTS_ACTION_TYPE, fetchClientsSaga),
     takeLatest(FETCH_CLIENT_DETAILS_ACTION_TYPE, fetchClientDetailsSaga),

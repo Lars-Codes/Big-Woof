@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   selectClientSelectedInfo,
   setClientSelectedInfo,
-} from '../../state/clientDetails/clientDetailsSlice';
+} from '../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientDetailsInfoSelector() {
   const dispatch = useDispatch();

@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { fetchClientDetailsAction } from '../../sagas/clients/fetchClientDetails/action';
-import { fetchClientProfilePictureAction } from '../../sagas/clients/fetchClientProfilePicture/action';
+import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
+import { fetchClientProfilePictureAction } from '../../../sagas/clients/fetchClientProfilePicture/action';
 
 export default function ClientItem({ client }) {
   const navigation = useNavigation();

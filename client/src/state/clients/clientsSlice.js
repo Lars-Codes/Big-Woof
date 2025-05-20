@@ -13,6 +13,12 @@ export const clientsSlice = createSlice({
     clientsResultSet: [], // sorted, filtered list used for the client-list component
     searchResultSet: [], // optimized client list used for searching
     searchedResultSet: null, // process search result set flag
+
+    currentPage: 1,
+    totalPages: 0,
+    pageSize: 10,
+
+    createClientResult: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -45,6 +51,18 @@ export const clientsSlice = createSlice({
     setSearchedResultSet: (state, action) => {
       state.searchedResultSet = action.payload;
     },
+    setCurrentPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
+    setTotalPages: (state, action) => {
+      state.totalPages = action.payload;
+    },
+    setPageSize: (state, action) => {
+      state.pageSize = action.payload;
+    },
+    setCreateClientResult: (state, action) => {
+      state.createClientResult = action.payload;
+    },
   },
 });
 
@@ -60,6 +78,10 @@ export const {
   setClientsResultSet,
   setSearchResultSet,
   setSearchedResultSet,
+  setCurrentPage,
+  setTotalPages,
+  setPageSize,
+  setCreateClientResult,
 } = clientsSlice.actions;
 
 // Selectors
@@ -74,5 +96,10 @@ export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
+export const selectCurrentPage = (state) => state.clients.currentPage;
+export const selectTotalPages = (state) => state.clients.totalPages;
+export const selectPageSize = (state) => state.clients.pageSize;
+export const selectCreateClientResult = (state) =>
+  state.clients.createClientResult;
 
 export default clientsSlice.reducer;

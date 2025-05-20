@@ -6,9 +6,9 @@ client_bp = Blueprint("clients", __name__)
 @client_bp.route('/getAllClients', methods=["GET"])
 def getAllClients():
     # page = request.args.get('page', default=1, type=int)
-    page = request.args.get('page', 1)
-    page_size = request.args.get('page_size', 10)
-    searchbar_chars = request.args.get('searchbar_chars', "")
+    page = request.args.get('page', default=1, type=int)
+    page_size = request.args.get('page_size', default=10, type=int)
+    searchbar_chars = request.args.get('searchbar_chars', default="", type=str)
     
     try: 
         res = Client.get_all_clients(page=page, page_size=page_size, searchbar_chars=searchbar_chars)

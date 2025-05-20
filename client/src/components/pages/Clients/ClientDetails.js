@@ -1,28 +1,18 @@
-import { MoreHorizontalIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react-native';
 import React from 'react';
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ActivityIndicator, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   selectClientDetails,
   selectClientProfilePicture,
   selectLoading,
 } from '../../../state/clientDetails/clientDetailsSlice';
-import ClientDetailsInfoDisplay from '../../organisms/ClientDetailsInfoDisplay';
-import ClientDetailsInfoSelector from '../../organisms/ClientDetailsInfoSelector';
+import ClientDetailsInfoDisplay from '../../organisms/ClientDetails/ClientDetailsInfoDisplay';
+import ClientDetailsInfoSelector from '../../organisms/ClientDetails/ClientDetailsInfoSelector';
 
 export default function ClientDetails() {
   const loading = useSelector(selectLoading);
   const client = useSelector(selectClientDetails);
   const clientProfilePicture = useSelector(selectClientProfilePicture);
-
-  const handleMorePress = () => {};
 
   return (
     <View className="flex-1">
@@ -50,13 +40,6 @@ export default function ClientDetails() {
               />
             </View>
             <View className="w-[65%] border-2 border-blue-500 p-4">
-              <TouchableOpacity
-                onPress={handleMorePress}
-                className="absolute right-4 top-4 p-2"
-              >
-                <HugeiconsIcon icon={MoreHorizontalIcon} size={32} />
-              </TouchableOpacity>
-
               <Text className="text-4xl text-gray-800 font-lexend-regular mb-1">
                 {client.client_data.fname} {client.client_data.lname}
               </Text>
