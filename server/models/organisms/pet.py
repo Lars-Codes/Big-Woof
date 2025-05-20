@@ -1,4 +1,7 @@
 from models.db import db
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify
+from models.organisms.client import Client 
 
 class Pet(db.Model): 
     __tablename__ = "pets"
@@ -12,17 +15,21 @@ class Pet(db.Model):
     
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
-    
-    notes = db.Column(db.Text, nullable = True) 
-    
+    coat_type_id = db.Column(db.Integer, db.ForeignKey('coat_types.id'), nullable=True)
     breed = db.relationship('Breed', backref='pets', lazy='select')
     size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
-
+    coat_type = db.relationship('CoatTypes', backref='pets', lazy='select')
+    
+    notes = db.Column(db.Text, nullable = True) 
     additional_costs = db.relationship('AdditionalCosts', backref='pets', lazy='select', foreign_keys='AdditionalCosts.pet_id')
     additional_time = db.relationship('AddedTime', backref='pets', lazy='select', foreign_keys='AddedTime.pet_id')
 
-    
-    def __init__(self, client_id, name, deceased=None, age=None, breed_id=None, size_tier_id=None, notes=None):
+    __table_args__ = (
+        db.Index('idx_pet_id', 'id'),
+        db.Index('idx_pet_id_client_fk', 'client_id'),
+
+    )
+    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, deceased=0, coat_type_id=None):
         self.client_id = client_id
         self.name = name 
         self.age = age 
@@ -30,18 +37,90 @@ class Pet(db.Model):
         self.breed_id = breed_id 
         self.size_tier_id = size_tier_id
         self.notes = notes 
+        self.weight = weight
+        self.coat_type_id = coat_type_id
     
     @classmethod 
-    def create_pet(cls, client_id, name, age=None, breed=None, size_tier=None, notes=None):
+    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, deceased=0, coat_type_id=None):
+        client = Client.query.filter_by(id=client_id).first()
+        if not client: 
+            return (
+                jsonify({"success": 0, "error": "Client does not exist for client_id"}), 500,
+        )
+        
+        client.num_pets = client.num_pets + 1    
+        
         pet = cls(
             client_id, 
             name, 
             age, 
-            breed, 
-            size_tier, 
-            notes 
+            breed_id, 
+            size_tier_id, 
+            notes, 
+            weight, 
+            deceased, 
+            coat_type_id
         )
+        try: 
+            db.session.add(pet)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Pet created succesfully",
+                "pet_id": pet.id
+            })       
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create client. Unknown error"}), 500,
+            )  
+   
+    @classmethod 
+    def edit_pet_basic_data(cls, **kwargs):
+        pet_id = kwargs.get('pet_id')
         
+        try: 
+            pet = cls.query.filter_by(id=pet_id).first()
+
+            if pet:                
+                for field in ['name', 'age', 'weight', 'deceased', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id']:
+                    if field in kwargs:
+                        setattr(pet, field, kwargs[field])
+
+                db.session.commit()
+                return jsonify({
+                    "success": 1, 
+                    "message": "Pet basic data updated succesfully",
+                    "pet_id": pet_id
+                })
+            
+            else: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No pet found for pet id: " + pet_id, 
+                }) 
+        
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update pet basic data. Database error"}), 500,
+            )  
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to update pet basic data. Unknown error"}), 500, 
+            )
+       
+   
     @classmethod 
     def get_client_pet_metadata(cls, client_id):
         pass 

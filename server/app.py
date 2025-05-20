@@ -11,6 +11,7 @@ from models.prefilled_tables.time_types import TimeTypes
 from models.prefilled_tables.document_types import DocumentTypes
 from models.prefilled_tables.size_tier import SizeTier
 from models.prefilled_tables.breed import Breed
+from models.prefilled_tables.coat_types import CoatTypes
 
 from controllers.organisms.client import client_bp
 from controllers.organisms.pet import pet_bp
@@ -63,6 +64,8 @@ with app.app_context():
     DocumentTypes.populate_prefilled_values()
     SizeTier.populate_prefilled_values()
     Breed.populate_prefilled_values()
+    CoatTypes.populate_prefilled_values()
+
 
 if __name__ == "__main__":
     app.run(debug=True)

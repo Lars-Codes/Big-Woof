@@ -167,7 +167,7 @@ class Client(db.Model):
                         "pet_id": p.id, 
                         "name": p.name, 
                         "age": p.age if p.age else -1, 
-                        "breed": p.breed if p.breed else "", 
+                        "breed": p.breed.name if p.breed else "", 
                     }
                     clients_data["pets"].append(pet_info)
                 
