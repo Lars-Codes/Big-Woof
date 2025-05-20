@@ -30,11 +30,10 @@ class Pet(db.Model):
         db.Index('idx_pet_id_client_fk', 'client_id'),
 
     )
-    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, deceased=0, coat_type_id=None):
+    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None):
         self.client_id = client_id
         self.name = name 
         self.age = age 
-        self.deceased = deceased
         self.breed_id = breed_id 
         self.size_tier_id = size_tier_id
         self.notes = notes 
@@ -42,7 +41,7 @@ class Pet(db.Model):
         self.coat_type_id = coat_type_id
     
     @classmethod 
-    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, deceased=0, coat_type_id=None):
+    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None):
         client = Client.query.filter_by(id=client_id).first()
         if not client: 
             return (
@@ -59,7 +58,6 @@ class Pet(db.Model):
             size_tier_id, 
             notes, 
             weight, 
-            deceased, 
             coat_type_id
         )
         try: 
@@ -91,7 +89,7 @@ class Pet(db.Model):
             pet = cls.query.filter_by(id=pet_id).first()
 
             if pet:                
-                for field in ['name', 'age', 'weight', 'deceased', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id']:
+                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id']:
                     if field in kwargs:
                         setattr(pet, field, kwargs[field])
 
