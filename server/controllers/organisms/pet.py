@@ -73,4 +73,15 @@ def getAllPets():
     except Exception as e:
         print(f"Unexpected error from /getAllPets: {e}")
         return res
-    
+
+@pet_bp.route('/changeDeceasedStatus', methods=["POST"])
+def changeDeceasedStatus():
+    pet_id = request.form.get('pet_id')
+    deceased = request.form.get('deceased')
+
+    try: 
+        res = Pet.change_deceased_status(pet_id, deceased)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /getAllPets: {e}")
+        return res
