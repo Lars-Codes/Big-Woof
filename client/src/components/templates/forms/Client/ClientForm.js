@@ -7,6 +7,7 @@ import {
   setCreateClientResult,
   selectCreateClientResult,
   selectUpdateClientResult,
+  selectLoading,
 } from '../../../../state/clients/clientsSlice';
 
 export default function ClientForm({ route, navigation }) {
@@ -14,6 +15,7 @@ export default function ClientForm({ route, navigation }) {
   const client = route?.params?.client;
   const createClientResult = useSelector(selectCreateClientResult);
   const updateClientResult = useSelector(selectUpdateClientResult);
+  const loading = useSelector(selectLoading);
 
   const [form, setForm] = useState({
     fname: '',
@@ -155,7 +157,7 @@ export default function ClientForm({ route, navigation }) {
       <TouchableOpacity
         onPress={handleSubmit}
         className="bg-blue-500 rounded-lg p-4 items-center"
-        disabled={!isFormValid()}
+        disabled={!isFormValid() || loading}
         style={{
           opacity: isFormValid() ? 1 : 0.5,
         }}

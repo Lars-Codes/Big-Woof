@@ -1,5 +1,8 @@
+import { initials } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
 import { call, put } from 'redux-saga/effects';
 import { api } from '../../../services/api';
+import { setClientProfilePicture } from '../../../state/clientDetails/clientDetailsSlice';
 import {
   setCreateClientResult,
   setLoading,
@@ -20,7 +23,14 @@ export default function* createClient(action) {
       'Content-Type': 'multipart/form-data',
     });
     if (res?.success) {
-      yield put(addClient(res.client));
+      yield put(addClient({ ...clientData, client_id: res.client_id }));
+      const avatar = createAvatar(initials, {
+        seed: clientData.fname + clientData.lname,
+        width: 200,
+        height: 200,
+      });
+      // Just store the SVG string
+      yield put(setClientProfilePicture(avatar.toString()));
     }
     yield put(setCreateClientResult(res));
   } catch (error) {

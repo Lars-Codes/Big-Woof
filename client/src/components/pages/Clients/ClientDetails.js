@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, Image } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 import { useSelector } from 'react-redux';
 import {
   selectClientDetails,
@@ -30,14 +31,14 @@ export default function ClientDetails() {
         <View className="flex-1">
           <View className="flex-row h-[25%] border-2 border-blue-500 p-4">
             <View className="w-[35%] border-2 border-blue-500 justify-center items-center">
-              <Image
-                source={{
-                  uri: clientProfilePicture
-                    ? clientProfilePicture
-                    : 'https://picsum.photos/200',
-                }}
-                className="w-[100px] h-[100px] rounded-full"
-              />
+              {clientProfilePicture ? (
+                <SvgXml xml={clientProfilePicture} width={100} height={100} />
+              ) : (
+                <Image
+                  source={{ uri: 'https://picsum.photos/200' }}
+                  className="w-[100px] h-[100px] rounded-full"
+                />
+              )}
             </View>
             <View className="w-[65%] border-2 border-blue-500 p-4">
               <Text className="text-4xl text-gray-800 font-lexend-regular mb-1">

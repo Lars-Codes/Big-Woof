@@ -31,6 +31,10 @@ export const clientsSlice = createSlice({
     addClient: (state, action) => {
       const newClient = action.payload;
       state.clients.push(newClient);
+      state.clientsResultSet = [...state.clients];
+      state.clientsResultSet.sort((a, b) => a.lname.localeCompare(b.lname));
+      state.searchResultSet = [...state.clients];
+      state.searchResultSet.sort((a, b) => a.lname.localeCompare(b.lname));
     },
     updateClient: (state, action) => {
       const updatedClient = action.payload;
