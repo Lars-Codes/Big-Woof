@@ -12,7 +12,8 @@ class Pet(db.Model):
     age = db.Column(db.Integer, nullable = True) 
     deceased = db.Column(db.Integer, nullable = True) 
     weight = db.Column(db.Integer, nullable=True)
-    
+    gender = db.Column(db.Integer, nullable=True)
+    fixed = db.Column(db.Integer, nullable=True)
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
     coat_type_id = db.Column(db.Integer, db.ForeignKey('coat_types.id'), nullable=True)
@@ -22,6 +23,9 @@ class Pet(db.Model):
     coat_type = db.relationship('CoatTypes', backref='pets', lazy='select')
     client = db.relationship('Client', back_populates='pets', lazy='select')
     typical_groomer = db.relationship('Employee', backref='pets', lazy='select')
+
+    pet_problems = db.relationship('PetProblems', back_populates='pet', lazy='select', cascade='all, delete-orphan', foreign_keys='PetProblems.pet_id')
+
     
     notes = db.Column(db.Text, nullable = True) 
     additional_costs = db.relationship('AdditionalCosts', backref='pets', lazy='select', foreign_keys='AdditionalCosts.pet_id')
@@ -30,9 +34,9 @@ class Pet(db.Model):
     __table_args__ = (
         db.Index('idx_pet_id', 'id'),
         db.Index('idx_pet_id_client_fk', 'client_id'),
-
     )
-    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None):
+    
+    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None):
         self.client_id = client_id
         self.name = name 
         self.age = age 
@@ -41,9 +45,12 @@ class Pet(db.Model):
         self.notes = notes 
         self.weight = weight
         self.coat_type_id = coat_type_id
+        self.gender = gender 
+        self.fixed = fixed
+    
     
     @classmethod 
-    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None):
+    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None):
         client = Client.query.filter_by(id=client_id).first()
         if not client: 
             return (
@@ -60,7 +67,9 @@ class Pet(db.Model):
             size_tier_id, 
             notes, 
             weight, 
-            coat_type_id
+            coat_type_id, 
+            gender,
+            fixed
         )
         try: 
             db.session.add(pet)
@@ -91,7 +100,7 @@ class Pet(db.Model):
             pet = cls.query.filter_by(id=pet_id).first()
 
             if pet:                
-                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id']:
+                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id', 'gender', 'fixed']:
                     if field in kwargs:
                         setattr(pet, field, kwargs[field])
 
@@ -249,7 +258,8 @@ class Pet(db.Model):
             print(f"Unknown error: {e}")
             return (
             jsonify({"success": 0, "error": "Failed to mark deceased status. Unknown error"}), 500, 
-            )      
+            )     
+    
     
     @classmethod 
     def get_initial_image_data(cls, pet_id):

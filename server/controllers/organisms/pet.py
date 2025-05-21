@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify 
 from models.organisms.pet import Pet
-
+from models.logistics.pet_problems import PetProblems
 pet_bp = Blueprint("pets", __name__)
 
 @pet_bp.route('/createPet', methods=["POST"])
@@ -15,18 +15,20 @@ def createPet():
     breed_id = request.form.get("breed_id")
     size_id = request.form.get("size_tier_id")
     coat_type_id = request.form.get("coat_type_id")
+    gender = request.form.get("gender")
+    fixed = request.form.get("fixed")
     try: 
-        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, coat_type_id)
+        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, coat_type_id, gender, fixed)
         return res 
     except Exception as e:
-        print(f"Unexpected error from /createClient: {e}")
+        print(f"Unexpected error from /createPet: {e}")
         return res
     
 @pet_bp.route('/editPetBasicData', methods=['PATCH'])
 def editPetBasicData():
     data = {}
     possible_fields = [
-        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id'
+        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id', 'gender', 'fixed'
     ]
     
     for field in possible_fields:
@@ -43,7 +45,7 @@ def editPetBasicData():
         res = Pet.edit_pet_basic_data(**data)
         return res
     except Exception as e:
-        print(f"Unexpected error from /editClientBasicData: {e}")
+        print(f"Unexpected error from /editPetBasicData: {e}")
         return res
 
 @pet_bp.route('/deletePet', methods=["DELETE"])
@@ -53,7 +55,7 @@ def deleteClients():
         res = Pet.delete_pets(pet_arr)
         return res 
     except Exception as e: 
-        print(f"Unexpected error from /deleteClient: {e}")
+        print(f"Unexpected error from /deletePet: {e}")
         return res
     
 
@@ -83,5 +85,18 @@ def changeDeceasedStatus():
         res = Pet.change_deceased_status(pet_id, deceased)
         return res
     except Exception as e:
-        print(f"Unexpected error from /getAllPets: {e}")
+        print(f"Unexpected error from /changeDeceasedStatus: {e}")
+        return res
+
+
+@pet_bp.route('/addPetProblem', methods=["POST"])
+def addPetProblem():
+    pet_id = request.form.get('pet_id')
+    problem = request.form.get('problem')
+    solution = request.form.get('solution')
+    try: 
+        res = PetProblems.add_pet_problem(pet_id, problem, solution)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /addPetProblem: {e}")
         return res

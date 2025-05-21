@@ -23,6 +23,7 @@ from models.logistics.services import Services
 from models.logistics.appointment import Appointment
 from models.logistics.appointment_stats import AppointmentStats
 from models.logistics.client_homework import ClientHomework
+from models.logistics.pet_problems import PetProblems
 
 from models.timemachine.added_time import AddedTime
 

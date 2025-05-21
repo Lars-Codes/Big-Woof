@@ -29,18 +29,12 @@ class Vet(db.Model):
     
     @classmethod 
     def create_vet(cls, client_id, fname, lname, notes, primary_phone = None, secondary_phone = None, email=None, street_address = None, city = None, state = None, zip=None):
-        vet = cls.query.filter_by(client_id=client_id).first()
+        # vet = cls.query.filter_by(client_id=client_id).first()
         client = Client.query.filter_by(id=client_id).first()
         if not client: 
             return (
             jsonify({"success": 0, "error": "Client does not exist for client_id"}), 500,
         )    
-        # if vet: 
-        #     return jsonify({
-        #         "success": 0, 
-        #         "message": "Vet already assigned to client",
-        #         "vet_id": vet.id
-        #     })
                 
         contact_info = ContactInfo(primary_phone=primary_phone, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
         vet = cls(fname, lname, client_id, contact_info, notes)
