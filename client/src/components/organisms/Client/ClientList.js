@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, FlatList, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { SwipeListView } from 'react-native-swipe-list-view';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchClientsAction } from '../../../sagas/clients/fetchClients/action';
 import { selectLoading } from '../../../state/clients/clientsSlice';
@@ -22,7 +23,7 @@ export default function ClientList({ clients }) {
           style={{ marginTop: 32 }}
         />
       ) : clients.length > 0 ? (
-        <FlatList
+        <SwipeListView
           data={clients}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => <ClientItem client={item} />}

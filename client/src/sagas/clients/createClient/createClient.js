@@ -1,12 +1,15 @@
 import { call, put } from 'redux-saga/effects';
 import { api } from '../../../services/api';
-import { setLoading } from '../../../state/clientDetails/clientDetailsSlice';
-import { setCreateClientResult } from '../../../state/clients/clientsSlice';
+import {
+  setCreateClientResult,
+  setLoading,
+  addClient,
+} from '../../../state/clients/clientsSlice';
 
 export default function* createClient(action) {
+  const { clientData } = action.payload;
   try {
     yield put(setLoading(true));
-    const { clientData } = action.payload;
     const formData = new FormData();
     Object.entries(clientData).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -16,6 +19,9 @@ export default function* createClient(action) {
     const res = yield call(api, '/createClient', 'POST', formData, {
       'Content-Type': 'multipart/form-data',
     });
+    if (res?.success) {
+      yield put(addClient(res.client));
+    }
     yield put(setCreateClientResult(res));
   } catch (error) {
     console.error('Error creating client:', error);

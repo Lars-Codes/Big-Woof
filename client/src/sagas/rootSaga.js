@@ -12,6 +12,8 @@ import { CLIENTS_SORTED_DIRECTION_ACTION_TYPE } from './clients/clientsSortedDir
 import clientsSortedDirectionSaga from './clients/clientsSortedDirection/clientsSortedDirection';
 import { CREATE_CLIENT_ACTION_TYPE } from './clients/createClient/action';
 import createClientSaga from './clients/createClient/createClient';
+import { DELETE_CLIENT_ACTION_TYPE } from './clients/deleteClient/action';
+import deleteClientSaga from './clients/deleteClient/deleteClient';
 import { FETCH_CLIENT_DETAILS_ACTION_TYPE } from './clients/fetchClientDetails/action';
 import fetchClientDetailsSaga from './clients/fetchClientDetails/fetchClientDetails';
 import { FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/fetchClientProfilePicture/action';
@@ -39,6 +41,7 @@ export default function* rootSaga() {
       FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE,
       fetchClientProfilePictureSaga,
     ),
+    takeLeading(DELETE_CLIENT_ACTION_TYPE, deleteClientSaga),
     takeLeading(INIT_ACTION_TYPE, initSaga),
     takeLatest(LOGGED_IN_ACTION_TYPE, loggedInSaga),
   ]);

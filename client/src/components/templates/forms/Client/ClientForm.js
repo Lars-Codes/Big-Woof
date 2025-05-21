@@ -6,12 +6,14 @@ import { fetchClientDetailsAction } from '../../../../sagas/clients/fetchClientD
 import {
   setCreateClientResult,
   selectCreateClientResult,
+  selectUpdateClientResult,
 } from '../../../../state/clients/clientsSlice';
 
 export default function ClientForm({ route, navigation }) {
   const dispatch = useDispatch();
   const client = route?.params?.client;
   const createClientResult = useSelector(selectCreateClientResult);
+  const updateClientResult = useSelector(selectUpdateClientResult);
 
   const [form, setForm] = useState({
     fname: '',
@@ -48,7 +50,6 @@ export default function ClientForm({ route, navigation }) {
 
   useEffect(() => {
     if (createClientResult) {
-      console.log('Create Client Result:', createClientResult);
       if (createClientResult.success) {
         dispatch(fetchClientDetailsAction(createClientResult.client_id));
         Alert.alert(
@@ -75,6 +76,33 @@ export default function ClientForm({ route, navigation }) {
     }
   }, [createClientResult, dispatch]);
 
+  useEffect(() => {
+    if (updateClientResult) {
+      if (updateClientResult.success) {
+        Alert.alert(
+          'Success',
+          'Client updated successfully!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('ClientDetails');
+                dispatch(setCreateClientResult(null));
+              },
+            },
+          ],
+          { cancelable: false },
+        );
+      } else {
+        Alert.alert(
+          'Error',
+          updateClientResult.message || 'Failed to update client.',
+        );
+      }
+      dispatch(setCreateClientResult(null));
+    }
+  }, [updateClientResult, dispatch]);
+
   // Handle input changes
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -83,7 +111,7 @@ export default function ClientForm({ route, navigation }) {
   // Handle form submit (dispatch create or edit action)
   const handleSubmit = () => {
     if (client && client.client_data) {
-      // dispatch edit action
+      // dispatch(updateClientAction({ clientData: form }));
     } else {
       dispatch(createClientAction({ clientData: form }));
     }

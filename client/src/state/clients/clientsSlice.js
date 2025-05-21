@@ -19,6 +19,7 @@ export const clientsSlice = createSlice({
     pageSize: 10,
 
     createClientResult: null,
+    updateClientResult: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -26,6 +27,25 @@ export const clientsSlice = createSlice({
     },
     setClients: (state, action) => {
       state.clients = action.payload;
+    },
+    addClient: (state, action) => {
+      const newClient = action.payload;
+      state.clients.push(newClient);
+    },
+    updateClient: (state, action) => {
+      const updatedClient = action.payload;
+      const index = state.clients.findIndex(
+        (client) => client.client_id === updatedClient.client_id,
+      );
+      if (index !== -1) {
+        state.clients[index] = updatedClient;
+      }
+    },
+    removeClient: (state, action) => {
+      const clientId = action.payload;
+      state.clients = state.clients.filter(
+        (client) => client.client_id !== clientId,
+      );
     },
     setFilteredBy: (state, action) => {
       state.filteredBy = action.payload;
@@ -63,6 +83,9 @@ export const clientsSlice = createSlice({
     setCreateClientResult: (state, action) => {
       state.createClientResult = action.payload;
     },
+    setUpdateClientResult: (state, action) => {
+      state.updateClientResult = action.payload;
+    },
   },
 });
 
@@ -70,6 +93,9 @@ export const clientsSlice = createSlice({
 export const {
   setLoading,
   setClients,
+  addClient,
+  updateClient,
+  removeClient,
   setFilteredBy,
   setFilteredClients,
   setSortedBy,
@@ -82,6 +108,7 @@ export const {
   setTotalPages,
   setPageSize,
   setCreateClientResult,
+  setUpdateClientResult,
 } = clientsSlice.actions;
 
 // Selectors
@@ -101,5 +128,7 @@ export const selectTotalPages = (state) => state.clients.totalPages;
 export const selectPageSize = (state) => state.clients.pageSize;
 export const selectCreateClientResult = (state) =>
   state.clients.createClientResult;
+export const selectUpdateClientResult = (state) =>
+  state.clients.updateClientResult;
 
 export default clientsSlice.reducer;
