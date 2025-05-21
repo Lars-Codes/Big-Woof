@@ -134,7 +134,6 @@ class Pet(db.Model):
                     num_deleted += 1
                     pet.client.num_pets = pet.client.num_pets - 1 
 
-            db.session.commit()
             return jsonify({"success": 1, "num_deleted": num_deleted})
         except SQLAlchemyError as e: 
             db.session.rollback()
@@ -201,106 +200,56 @@ class Pet(db.Model):
             jsonify({"success": 0, "error": "Failed to get all pets. Unknown error"}), 500, 
             )  
                     
-    # ON PAGE LOAD 
     @classmethod 
-    def get_pet_metadata(cls, pet_id): 
+    def change_deceased_status(cls, pet_id, deceased): 
         try: 
-            # Return contact info and notes, emergency contact data, pet metadata 
-            pet = Client.query.options(
-                joinedload(Client.vet),
-                joinedload(Client.contact_info),
-                joinedload(Client.emergency_contacts),
-                joinedload(Client.pets),
-            ).filter_by(id=client_id).first()
-
-            if client: 
-                clients_data = {
-                    "client_data": {
-                        "client_id": client.id, 
-                        "fname": client.fname,
-                        "lname": client.lname,
-                        "num_pets": client.num_pets, 
-                        "favorite": client.favorite,
-                        "notes": client.notes if client.notes else "", 
-                    }, 
-                    "client_contact": {
-                        "primary_phone": client.contact_info.primary_phone, 
-                        "secondary_phone": client.contact_info.secondary_phone if client.contact_info.secondary_phone else "",
-                        "street_address":  client.contact_info.street_address if client.contact_info.street_address else "", 
-                        "city": client.contact_info.city if client.contact_info.city else "", 
-                        "state": client.contact_info.state if client.contact_info.state else "", 
-                        "zip": client.contact_info.zip if client.contact_info.zip else "", 
-                        "email": client.contact_info.email if client.contact_info.email else "",
-                    },
-                    # "typical_groomer": {},
-                    "emergency_contacts": [], 
-                    "pets": [],
-                    "client_vets": []
-                }
-                
-                
-                for vet in client.vet: 
-                    vet_info = {
-                        "fname": getattr(vet, "fname"),
-                        "lname": getattr(vet, "lname"),
-                        "notes": vet.notes if vet.notes else "",
-                        "primary_phone": vet.contact_info.primary_phone if vet.contact_info.primary_phone else "",
-                        "secondary_phone": vet.contact_info.secondary_phone if vet.contact_info.secondary_phone else "",#getattr(vet.contact_info, "secondary_phone", ""),
-                        "street_address": vet.contact_info.street_address if vet.contact_info.street_address else "",
-                        "city": vet.contact_info.city if vet.contact_info.city else "",
-                        "state": vet.contact_info.state if vet.contact_info.state else "",
-                        "zip": vet.contact_info.zip if vet.contact_info.zip else "",
-                        "email": vet.contact_info.email if vet.contact_info.email else ""
-                    }
-                    clients_data["client_vets"].append(vet_info)
-                
-                for ec in client.emergency_contacts:
-                    ec_info = {
-                        "emergency_contact_id": ec.id,
-                        "fname": ec.fname,
-                        "lname": ec.lname,
-                        "relationship": ec.relationship,
-                        "primary_phone": ec.contact_info.primary_phone, 
-                        "secondary_phone": ec.contact_info.secondary_phone if ec.contact_info.secondary_phone else "", 
-                        "street_address": ec.contact_info.street_address if ec.contact_info.street_address else "", 
-                        "city": ec.contact_info.city if ec.contact_info.city else "", 
-                        "state": ec.contact_info.state if ec.contact_info.state else "", 
-                        "zip": ec.contact_info.zip if ec.contact_info.zip else "", 
-                        "email": ec.contact_info.email if ec.contact_info.email else "",
-                    }
-                    clients_data["emergency_contacts"].append(ec_info)
-                
-                for p in client.pets:
-                    pet_info = {
-                        "pet_id": p.id, 
-                        "name": p.name, 
-                        "age": p.age if p.age else -1, 
-                        "breed": p.breed.name if p.breed else "", 
-                    }
-                    clients_data["pets"].append(pet_info)
-                
+            if int(deceased)!=1 and int(deceased)!=0:
                 return jsonify({
-                    "success": 1, 
-                    "data": clients_data, 
+                "success": 0, 
+                "error": "Deceased bool must be either 0 or 1"
+                }) 
+            
+            pet = cls.query.filter_by(id=pet_id).first()
+            if not pet: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No pet found for pet id: " + pet_id, 
+                }) 
+                
+            client = pet.client
+            if int(deceased)==1 and pet.deceased!=1:  
+                client.num_pets = client.num_pets - 1 
+            elif int(deceased) == 0 and pet.deceased!=0: 
+                client.num_pets = client.num_pets + 1 
+                
+            pet.deceased = deceased
+            db.session.commit()            
+            
+            if int(deceased)==1: 
+                return jsonify({
+                "success": 1, 
+                "pet_id": pet_id, 
+                "message": "Deceased status updated sucessfully"
                 }) 
             else: 
                 return jsonify({
-                    "success": 0, 
-                    "error": "No client found for client id: " + client_id, 
+                    "success": 1, 
+                    "pet_id": pet_id,
+                    "message": "Pet resurrected?"
                 }) 
 
-        except SQLAlchemyError as e:
+        except SQLAlchemyError as e: 
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to fetch client data. Database error"}), 500,
-            )
+            jsonify({"success": 0, "error": "Failed to mark deceased status. Database error"}), 500,
+            )    
         except Exception as e: 
             db.session.rollback()
             print(f"Unknown error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to fetch client data. Unknown error"}), 500,
-            )  
+            jsonify({"success": 0, "error": "Failed to mark deceased status. Unknown error"}), 500, 
+            )      
     
     @classmethod 
     def get_initial_image_data(cls, pet_id):
