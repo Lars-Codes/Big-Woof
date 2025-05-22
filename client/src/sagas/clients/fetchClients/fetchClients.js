@@ -7,17 +7,22 @@ import {
   setCurrentPage,
   setTotalPages,
   selectPageSize,
+  selectCurrentPage,
+  selectSearchBy,
 } from '../../../state/clients/clientsSlice';
 import processResultSet from '../processResultSet/processResultSet';
 import processSearchResultSet from '../processSearchResultSet/processSearchResultSet';
 
-export default function* fetchClients(page = 1, pageSize, search = '') {
+export default function* fetchClients(action) {
   try {
+    console.log('action', action);
     yield put(setLoading(true));
-    const effectivePageSize = pageSize || (yield select(selectPageSize));
+    const effectivePage = action.page || (yield select(selectCurrentPage));
+    const effectivePageSize = action.pageSize || (yield select(selectPageSize));
+    const effectiveSearch = action.searchBy || (yield select(selectSearchBy));
     const res = yield call(
       api,
-      `/getAllClients?page=${page}&page_size=${effectivePageSize}&searchbar_chars=${search}`,
+      `/getAllClients?page=${effectivePage}&page_size=${effectivePageSize}&searchbar_chars=${effectiveSearch}`,
       'GET',
     );
     const clients = res.data;
