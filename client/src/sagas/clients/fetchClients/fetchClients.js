@@ -15,7 +15,6 @@ import processSearchResultSet from '../processSearchResultSet/processSearchResul
 
 export default function* fetchClients(action) {
   try {
-    console.log('action', action);
     yield put(setLoading(true));
     const effectivePage = action.page || (yield select(selectCurrentPage));
     const effectivePageSize = action.pageSize || (yield select(selectPageSize));
