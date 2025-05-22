@@ -8,6 +8,7 @@ import {
 export default function* uploadProfilePicture(action) {
   const { clientId, image, ext } = action.payload;
   try {
+    yield put(setLoading(true));
     const formData = new FormData();
     formData.append('client_id', clientId);
     formData.append('image', image);

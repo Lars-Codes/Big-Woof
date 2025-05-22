@@ -1,6 +1,5 @@
-import { ArrowRight01Icon, Delete03Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react-native';
 import { useNavigation } from '@react-navigation/native';
+import { ChevronRight, Trash2 } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { SwipeRow } from 'react-native-swipe-list-view';
@@ -80,7 +79,7 @@ export default function ClientItem({ client }) {
           onPress={confirmDelete}
           className="bg-red-500 w-[75px] h-full justify-center items-center"
         >
-          <HugeiconsIcon icon={Delete03Icon} size={24} color="white" />
+          <Trash2 size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -95,7 +94,7 @@ export default function ClientItem({ client }) {
           <Text className="text-3xl text-gray-800 font-lexend-regular">
             {client.fname} {client.lname}
           </Text>
-          <HugeiconsIcon icon={ArrowRight01Icon} size={32} />
+          <ChevronRight size={32} />
         </TouchableOpacity>
       </View>
     </SwipeRow>

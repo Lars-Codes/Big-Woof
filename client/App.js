@@ -1,11 +1,10 @@
 import './global.css';
 
-import { UserListIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { UsersRound } from 'lucide-react-native';
 import React, { useEffect, useCallback } from 'react';
 import { View } from 'react-native';
 import { Provider, useDispatch } from 'react-redux';
@@ -40,9 +39,7 @@ function AppContent({ onLayout }) {
             name="Clients"
             component={ClientsNavigator}
             options={{
-              tabBarIcon: ({ color }) => (
-                <HugeiconsIcon icon={UserListIcon} size={32} color={color} />
-              ),
+              tabBarIcon: ({ color }) => <UsersRound size={32} color={color} />,
             }}
           />
         </Tab.Navigator>

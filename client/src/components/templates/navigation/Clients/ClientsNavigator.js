@@ -1,11 +1,10 @@
-import {
-  ArrowLeft01Icon,
-  MoreHorizontalIcon,
-  PlusSignIcon,
-  Delete03Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+  ChevronLeft,
+  CircleEllipsis,
+  CirclePlus,
+  Trash2,
+} from 'lucide-react-native';
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -31,7 +30,7 @@ export default function ClientsNavigator() {
               onPress={() => navigation.goBack()}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={32} color="#000" />
+              <ChevronLeft size={32} color="#000" />
             </TouchableOpacity>
           ) : null,
         headerShadowVisible: false,
@@ -61,7 +60,7 @@ export default function ClientsNavigator() {
               onPress={() => navigation.navigate('ClientForm', { client: {} })}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <HugeiconsIcon icon={PlusSignIcon} size={32} color="#000" />
+              <CirclePlus size={32} color="#000" />
             </TouchableOpacity>
           ),
           headerRight: () => (
@@ -70,7 +69,7 @@ export default function ClientsNavigator() {
               // onPress={() => delete selected clients mode
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <HugeiconsIcon icon={Delete03Icon} size={32} color="#000" />
+              <Trash2 size={32} color="#000" />
             </TouchableOpacity>
           ),
           gestureEnabled: false, // Prevent swipe back
@@ -94,7 +93,7 @@ export default function ClientsNavigator() {
               }
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <HugeiconsIcon icon={MoreHorizontalIcon} size={32} color="#000" />
+              <CircleEllipsis size={32} color="#000" />
             </TouchableOpacity>
           ),
           gestureEnabled: false, // Prevent swipe back
