@@ -31,7 +31,9 @@ export default function ClientList({ clients }) {
           refreshing={loading}
         />
       ) : (
-        <Text className="text-lg text-gray-500">No clients available.</Text>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-lg text-gray-500">No clients available.</Text>
+        </View>
       )}
     </View>
   );

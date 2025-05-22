@@ -3,7 +3,6 @@ import { View, Text, Button } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientsAction } from '../../../sagas/clients/fetchClients/action';
 import {
-  selectLoading,
   selectClientsResultSet,
   selectSearchedResultSet,
   selectSearchBy,
@@ -12,11 +11,11 @@ import {
   selectPageSize,
   setCurrentPage,
 } from '../../../state/clients/clientsSlice';
+import ClientHeader from '../../organisms/Client/ClientHeader';
 import ClientList from '../../organisms/Client/ClientList';
 
 export default function Clients() {
   const dispatch = useDispatch();
-  const loading = useSelector(selectLoading);
   const clientsResultSet = useSelector(selectClientsResultSet);
   const searchedResultsSet = useSelector(selectSearchedResultSet);
   const searchBy = useSelector(selectSearchBy);
@@ -42,6 +41,7 @@ export default function Clients() {
 
   return (
     <View className="flex-1">
+      <ClientHeader />
       <ClientList clients={clients} />
       <View
         style={{

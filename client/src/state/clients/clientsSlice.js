@@ -16,7 +16,7 @@ export const clientsSlice = createSlice({
 
     currentPage: 1,
     totalPages: 0,
-    pageSize: 10,
+    pageSize: 1000000,
 
     createClientResult: null,
     updateClientResult: null,
