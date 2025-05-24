@@ -91,7 +91,7 @@ export default function ClientItem({ client }) {
           className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white"
           style={{ minHeight: 56 }}
         >
-          <Text className="text-3xl text-gray-800 font-lexend-regular">
+          <Text className="text-3xl text-gray-800 font-hn-medium">
             {client.fname} {client.lname}
           </Text>
           <ChevronRight size={32} />

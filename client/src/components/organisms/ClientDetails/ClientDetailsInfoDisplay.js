@@ -21,7 +21,7 @@ export default function ClientDetailsInfoDisplay() {
         if (option.value === selectedInfo) {
           return (
             <View key={option.value} className="">
-              <Text className="text-lg font-lexend-regular">
+              <Text className="text-lg font-hn-medium">
                 Content for {option.label}
               </Text>
             </View>

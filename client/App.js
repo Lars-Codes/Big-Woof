@@ -28,7 +28,7 @@ function AppContent({ onLayout }) {
           screenOptions={{
             headerShown: false,
             tabBarLabelStyle: {
-              fontFamily: 'lexend-bold',
+              fontFamily: 'hn-bold',
               fontSize: 14,
             },
             tabBarActiveTintColor: '#007Aff', // Active icon and label color
@@ -50,15 +50,13 @@ function AppContent({ onLayout }) {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'lexend-black': require('./src/assets/fonts/LexendDeca-Black.ttf'),
-    'lexend-bold': require('./src/assets/fonts/LexendDeca-Bold.ttf'),
-    'lexend-extrabold': require('./src/assets/fonts/LexendDeca-ExtraBold.ttf'),
-    'lexend-extralight': require('./src/assets/fonts/LexendDeca-ExtraLight.ttf'),
-    'lexend-light': require('./src/assets/fonts/LexendDeca-Light.ttf'),
-    'lexend-medium': require('./src/assets/fonts/LexendDeca-Medium.ttf'),
-    'lexend-regular': require('./src/assets/fonts/LexendDeca-Regular.ttf'),
-    'lexend-semibold': require('./src/assets/fonts/LexendDeca-SemiBold.ttf'),
-    'lexend-thin': require('./src/assets/fonts/LexendDeca-Thin.ttf'),
+    'hn-black': require('./src/assets/fonts/HelveticaNeueBlack.otf'),
+    'hn-bold': require('./src/assets/fonts/HelveticaNeueBold.otf'),
+    'hn-heavy': require('./src/assets/fonts/HelveticaNeueHeavy.otf'),
+    'hn-light': require('./src/assets/fonts/HelveticaNeueLight.otf'),
+    'hn-medium': require('./src/assets/fonts/HelveticaNeueMedium.otf'),
+    'hn-thin': require('./src/assets/fonts/HelveticaNeueThin.otf'),
+    'hn-ultralight': require('./src/assets/fonts/HelveticaNeueUltraLight.otf'),
   });
 
   useEffect(() => {

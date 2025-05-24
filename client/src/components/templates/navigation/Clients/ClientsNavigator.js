@@ -38,11 +38,6 @@ export default function ClientsNavigator() {
           backgroundColor: 'white',
         },
         headerTitleAlign: 'left',
-        headerTitleStyle: {
-          fontFamily: 'lexend-bold',
-          fontSize: 20,
-          color: '#000',
-        },
         headerBackTitleVisible: false,
       })}
     >
@@ -51,7 +46,7 @@ export default function ClientsNavigator() {
         component={Clients}
         options={({ navigation }) => ({
           headerTitle: () => (
-            <Text className="text-3xl font-lexend-semibold">Clients</Text>
+            <Text className="text-3xl font-hn-bold">Clients</Text>
           ),
           headerLeft: () => (
             <TouchableOpacity
@@ -80,9 +75,7 @@ export default function ClientsNavigator() {
         component={ClientDetails}
         options={({ navigation }) => ({
           headerTitle: () => (
-            <Text className="text-3xl font-lexend-semibold">
-              Client Details
-            </Text>
+            <Text className="text-3xl font-hn-bold">Client Details</Text>
           ),
           headerRight: () => (
             <TouchableOpacity
@@ -104,7 +97,7 @@ export default function ClientsNavigator() {
         component={ClientForm}
         options={() => ({
           headerTitle: () => (
-            <Text className="text-3xl font-lexend-semibold">Client Form</Text>
+            <Text className="text-3xl font-hn-bold">Client Form</Text>
           ),
           gestureEnabled: false,
         })}

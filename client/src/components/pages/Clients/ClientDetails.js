@@ -41,16 +41,16 @@ export default function ClientDetails() {
               )}
             </View>
             <View className="w-[65%] border-2 border-blue-500 p-4">
-              <Text className="text-4xl text-gray-800 font-lexend-regular mb-1">
+              <Text className="text-4xl text-gray-800 font-hn-medium mb-1">
                 {client.client_data.fname} {client.client_data.lname}
               </Text>
-              <Text className="text-xl text-gray-800 font-lexend-regular">
+              <Text className="text-xl text-gray-800 font-hn-medium">
                 {client.client_contact.email}
               </Text>
-              <Text className="text-xl text-gray-800 font-lexend-regular">
+              <Text className="text-xl text-gray-800 font-hn-medium">
                 {client.client_contact.primary_phone}
               </Text>
-              <Text className="text-xl text-gray-800 font-lexend-regular">
+              <Text className="text-xl text-gray-800 font-hn-medium">
                 {client.client_data.num_pets} pets
               </Text>
             </View>

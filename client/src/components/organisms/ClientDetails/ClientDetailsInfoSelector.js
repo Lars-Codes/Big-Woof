@@ -43,9 +43,7 @@ export default function ClientDetailsInfoSelector() {
                 }
               }}
             >
-              <Text className="text-4xl font-lexend-regular mx-2">
-                {item.label}
-              </Text>
+              <Text className="text-4xl font-hn-medium mx-2">{item.label}</Text>
               {isSelected && <View className="h-1 bg-blue-500 mt-1 rounded" />}
             </TouchableOpacity>
           );
