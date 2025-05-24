@@ -468,27 +468,11 @@ class Client(db.Model):
     
     
     @classmethod 
-    def get_all_clients(cls, page, page_size, searchbar_chars=""): 
+    def get_all_clients(cls): 
         try: 
+            clients = db.session.query(Client).order_by(Client.fname.asc()).all()
             
-            query = db.session.query(Client)
-
-            # Apply search criteria if provided
-            if searchbar_chars:
-                search_pattern = f"%{searchbar_chars}%"
-                query = query.filter(
-                    (Client.fname.ilike(search_pattern)) | 
-                    (Client.lname.ilike(search_pattern))
-                )
-
-            # Order results alphabetically
-            query = query.order_by(Client.fname.asc())
-
-            # Paginate query
-            pagination = query.paginate(page=page, per_page=page_size, error_out=False)
-            clients = pagination.items
-            
-            # Send up data 
+            # Prepare data
             clients_data = [
                 {
                     "client_id": client.id, 
@@ -501,11 +485,9 @@ class Client(db.Model):
             
             return jsonify({
                 "success": 1, 
-                "data": clients_data, 
-                "total_pages": pagination.pages,
-                "current_page": pagination.page
+                "data": clients_data
             }) 
-
+    
         except SQLAlchemyError as e: 
             db.session.rollback()
             print(f"Database error: {e}")
@@ -517,7 +499,7 @@ class Client(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to get all clients. Unknown error"}), 500, 
-            )    
+            )
     
     @classmethod 
     def delete_clients(cls, client_id_array):
