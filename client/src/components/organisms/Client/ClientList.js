@@ -25,7 +25,7 @@ export default function ClientList({ clients }) {
       ) : clients.length > 0 ? (
         <SwipeListView
           data={clients}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item) => item.client_id.toString()}
           renderItem={({ item }) => <ClientItem client={item} />}
           onRefresh={handleRefresh}
           refreshing={loading}

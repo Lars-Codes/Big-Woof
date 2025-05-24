@@ -26,10 +26,16 @@ export default function ClientHeader() {
 
   const handleSelectFilterBy = (filter) => {
     dispatch(clientsFilteredByAction(filter));
+    if (searchStr) {
+      dispatch(processSearchedResultSetAction(searchStr));
+    }
   };
 
   const handleOrderBy = (order) => {
     dispatch(clientsSortedByAction(order));
+    if (searchStr) {
+      dispatch(processSearchedResultSetAction(searchStr));
+    }
   };
 
   const handleSortDirection = () => {
@@ -39,6 +45,9 @@ export default function ClientHeader() {
     } else {
       setSortDirection('asc');
       dispatch(clientsSortedDirectionAction('asc'));
+    }
+    if (searchStr) {
+      dispatch(processSearchedResultSetAction(searchStr));
     }
   };
 
