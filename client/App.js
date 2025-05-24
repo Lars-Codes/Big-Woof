@@ -6,7 +6,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { UsersRound } from 'lucide-react-native';
 import React, { useEffect, useCallback } from 'react';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { Provider, useDispatch } from 'react-redux';
 import ClientsNavigator from './src/components/templates/navigation/Clients/ClientsNavigator';
 import { initAction } from './src/sagas/init/action';
@@ -77,6 +77,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <AppContent onLayout={onLayoutRootView} />
     </Provider>
   );
