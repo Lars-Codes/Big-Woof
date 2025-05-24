@@ -14,6 +14,10 @@ export const clientsSlice = createSlice({
     searchResultSet: [], // optimized client list used for searching
     searchedResultSet: null, // process search result set flag
 
+    deleteMode: false,
+    clientsDeleteSet: [],
+    closeAllRows: false,
+
     createClientResult: null,
     updateClientResult: null,
   },
@@ -71,6 +75,27 @@ export const clientsSlice = createSlice({
     setSearchedResultSet: (state, action) => {
       state.searchedResultSet = action.payload;
     },
+    setDeleteMode: (state, action) => {
+      state.deleteMode = action.payload;
+    },
+    setClientsDeleteSet: (state, action) => {
+      state.clientsDeleteSet = action.payload;
+    },
+    addClientToDeleteSet: (state, action) => {
+      const clientId = action.payload;
+      if (!state.clientsDeleteSet.includes(clientId)) {
+        state.clientsDeleteSet.push(clientId);
+      }
+    },
+    removeClientFromDeleteSet: (state, action) => {
+      const clientId = action.payload;
+      state.clientsDeleteSet = state.clientsDeleteSet.filter(
+        (id) => id !== clientId,
+      );
+    },
+    setCloseAllRows: (state, action) => {
+      state.closeAllRows = action.payload;
+    },
     setCreateClientResult: (state, action) => {
       state.createClientResult = action.payload;
     },
@@ -95,6 +120,11 @@ export const {
   setClientsResultSet,
   setSearchResultSet,
   setSearchedResultSet,
+  setDeleteMode,
+  setClientsDeleteSet,
+  addClientToDeleteSet,
+  removeClientFromDeleteSet,
+  setCloseAllRows,
   setCreateClientResult,
   setUpdateClientResult,
 } = clientsSlice.actions;
@@ -111,6 +141,9 @@ export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
+export const selectDeleteMode = (state) => state.clients.deleteMode;
+export const selectClientsDeleteSet = (state) => state.clients.clientsDeleteSet;
+export const selectCloseAllRows = (state) => state.clients.closeAllRows;
 export const selectCreateClientResult = (state) =>
   state.clients.createClientResult;
 export const selectUpdateClientResult = (state) =>

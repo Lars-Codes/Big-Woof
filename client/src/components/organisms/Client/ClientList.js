@@ -22,18 +22,22 @@ export default function ClientList({ clients }) {
           color="#4A90E2"
           style={{ marginTop: 32 }}
         />
-      ) : clients.length > 0 ? (
+      ) : (
         <SwipeListView
           data={clients}
           keyExtractor={(item) => item.client_id.toString()}
-          renderItem={({ item }) => <ClientItem client={item} />}
+          renderItem={({ item }) => <ClientItem client={item} onLongPress />}
           onRefresh={handleRefresh}
           refreshing={loading}
+          disableRightSwipe={true}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center min-h-80">
+              <Text className="text-lg text-gray-500">
+                No clients available.
+              </Text>
+            </View>
+          }
         />
-      ) : (
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-lg text-gray-500">No clients available.</Text>
-        </View>
       )}
     </View>
   );

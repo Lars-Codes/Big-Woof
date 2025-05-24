@@ -1,14 +1,27 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   ChevronLeft,
+  CircleCheckBig,
   CircleEllipsis,
   CirclePlus,
   Trash2,
+  X,
+  ListPlus,
+  ListX,
 } from 'lucide-react-native';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
+import { Text, TouchableOpacity, Alert, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteClientAction } from '../../../../sagas/clients/deleteClient/action';
 import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice';
+import {
+  selectDeleteMode,
+  setDeleteMode,
+  selectClientsDeleteSet,
+  setClientsDeleteSet,
+  selectClients,
+  setCloseAllRows,
+} from '../../../../state/clients/clientsSlice';
 import ClientDetails from '../../../pages/Clients/ClientDetails';
 import Clients from '../../../pages/Clients/Clients';
 import ClientForm from '../../forms/Client/ClientForm';
@@ -16,7 +29,58 @@ import ClientForm from '../../forms/Client/ClientForm';
 const Stack = createNativeStackNavigator();
 
 export default function ClientsNavigator() {
+  const dispatch = useDispatch();
+  const clients = useSelector(selectClients);
   const client = useSelector(selectClientDetails);
+  const deleteMode = useSelector(selectDeleteMode);
+  const clientsDeleteSet = useSelector(selectClientsDeleteSet);
+
+  const handleDeleteMode = () => {
+    if (deleteMode) {
+      if (clientsDeleteSet.length > 0) {
+        Alert.alert(
+          'Delete Selected Clients',
+          `Are you sure you want to delete ${clientsDeleteSet.length} selected client${clientsDeleteSet.length > 1 ? 's' : ''}?`,
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'Delete',
+              onPress: () => {
+                handleConfirm();
+              },
+              style: 'destructive',
+            },
+          ],
+        );
+      } else {
+        handleCancel();
+      }
+    } else {
+      dispatch(setDeleteMode(true));
+    }
+  };
+
+  const handleCancel = () => {
+    dispatch(setCloseAllRows(true));
+    setTimeout(() => {
+      dispatch(setDeleteMode(false));
+      dispatch(setClientsDeleteSet([]));
+      dispatch(setCloseAllRows(false));
+    }, 350);
+  };
+
+  const handleConfirm = () => {
+    dispatch(setCloseAllRows(true));
+    setTimeout(() => {
+      dispatch(deleteClientAction(clientsDeleteSet));
+      dispatch(setDeleteMode(false));
+      dispatch(setClientsDeleteSet([]));
+      dispatch(setCloseAllRows(false));
+    }, 350);
+  };
 
   return (
     <Stack.Navigator
@@ -51,22 +115,66 @@ export default function ClientsNavigator() {
           headerLeft: () => (
             <TouchableOpacity
               className="mr-2"
-              // onPress={() => create new client; navigate to client form with an empty client object
-              onPress={() => navigation.navigate('ClientForm', { client: {} })}
+              onPress={() => {
+                if (deleteMode) {
+                  if (clientsDeleteSet.length !== clients.length) {
+                    dispatch(
+                      setClientsDeleteSet(clients.map((c) => c.client_id)),
+                    );
+                  } else {
+                    dispatch(setClientsDeleteSet([]));
+                  }
+                } else {
+                  navigation.navigate('ClientForm', { client: {} });
+                }
+              }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <CirclePlus size={32} color="#000" />
+              {deleteMode ? (
+                clientsDeleteSet.length != clients.length ? (
+                  <ListPlus size={32} color="#000" />
+                ) : (
+                  <ListX size={32} color="#000" />
+                )
+              ) : (
+                <CirclePlus size={32} color="#000" />
+              )}
             </TouchableOpacity>
           ),
-          headerRight: () => (
-            <TouchableOpacity
-              className="mr-2"
-              // onPress={() => delete selected clients mode
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Trash2 size={32} color="#000" />
-            </TouchableOpacity>
-          ),
+          headerRight: () =>
+            clients.length > 0 ? (
+              <View className="flex-row-reverse items-center">
+                <TouchableOpacity
+                  className="ml-2"
+                  onPress={handleDeleteMode}
+                  disabled={deleteMode && clientsDeleteSet.length === 0}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  {deleteMode ? (
+                    <CircleCheckBig
+                      size={32}
+                      color="#000"
+                      style={{
+                        opacity: clientsDeleteSet.length === 0 ? 0.5 : 1,
+                      }}
+                    />
+                  ) : (
+                    <Trash2 size={32} color="#000" />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="ml-2"
+                  onPress={handleCancel}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={{
+                    opacity: deleteMode ? 1 : 0,
+                    pointerEvents: deleteMode ? 'auto' : 'none',
+                  }}
+                >
+                  <X size={32} color="#000" />
+                </TouchableOpacity>
+              </View>
+            ) : null,
           gestureEnabled: false, // Prevent swipe back
         })}
       />

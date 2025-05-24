@@ -25,7 +25,10 @@ export default function* createClient(action) {
     if (res?.success) {
       yield put(addClient({ ...clientData, client_id: res.client_id }));
       const avatar = createAvatar(initials, {
-        seed: clientData.fname + clientData.lname + res.client_id,
+        seed:
+          (clientData.fname?.[0] || '') +
+          (clientData.lname?.[0] || '') +
+          res.client_id,
         width: 200,
         height: 200,
         radius: 100,
