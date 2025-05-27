@@ -70,7 +70,7 @@ class ClientFiles(db.Model):
 
             document_url = local_path
             
-            file = cls(client_id, document_name, document_url, document_type, description, initial_filename, pet_id=None)
+            file = cls(client_id, document_name, document_url, document_type, description, initial_filename, pet_id)
 
             db.session.add(file)
             db.session.commit()

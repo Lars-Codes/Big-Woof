@@ -109,6 +109,11 @@ def getCostAndTimeStatsMetadata():
 def getClientDocumentMetadata():
     try: 
         client_id = request.form.get("client_id")
+        if client_id==None: 
+            return jsonify({
+                "success": 0, 
+                "error": "Client ID not detected in input" 
+            }) 
         res = Client.get_client_document_metadata(client_id)
         return res 
     except Exception as e: 

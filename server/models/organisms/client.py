@@ -43,7 +43,7 @@ class Client(db.Model):
     additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AdditionalCosts.client_id')
     added_time = db.relationship('AddedTime', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AddedTime.client_id')
 
-    files = db.relationship('ClientFiles', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='ClientFiles.client_id')
+    files = db.relationship('ClientFiles', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='ClientFiles.client_id')
 
 
     __table_args__ = (
@@ -90,6 +90,7 @@ class Client(db.Model):
     # ON PAGE LOAD 
     @classmethod 
     def get_client_metadata(cls, client_id): 
+        print("ID: ", client_id)
         try: 
             # Return contact info and notes, emergency contact data, pet metadata 
             client = Client.query.options(
@@ -422,6 +423,7 @@ class Client(db.Model):
     @classmethod 
     def get_client_document_metadata(cls, client_id):
         try: 
+            
             client = Client.query.options(
                 joinedload(Client.files)
             ).filter_by(id=client_id).first()       
