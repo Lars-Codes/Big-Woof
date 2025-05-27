@@ -80,7 +80,7 @@ class ClientFiles(db.Model):
             return jsonify({
                 "success": 1, 
                 "message": "Document successfully uploaded",
-                "client_id": client_id
+                "document_id": file.id
             })
             
         except SQLAlchemyError as e: 
@@ -94,4 +94,45 @@ class ClientFiles(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to upload document. Unknown error"}), 500, 
+            )  
+    
+    @classmethod 
+    def delete_document(cls, document_id):
+        try: 
+            document = ClientFiles.query.get(document_id)
+
+            if document:
+                document_url = document.document_url 
+                db.session.delete(document)
+                db.session.commit()
+                if os.path.isfile(document_url):
+                    os.remove(document_url)
+
+                    # 2. Get the parent directory
+                    parent_dir = os.path.dirname(document_url)
+
+                    # 3. If the directory is now empty, delete it
+                    if os.path.isdir(parent_dir) and not os.listdir(parent_dir):
+                        os.rmdir(parent_dir)
+            else: 
+                return (
+                jsonify({"success": 0, "error": "Failed to delete document. No document for this document ID found"}), 500,
+            )   
+            return jsonify({
+                "success": 1, 
+                "message": "Document successfully deleted",
+                "document_id": document_id
+            })
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete document. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete document. Unknown error"}), 500, 
             )  

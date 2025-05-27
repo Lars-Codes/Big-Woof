@@ -35,3 +35,13 @@ def uploadDocument():
     except Exception as e:
         print(f"Unexpected error from /getAllDocumentTypes: {e}")
         return res
+
+@document_types_bp.route('/deleteDocument', methods=["DELETE"])
+def deleteDocument():
+    document_id = request.form.get("document_id")
+    try: 
+        res = ClientFiles.delete_document(document_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deleteClient: {e}")
+        return res
