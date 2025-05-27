@@ -136,3 +136,44 @@ def deletePetProblems():
     except Exception as e: 
         print(f"Unexpected error from /deletePetProblems: {e}")
         return res
+    
+
+ 
+@pet_bp.route('/uploadPetProfilePicture', methods=["POST"])
+def uploadProfilePicture():
+    try: 
+        pet_id = request.form.get("pet_id")
+        image = request.files.get("image")
+        ext = request.form.get("ext")
+            
+        if not ext or not image or not pet_id: 
+            return (
+            jsonify({"success": 0, "error": "Key ext and image and pet_id must be provided"}), 500, 
+            ) 
+        filename = "pet-profile-" + pet_id + "." + ext
+        res = Pet.upload_profile_picture(pet_id, image, filename, ext)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /uploadProfilePicture: {e}")
+        return res
+    
+@pet_bp.route('/getPetProfilePicture', methods=["GET"])
+def getProfilePicture():
+    try: 
+        pet_id = request.args.get("pet_id")
+        res = Pet.get_profile_picture(pet_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getPetProfilePicture: {e}")
+        return res   
+    
+@pet_bp.route('/deletePetProfilePicture', methods=["DELETE"])
+def deleteProfilePicture():
+    try: 
+        pet_id = request.form.get("pet_id")
+        res = Pet.delete_profile_picture(pet_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deletePetProfilePicture: {e}")
+        return res   
+    

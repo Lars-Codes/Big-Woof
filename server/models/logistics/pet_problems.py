@@ -76,7 +76,7 @@ class PetProblems(db.Model):
             else: 
                 return jsonify({
                     "success": 0, 
-                    "error": "No client found for pet problem id: " + pet_problem_id, 
+                    "error": "No pet problem found for pet problem id: " + pet_problem_id, 
                 }) 
         
         except SQLAlchemyError as e: 

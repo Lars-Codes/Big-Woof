@@ -532,7 +532,12 @@ class Client(db.Model):
     @classmethod  
     def upload_profile_picture(cls, client_id, image, filename, ext):
         try: 
-            
+            client = Client.query.get(client_id)
+            if not client:
+                return jsonify({
+                    "success": 0, 
+                    "error": "Client not found"
+                }) 
             load_dotenv()
             image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
 
@@ -555,12 +560,6 @@ class Client(db.Model):
             image_url = secure_name
 
             # Update client record in DB
-            client = Client.query.get(client_id)
-            if not client:
-                return jsonify({
-                    "success": 0, 
-                    "error": "Client not found"
-                }) 
             client.profile_pic_url = image_url
             db.session.commit()
 

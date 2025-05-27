@@ -1,8 +1,11 @@
 from models.db import db
 from sqlalchemy.exc import SQLAlchemyError
-from flask import jsonify
+from flask import jsonify, send_from_directory
 from models.organisms.client import Client 
-
+from dotenv import load_dotenv
+from PIL import Image
+from werkzeug.utils import secure_filename
+import os 
 class Pet(db.Model): 
     __tablename__ = "pets"
     
@@ -30,6 +33,8 @@ class Pet(db.Model):
     notes = db.Column(db.Text, nullable = True) 
     additional_costs = db.relationship('AdditionalCosts', backref='pets', lazy='select', foreign_keys='AdditionalCosts.pet_id')
     additional_time = db.relationship('AddedTime', backref='pets', lazy='select', foreign_keys='AddedTime.pet_id')
+
+    profile_pic_url = db.Column(db.String(50), default="")
 
     __table_args__ = (
         db.Index('idx_pet_id', 'id'),
@@ -259,8 +264,129 @@ class Pet(db.Model):
             return (
             jsonify({"success": 0, "error": "Failed to mark deceased status. Unknown error"}), 500, 
             )     
-    
-    
+
+  
+    @classmethod  
+    def upload_profile_picture(cls, pet_id, image, filename, ext):
+        try: 
+            pet = Pet.query.get(pet_id)
+            if not pet:
+                return jsonify({
+                    "success": 0, 
+                    "error": "Pet not found"
+                }) 
+                
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
+            # Secure the filename and save the image to disk
+            secure_name = secure_filename(filename)
+            local_path = os.path.join(image_store, pet_id, secure_name)
+            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+            # Save the FileStorage image to the local path
+            image.save(local_path)
+
+            # Resize the image
+            img = Image.open(local_path)
+            img.thumbnail((512, 512))  # Resize to 512x512
+
+            # Save the resized image (overwrite or create new file)
+            img.save(local_path, quality=85)
+
+            # Construct the final image URL
+            image_url = secure_name
+            # Update client record in DB
+            print(image_url)
+            pet.profile_pic_url = image_url
+            db.session.commit()
+
+            return jsonify({
+                "success": 1, 
+                "pet_id": pet_id,
+                "image_url": image_url
+            }) 
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Unknown error"}), 500, 
+            )  
+
+    @classmethod 
+    def get_profile_picture(cls, pet_id):
+        try: 
+            pet = Pet.query.with_entities(Pet.profile_pic_url).filter_by(id=pet_id).first()
+            print("profile pic: ", pet_id)
+
+            if not pet or pet.profile_pic_url == "":
+                return jsonify({"success": 1, "exists": 0, "message": "No profile picture associated with this pet."}), 404
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL').strip()
+                
+            image_dir = os.path.join(image_store, pet_id)
+            
+            full_path = os.path.join(image_dir, pet.profile_pic_url)
+            if not os.path.exists(full_path):
+                return jsonify({"success": 0, "error": "Image URL associated with this pet does not map to an image in the image store."}), 404
+            
+            return send_from_directory(image_dir, pet.profile_pic_url)
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Unknown error"}), 500, 
+            )  
+
+    @classmethod 
+    def delete_profile_picture(cls, pet_id):
+        try: 
+            pet = Pet.query.filter_by(id=pet_id).first()
+            if not pet:
+                return jsonify({
+                    "success": 0, 
+                    "error": "Pet not found"
+                }) 
+            
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL').strip()
+            image_dir = os.path.join(image_store, pet_id)
+            full_path = os.path.join(image_dir, pet.profile_pic_url)
+            if not os.path.exists(full_path):
+                return jsonify({"success": 0, "error": "Image URL associated with this pet does not map to an image in the image store."}), 404
+            
+            if os.path.isfile(full_path):
+                os.remove(full_path)
+            else:
+                return jsonify({"success": 0, "error": "Path does not point to a file."}), 404
+            
+            pet.profile_pic_url = ""
+            db.session.commit()
+            return jsonify({"success": 1, "error": "Successfully deleted profile picture for this pet"}), 404
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get profile picture. Unknown error"}), 500, 
+            )       
     @classmethod 
     def get_initial_image_data(cls, pet_id):
         pass 
@@ -315,10 +441,6 @@ class Pet(db.Model):
     @classmethod 
     def change_profile_picture(cls, pet_id, new_picture_blob):
         pass 
-    
-    @classmethod 
-    def delete_profile_picture(cls, pet_id):
-        pass
     
     @classmethod 
     def get_photo_gallery_lowres(cls, pet_id):
