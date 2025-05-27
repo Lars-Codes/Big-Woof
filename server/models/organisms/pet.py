@@ -142,7 +142,7 @@ class Pet(db.Model):
                     db.session.delete(pet)
                     num_deleted += 1
                     pet.client.num_pets = pet.client.num_pets - 1 
-
+                db.session.commit()
             return jsonify({"success": 1, "num_deleted": num_deleted})
         except SQLAlchemyError as e: 
             db.session.rollback()

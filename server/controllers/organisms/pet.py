@@ -49,7 +49,7 @@ def editPetBasicData():
         return res
 
 @pet_bp.route('/deletePet', methods=["DELETE"])
-def deleteClients():
+def deletePet():
     pet_arr = request.get_json().get('petid_arr', [])
     try: 
         res = Pet.delete_pets(pet_arr)
@@ -99,4 +99,40 @@ def addPetProblem():
         return res
     except Exception as e:
         print(f"Unexpected error from /addPetProblem: {e}")
+        return res
+
+
+@pet_bp.route('/editPetProblem', methods=['PATCH'])
+def editPetProblem():
+    data = {}
+    possible_fields = [
+        'pet_problem_id', 'problem', 'solution'
+    ]
+    
+    for field in possible_fields:
+        value = request.form.get(field)
+        if value is not None:
+            data[field] = value
+            
+    if data.get('pet_problem_id') == None: 
+        return (
+            jsonify({"success": 0, "error": "Key pet_problem_id must be provided"}), 500, 
+        )  
+        
+    try:
+        res = PetProblems.edit_pet_problem(**data)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /editPetProblem: {e}")
+        return res
+    
+
+@pet_bp.route('/deletePetProblems', methods=["DELETE"])
+def deletePetProblems():
+    pet_arr = request.get_json().get('pet_problem_id_arr', [])
+    try: 
+        res = PetProblems.delete_pet_problems(pet_arr)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deletePetProblems: {e}")
         return res
