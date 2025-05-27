@@ -28,7 +28,7 @@ export default function ClientItem({ client }) {
 
   useEffect(() => {
     if (deleteMode && rowRef.current) {
-      rowRef.current.manuallySwipeRow(75);
+      rowRef.current.manuallySwipeRow(60);
     }
   }, [deleteMode]);
 
@@ -104,7 +104,7 @@ export default function ClientItem({ client }) {
   return (
     <SwipeRow
       ref={rowRef}
-      leftOpenValue={75}
+      leftOpenValue={60}
       disableLeftSwipe={true}
       disableRightSwipe={deleteMode}
       swipeToOpenPercent={40}
@@ -113,8 +113,8 @@ export default function ClientItem({ client }) {
       swipeToClosePercent={10}
       friction={100}
       tension={100}
-      stopLeftSwipe={deleteMode ? 75 : undefined}
-      stopRightSwipe={deleteMode ? 75 : undefined}
+      stopLeftSwipe={deleteMode ? 60 : undefined}
+      stopRightSwipe={deleteMode ? 60 : undefined}
     >
       <View
         className={`flex-1 flex-row justify-start border-b border-gray-200 ${closeAllRows ? '' : 'bg-red-500'} `}
@@ -122,7 +122,7 @@ export default function ClientItem({ client }) {
         {deleteMode ? (
           <TouchableOpacity
             onPress={() => handleClientPress(client)}
-            className={`w-[75px] h-full justify-center items-center ${isClientInDeleteSet ? 'bg-red-500' : 'bg-gray-500'}`}
+            className={`w-[60px] h-full justify-center items-center ${isClientInDeleteSet ? 'bg-red-500' : 'bg-gray-500'}`}
           >
             {isClientInDeleteSet ? (
               <CircleCheck size={24} color="white" />
@@ -133,7 +133,7 @@ export default function ClientItem({ client }) {
         ) : (
           <TouchableOpacity
             onPress={confirmDelete}
-            className="bg-red-500 w-[75px] h-full justify-center items-center"
+            className="bg-red-500 w-[60px] h-full justify-center items-center"
           >
             <Trash2 size={24} color="white" />
           </TouchableOpacity>
@@ -144,7 +144,7 @@ export default function ClientItem({ client }) {
           onPress={() => handleClientPress(client)}
           onLongPress={() => handleClientLongPress(client)}
           activeOpacity={0.4}
-          className="flex-row items-center justify-between p-4 border-b border-gray-200"
+          className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
           style={{ minHeight: 56 }}
         >
           <Text className="text-3xl text-gray-800 font-hn-medium">

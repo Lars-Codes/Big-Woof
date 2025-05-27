@@ -3,16 +3,11 @@ import { createAvatar } from '@dicebear/core';
 import { call, put } from 'redux-saga/effects';
 import { api } from '../../../services/api';
 import { setClientProfilePicture } from '../../../state/clientDetails/clientDetailsSlice';
-import {
-  setCreateClientResult,
-  setLoading,
-  addClient,
-} from '../../../state/clients/clientsSlice';
+import { setCreateClientResult } from '../../../state/clients/clientsSlice';
 
 export default function* createClient(action) {
   const { clientData } = action.payload;
   try {
-    yield put(setLoading(true));
     const formData = new FormData();
     Object.entries(clientData).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -23,7 +18,6 @@ export default function* createClient(action) {
       'Content-Type': 'multipart/form-data',
     });
     if (res?.success) {
-      yield put(addClient({ ...clientData, client_id: res.client_id }));
       const avatar = createAvatar(initials, {
         seed:
           (clientData.fname?.[0] || '') +
@@ -42,7 +36,5 @@ export default function* createClient(action) {
     yield put(
       setCreateClientResult({ success: 0, message: 'Error creating client' }),
     );
-  } finally {
-    yield put(setLoading(false));
   }
 }

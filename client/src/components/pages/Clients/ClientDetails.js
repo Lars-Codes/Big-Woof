@@ -29,7 +29,7 @@ export default function ClientDetails() {
         </Text>
       ) : (
         <View className="flex-1">
-          <View className="flex-row h-[25%] border-2 border-blue-500 p-4">
+          <View className="flex-row h-22 border-2 border-blue-500 p-4">
             <View className="w-[35%] border-2 border-blue-500 justify-center items-center">
               {clientProfilePicture ? (
                 <SvgXml xml={clientProfilePicture} width={100} height={100} />
@@ -56,11 +56,11 @@ export default function ClientDetails() {
             </View>
           </View>
 
-          <View className="flex-row h-[15%] border-2 border-blue-500">
+          <View className="flex-row h-18 border-2 border-blue-500">
             <ClientDetailsInfoSelector />
           </View>
 
-          <View className="flex-row h-[60%] border-2 border-blue-500 p-4">
+          <View className="flex-row h-full border-2 border-blue-500 p-4">
             <ClientDetailsInfoDisplay />
           </View>
         </View>

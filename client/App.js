@@ -1,5 +1,5 @@
 import './global.css';
-
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { UsersRound } from 'lucide-react-native';
 import React, { useEffect, useCallback } from 'react';
 import { View, StatusBar } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useDispatch } from 'react-redux';
 import ClientsNavigator from './src/components/templates/navigation/Clients/ClientsNavigator';
 import { initAction } from './src/sagas/init/action';
@@ -75,8 +76,12 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <AppContent onLayout={onLayoutRootView} />
+      <ActionSheetProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+          <AppContent onLayout={onLayoutRootView} />
+        </GestureHandlerRootView>
+      </ActionSheetProvider>
     </Provider>
   );
 }

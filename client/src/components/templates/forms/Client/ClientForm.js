@@ -8,9 +8,10 @@ import {
   selectCreateClientResult,
   selectUpdateClientResult,
   selectLoading,
+  setUpdateClientResult,
 } from '../../../../state/clients/clientsSlice';
 
-export default function ClientForm({ route, navigation }) {
+export default function ClientForm({ route, onSuccess }) {
   const dispatch = useDispatch();
   const client = route?.params?.client;
   const createClientResult = useSelector(selectCreateClientResult);
@@ -61,8 +62,25 @@ export default function ClientForm({ route, navigation }) {
             {
               text: 'OK',
               onPress: () => {
-                navigation.navigate('ClientDetails');
                 dispatch(setCreateClientResult(null));
+                // Pass new client data to onSuccess
+                onSuccess?.({
+                  ...form,
+                  client_id: createClientResult.client_id,
+                });
+                setForm({
+                  fname: '',
+                  lname: '',
+                  phone_number: '',
+                  email: '',
+                  street_address: '',
+                  city: '',
+                  state: '',
+                  zip: '',
+                  secondary_phone: '',
+                  notes: '',
+                  favorite: 0,
+                });
               },
             },
           ],
@@ -76,7 +94,7 @@ export default function ClientForm({ route, navigation }) {
       }
       dispatch(setCreateClientResult(null));
     }
-  }, [createClientResult, dispatch]);
+  }, [createClientResult, dispatch, onSuccess, form]);
 
   useEffect(() => {
     if (updateClientResult) {
@@ -88,8 +106,21 @@ export default function ClientForm({ route, navigation }) {
             {
               text: 'OK',
               onPress: () => {
-                navigation.navigate('ClientDetails');
-                dispatch(setCreateClientResult(null));
+                dispatch(setUpdateClientResult(null));
+                onSuccess?.();
+                setForm({
+                  fname: '',
+                  lname: '',
+                  phone_number: '',
+                  email: '',
+                  street_address: '',
+                  city: '',
+                  state: '',
+                  zip: '',
+                  secondary_phone: '',
+                  notes: '',
+                  favorite: 0,
+                });
               },
             },
           ],
@@ -101,9 +132,9 @@ export default function ClientForm({ route, navigation }) {
           updateClientResult.message || 'Failed to update client.',
         );
       }
-      dispatch(setCreateClientResult(null));
+      dispatch(setUpdateClientResult(null));
     }
-  }, [updateClientResult, dispatch]);
+  }, [updateClientResult, dispatch, onSuccess]);
 
   // Handle input changes
   const handleChange = (field, value) => {
@@ -128,14 +159,22 @@ export default function ClientForm({ route, navigation }) {
   };
 
   return (
-    <View className="flex-1 justify-between p-4">
-      <View className="gap-4">
+    <View className="flex-1 justify-between">
+      {/* Form Header */}
+      <View className="mb-4">
+        <Text className="text-xl font-bold text-center">
+          {client && client.client_data ? 'Update Client' : 'Add New Client'}
+        </Text>
+      </View>
+
+      {/* Form Fields */}
+      <View className="gap-4 flex-1">
         <TextInput
           value={form.fname}
           onChangeText={(text) => handleChange('fname', text)}
           placeholder="First Name"
           placeholderTextColor={'#888'}
-          className="border border-gray-300 bg-white rounded p-2"
+          className="border border-gray-300 bg-white rounded p-3"
         />
 
         <TextInput
@@ -143,7 +182,7 @@ export default function ClientForm({ route, navigation }) {
           onChangeText={(text) => handleChange('lname', text)}
           placeholder="Last Name"
           placeholderTextColor={'#888'}
-          className="border border-gray-300 bg-white rounded p-2"
+          className="border border-gray-300 bg-white rounded p-3"
         />
 
         <TextInput
@@ -151,19 +190,36 @@ export default function ClientForm({ route, navigation }) {
           onChangeText={(text) => handleChange('phone_number', text)}
           placeholder="Phone Number"
           placeholderTextColor={'#888'}
-          className="border border-gray-300 bg-white rounded p-2"
+          className="border border-gray-300 bg-white rounded p-3"
+          keyboardType="phone-pad"
+        />
+
+        <TextInput
+          value={form.email}
+          onChangeText={(text) => handleChange('email', text)}
+          placeholder="Email (optional)"
+          placeholderTextColor={'#888'}
+          className="border border-gray-300 bg-white rounded p-3"
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
       </View>
+
+      {/* Submit Button */}
       <TouchableOpacity
         onPress={handleSubmit}
-        className="bg-blue-500 rounded-lg p-4 items-center"
+        className="bg-blue-500 rounded-lg p-4 items-center mt-4"
         disabled={!isFormValid() || loading}
         style={{
-          opacity: isFormValid() ? 1 : 0.5,
+          opacity: isFormValid() && !loading ? 1 : 0.5,
         }}
       >
-        <Text style={{ color: '#fff', fontSize: 16 }}>
-          {client && client.client_data ? 'Update Client' : 'Create Client'}
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+          {loading
+            ? 'Saving...'
+            : client && client.client_data
+              ? 'Update Client'
+              : 'Create Client'}
         </Text>
       </TouchableOpacity>
     </View>
