@@ -81,7 +81,7 @@ def deleteProfilePicture():
         res = Client.delete_profile_picture(client_id)
         return res 
     except Exception as e: 
-        print(f"Unexpected error from /getProfilePicture: {e}")
+        print(f"Unexpected error from /deleteProfilePicture: {e}")
         return res   
     
 @client_bp.route('/getClientMetadata', methods=['GET'])
