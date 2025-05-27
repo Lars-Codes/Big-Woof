@@ -186,3 +186,4 @@ def updateClientIsFavorite():
     except Exception as e:
         print(f"Unexpected error from /addClientToFavorites: {e}")
         return res
+    
