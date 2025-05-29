@@ -38,7 +38,6 @@ def createClient():
 @client_bp.route('/deleteClient', methods=["DELETE"])
 def deleteClients():
     client_arr = request.get_json().get('clientid_arr', [])
-    print(client_arr)
     try: 
         res = Client.delete_clients(client_arr)
         return res 
@@ -58,7 +57,7 @@ def uploadProfilePicture():
             jsonify({"success": 0, "error": "Key ext and image and client_id must be provided"}), 500, 
             ) 
         filename = "profile-" + client_id + "." + ext
-        res = Client.upload_profile_picture(client_id, image, filename, ext)
+        res = Client.upload_profile_picture(client_id, image, filename, ext, 0)
         return res 
     except Exception as e: 
         print(f"Unexpected error from /uploadProfilePicture: {e}")

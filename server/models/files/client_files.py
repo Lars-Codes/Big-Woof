@@ -101,7 +101,8 @@ class ClientFiles(db.Model):
             if document_object: 
                 return jsonify({
                     "success": 0, 
-                    "error": "Document with filename " + document_object.initial_filename + " already exists for this client and/or this pet." 
+                    "error": "Document with filename " + document_object.initial_filename + " already exists for this client and/or this pet.",
+                    "document_id": document_object.id
                 }) 
             
             # print("object: ", document_object.name)
@@ -138,15 +139,19 @@ class ClientFiles(db.Model):
             document = ClientFiles.query.get(document_id)
 
             if document:
-                document_url = document.document_url 
+                # document_url = document.document_url 
                 db.session.delete(document)
                 db.session.commit()
-                if os.path.isfile(document_url):
-                    os.remove(document_url)
+                
+                load_dotenv()
+                file_store = os.environ.get('FILESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
+                secure_name = secure_filename(document.initial_filename)
+                local_path = os.path.join(file_store, str(document.client_id), secure_name)
+                if os.path.isfile(local_path):
+                    os.remove(local_path)
 
                     # 2. Get the parent directory
-                    parent_dir = os.path.dirname(document_url)
-
+                    parent_dir = os.path.dirname(local_path)
                     # 3. If the directory is now empty, delete it
                     if os.path.isdir(parent_dir) and not os.listdir(parent_dir):
                         os.rmdir(parent_dir)

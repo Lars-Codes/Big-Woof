@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 import os 
 from PIL import Image
 from werkzeug.utils import secure_filename
+from PIL import Image, ImageDraw, ImageFont
+import random 
+import json 
+import shutil
 
 class Client(db.Model):
     __tablename__ = 'clients'
@@ -65,9 +69,20 @@ class Client(db.Model):
     def create_client(cls, fname, lname, phone_number, email=None, street_address=None, city=None, state=None, zip=None, secondary_phone=None, notes = None, favorite=0):        
         contact = ContactInfo(primary_phone=phone_number, secondary_phone=secondary_phone, email=email, street_address=street_address, city=city, state=state, zip=zip)
         client = cls(fname=fname, lname=lname, contact_info=contact, notes=notes, favorite=favorite)
+        
+        
         try: 
             db.session.add(client)
             db.session.commit()
+            
+            filename = "profile-" + str(client.id) + ".jpg"
+            response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
+            data = response.get_json()
+            if data.get("success") == 0:
+                print("Error generating profile picture.")
+            else: 
+                print(response) 
+            
             return jsonify({
                 "success": 1, 
                 "message": "Client created succesfully",
@@ -91,7 +106,6 @@ class Client(db.Model):
     # ON PAGE LOAD 
     @classmethod 
     def get_client_metadata(cls, client_id): 
-        print("ID: ", client_id)
         try: 
             # Return contact info and notes, emergency contact data, pet metadata 
             client = Client.query.options(
@@ -518,17 +532,38 @@ class Client(db.Model):
     
     @classmethod 
     def delete_clients(cls, client_id_array):
-        
         try: 
             ids_to_delete = [int(client_id) for client_id in client_id_array]
             num_deleted = 0
 
             for client_id in ids_to_delete:
+                print(client_id)
                 client = Client.query.get(client_id)
                 if client:
                     db.session.delete(client)
                     num_deleted += 1
+                    
+                    profile_pic_path = client.profile_pic_url
+                    load_dotenv()
+                    image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
+                    secure_name = secure_filename(profile_pic_path)
+                    local_path = os.path.join(image_store, str(client_id), secure_name)
+                    
+                    file_store = os.environ.get('FILESTORE_URL')
+                    path_to_client_files = os.path.join(file_store, str(client_id))
 
+                    if os.path.isdir(path_to_client_files):
+                        shutil.rmtree(path_to_client_files)
+
+                    if os.path.isfile(local_path):
+                        os.remove(local_path)
+                        # 2. Get the parent directory
+                        parent_dir = os.path.dirname(local_path)
+
+                        # 3. If the directory is now empty, delete it
+                        if os.path.isdir(parent_dir) and not os.listdir(parent_dir):
+                            os.rmdir(parent_dir)
+                            
             db.session.commit()
             return jsonify({"success": 1, "num_deleted": num_deleted})
         except SQLAlchemyError as e: 
@@ -543,33 +578,84 @@ class Client(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to delete client(s). Unknown error"}), 500, 
             )     
-      
+    
     @classmethod  
-    def upload_profile_picture(cls, client_id, image, filename, ext):
-        try: 
+    def upload_profile_picture(cls, client_id, image, filename, ext, initial_generation=0):
+        try:    
+            accepted_formats = ['jpg', 'png', 'jpeg']
+            if ext.lower() not in accepted_formats: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "Image needs to have ext jpg, png, or jpeg"
+                }) 
+            
             client = Client.query.get(client_id)
             if not client:
                 return jsonify({
                     "success": 0, 
                     "error": "Client not found"
                 }) 
+                
             load_dotenv()
             image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
 
             # Secure the filename and save the image to disk
             secure_name = secure_filename(filename)
-            local_path = os.path.join(image_store, client_id, secure_name)
+            local_path = os.path.join(image_store, str(client_id), secure_name)
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+            if initial_generation == 1: 
+                initials = client.fname[0].upper() + client.lname[0].upper()
+                img_size = 512
+                font_size = int(img_size * 0.6)
+
+                # Generate background color
+                r, g, b = [random.randint(0, 255) for _ in range(3)]
+                background_color = (r, g, b)
+
+                # Create the image
+                image = Image.new('RGB', (img_size, img_size), background_color)
+                draw = ImageDraw.Draw(image)
+
+                # Use truetype font if available, else fallback
+                try:
+                    font = ImageFont.truetype("arial.ttf", font_size)
+                except:
+                    font = ImageFont.load_default()
+
+                # Get text bounding box (instead of deprecated textsize)
+                bbox = draw.textbbox((0, 0), initials, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+
+                # Center the text
+                x = (img_size - text_width) / 2
+                y = (img_size - text_height) / 2
+
+                # Choose text color based on luminance
+                luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+                text_color = (255, 255, 255) if luminance < 0.5 else (0, 0, 0)
+
+                draw.text((x, y), initials, font=font, fill=text_color)
 
             # Save the FileStorage image to the local path
             image.save(local_path)
 
-            # Resize the image
-            img = Image.open(local_path)
-            img.thumbnail((512, 512))  # Resize to 512x512
+            if initial_generation==0: 
+                # Resize the image
+                img = Image.open(local_path)
+                img.thumbnail((512, 512))  # Resize to 512x512
 
-            # Save the resized image (overwrite or create new file)
-            img.save(local_path, format=ext, quality=85)
+                format_map = {
+                    "jpg": "JPEG",
+                    "jpeg": "JPEG",
+                    "png": "PNG",
+                }
+
+                format_str = format_map.get(ext.lower(), ext.upper())
+
+                # Save the resized image (overwrite or create new file)
+                img.save(local_path, format=format_str, quality=85)
 
             # Construct the final image URL
             image_url = secure_name
@@ -654,6 +740,8 @@ class Client(db.Model):
             
             client.profile_pic_url = ""
             db.session.commit()
+            filename = "profile-" + str(client.id) + ".jpg"
+            Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
             return jsonify({"success": 1, "error": "Successfully deleted profile picture for this user"}), 404
 
         except SQLAlchemyError as e: 

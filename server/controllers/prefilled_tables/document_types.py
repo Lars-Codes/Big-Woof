@@ -58,6 +58,7 @@ def uploadDocument():
 @document_types_bp.route('/deleteDocument', methods=["DELETE"])
 def deleteDocument():
     document_id = request.form.get("document_id")
+    print("CONTROLLER ID: ", document_id)
     try: 
         res = ClientFiles.delete_document(document_id)
         return res 
