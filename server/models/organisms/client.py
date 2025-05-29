@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 import random 
 import json 
 import shutil
-
+import colorsys
 class Client(db.Model):
     __tablename__ = 'clients'
      
@@ -75,10 +75,11 @@ class Client(db.Model):
             db.session.add(client)
             db.session.commit()
             
-            # filename = "profile-" + str(client.id) + ".jpg"
-            # response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
-            # data = response.get_json()
-            # if data.get("success") == 0:
+            filename = "profile-" + str(client.id) + ".jpg"
+            
+            response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
+            # print(response)
+            # if response.get("success") == 0:
             #     print("Error generating profile picture.")
             # else: 
             #     print(response) 
@@ -610,10 +611,20 @@ class Client(db.Model):
                 font_size = int(img_size * 0.6)
 
                 # Generate background color
-                base_color = [random.randint(0, 255) for _ in range(3)]
-                pastel_color = tuple((c + 255) // 2 for c in base_color)  # Mix 50% with white
-                background_color = pastel_color
+                # base_color = [random.randint(0, 255) for _ in range(3)]
+                # pastel_color = tuple(int(c * 0.25 + 255 * 0.75) for c in base_color)  # 75% white blend
+                # background_color = pastel_color
+                # r, g, b = background_color
+                h = random.random()  # Hue: 0.0 to 1.0
+                s = 0.4              # Saturation: lower = more pastel
+                l = 0.85             # Lightness: higher = lighter
 
+                # Convert HLS to RGB (colorsys uses 0-1 scale)
+                r, g, b = colorsys.hls_to_rgb(h, l, s)
+
+                # Convert to 0–255 range
+                r, g, b = [int(x * 255) for x in (r, g, b)]
+                background_color = (r, g, b)
                 # Create the image
                 image = Image.new('RGB', (img_size, img_size), background_color)
                 draw = ImageDraw.Draw(image)
@@ -674,13 +685,13 @@ class Client(db.Model):
             db.session.rollback()
             print(f"Database error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to upload profile picture. Database error"}), 500,
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Database error"})
             ) 
         except Exception as e: 
             db.session.rollback()
             print(f"Unknown error: {e}")
             return (
-                jsonify({"success": 0, "error": "Failed to upload profile picture. Unknown error"}), 500, 
+                jsonify({"success": 0, "error": "Failed to upload profile picture. Unknown error"}) 
             )  
 
     @classmethod 
