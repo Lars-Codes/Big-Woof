@@ -50,9 +50,19 @@ def deleteDocument():
     
 @document_types_bp.route('/previewDocument', methods=["GET"])
 def previewDocument():
-    document_id = request.form.get("document_id")
+    document_id = request.args.get("document_id")
     try: 
         res = ClientFiles.preview_document(document_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /previewDocument: {e}")
+        return res
+    
+@document_types_bp.route('/downloadDocument', methods=["GET"])
+def downloadDocument():
+    document_id = request.args.get("document_id")
+    try: 
+        res = ClientFiles.download_document(document_id)
         return res 
     except Exception as e: 
         print(f"Unexpected error from /previewDocument: {e}")

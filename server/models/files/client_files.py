@@ -6,6 +6,8 @@ from models.organisms.pet import Pet
 import os 
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+import mimetypes
+
 class ClientFiles(db.Model):
     
     __tablename__="client_files"
@@ -21,7 +23,7 @@ class ClientFiles(db.Model):
     document_type = db.Column(db.String(50), nullable = False) # The user selects a document type from a dropdown, prefilled table. This value is stored here 
     # exactly as listed in the table. 
     description = db.Column(db.Text, nullable = True)
-    initial_filename = db.Column(db.String(250))
+    initial_filename = db.Column(db.String(250), nullable=False)
     
     __table_args__ = (
         db.Index('idx_client_id_files', 'client_id'),
@@ -179,16 +181,23 @@ class ClientFiles(db.Model):
 
             if document:
                 document_url = document.document_url 
-                return send_file(filepath, download_name=filename) 
+                if not os.path.exists(document_url):
+                    return (
+                        jsonify({"success": 0, "error": "Missing document at this URL."}), 500,
+                    )   
+                mimetype, _ = mimetypes.guess_type(document.initial_filename)
+                if mimetype is None:
+                    mimetype = 'application/octet-stream'  # fallback
+                return send_file(
+                    document_url,
+                    mimetype=mimetype,
+                    download_name=document.document_name,
+                    as_attachment=False  # inline preview
+                )
             else: 
                 return (
                 jsonify({"success": 0, "error": "Failed to delete document. No document for this document ID found"}), 500,
             )   
-            # return jsonify({
-            #     "success": 1, 
-            #     "message": "Document preview successfully retr",
-            #     "document_id": document_id
-            # })
             
         except SQLAlchemyError as e: 
             db.session.rollback()
@@ -201,4 +210,43 @@ class ClientFiles(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to retrieve document preveiw. Unknown error"}), 500, 
+            )  
+            
+
+    @classmethod 
+    def download_document(cls, document_id):
+        try: 
+            document = ClientFiles.query.get(document_id)
+
+            if document:
+                document_url = document.document_url 
+                if not os.path.exists(document_url):
+                    return (
+                        jsonify({"success": 0, "error": "Missing document at this URL."}), 500,
+                    )   
+                mimetype, _ = mimetypes.guess_type(document.initial_filename)
+                if mimetype is None:
+                    mimetype = 'application/octet-stream'  # fallback
+                return send_file(
+                    document_url,
+                    mimetype=mimetype,
+                    download_name=document.initial_filename,
+                    as_attachment=True  # inline preview
+                )
+            else: 
+                return (
+                jsonify({"success": 0, "error": "Failed to download document. No document for this document ID found"}), 500,
+            )   
+            
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to retrieve document download. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to retrieve document download. Unknown error"}), 500, 
             )  
