@@ -436,11 +436,13 @@ class Client(db.Model):
                     for d in client.files:
                         files = {
                             "id": d.id,  
-                            "name": d.document_name,
                             "pet_id": d.pet_id if d.pet_id else -1, 
                             "appointment_id": d.appointment_id if d.appointment_id else -1, 
-                            "document_type": d.document_type,
+                            "document_type": d.document_type if d.document_type else "",
                             "description": d.description if d.description else "", 
+                            "document_name": d.document_name if d.document_name else "", 
+                            "initial_filename": d.initial_filename if d.initial_filename else "", 
+                            
                         }
                         clients_data["documents"].append(files)
                     

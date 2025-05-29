@@ -24,13 +24,15 @@ def uploadDocument():
         document_type = request.form.get("document_type")
         description = request.form.get("description")
         pet_id = request.form.get("pet_id")
-        initial_filename = request.form.get("initial_filename")
+        # initial_filename = request.form.get("initial_filename")
+        
+        # print("initial filename: ", initial_filename)
         
         if not document:
             return (
                 jsonify({"success": 0, "error": "No document detected."}), 500, 
             )  
-        res = ClientFiles.upload_document(client_id, document_name, document, document_type, description, initial_filename, pet_id)
+        res = ClientFiles.upload_document(client_id, document_name, document, document_type, description, pet_id)
         return res  
     except Exception as e:
         print(f"Unexpected error from /getAllDocumentTypes: {e}")
@@ -44,4 +46,14 @@ def deleteDocument():
         return res 
     except Exception as e: 
         print(f"Unexpected error from /deleteClient: {e}")
+        return res
+    
+@document_types_bp.route('/previewDocument', methods=["GET"])
+def previewDocument():
+    document_id = request.form.get("document_id")
+    try: 
+        res = ClientFiles.preview_document(document_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /previewDocument: {e}")
         return res
