@@ -616,8 +616,8 @@ class Client(db.Model):
                 # background_color = pastel_color
                 # r, g, b = background_color
                 h = random.random()  # Hue: 0.0 to 1.0
-                s = 0.4              # Saturation: lower = more pastel
-                l = 0.85             # Lightness: higher = lighter
+                s = 0.7              # Saturation: lower = more pastel
+                l = 0.75             # Lightness: higher = lighter
 
                 # Convert HLS to RGB (colorsys uses 0-1 scale)
                 r, g, b = colorsys.hls_to_rgb(h, l, s)
