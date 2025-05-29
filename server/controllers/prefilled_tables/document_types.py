@@ -13,6 +13,26 @@ def getAllDocumentTypes():
     except Exception as e:
         print(f"Unexpected error from /getAllDocumentTypes: {e}")
         return res
+    
+@document_types_bp.route('/createDocumentType', methods=["POST"])
+def createDocumentType():
+    name = request.form.get("document_type")
+    try: 
+        res = DocumentTypes.create_document_type(name)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /createDocumentType: {e}")
+        return res
+
+@document_types_bp.route('/deleteDocumentType', methods=["DELETE"])
+def deleteDocumentType():
+    id = request.form.get("document_type_id")
+    try: 
+        res = DocumentTypes.delete_document_type(id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /createDocumentType: {e}")
+        return res
 
 @document_types_bp.route('/uploadDocument', methods=["POST"]) # All payment types that are NOT associated with given client 
 def uploadDocument():
@@ -24,9 +44,6 @@ def uploadDocument():
         document_type = request.form.get("document_type")
         description = request.form.get("description")
         pet_id = request.form.get("pet_id")
-        # initial_filename = request.form.get("initial_filename")
-        
-        # print("initial filename: ", initial_filename)
         
         if not document:
             return (

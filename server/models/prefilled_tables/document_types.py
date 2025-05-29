@@ -43,9 +43,6 @@ class DocumentTypes(db.Model):
                 db.session.rollback()
                 print(f"Error inserting prefilled document types on app start:: {e}")
            
-    @classmethod 
-    def create_document_type(cls, type):
-        pass
     
     @classmethod 
     def get_all_document_types(cls):
@@ -54,6 +51,7 @@ class DocumentTypes(db.Model):
             document_type_data = [
                 {
                     "document_type": document_type.name, 
+                    "id": document_type.id
                 }
                 for document_type in query  
             ] 
@@ -76,10 +74,56 @@ class DocumentTypes(db.Model):
             )  
     
     @classmethod 
-    def edit_document_type(cls, document_type_id, new_name):
-        pass 
+    def create_document_type(cls, name):
+        document_type = cls(name)
+        if len(name)>50: 
+            return (
+                jsonify({"success": 0, "error": "Document type must be <50 chars"}), 500,
+            )
+        try: 
+            db.session.add(document_type)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Document type created succesfully",
+                "document_type_id": document_type.id 
+            })
+            
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create document type. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create document type. Unknown error"}), 500,
+            )  
     
     @classmethod 
     def delete_document_type(cls, document_type_id):
-        pass 
+        try: 
+            document_type = DocumentTypes.query.get(document_type_id)
+            if document_type:
+                db.session.delete(document_type)
+                db.session.commit()
+                return jsonify({"success": 1, "deleted_id": document_type_id})
+            else: 
+                return jsonify({"success": 0, "error": "No document type found for ID " + document_type_id})
+
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete document type. Database error"}), 500,
+            ) 
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete document type. Unknown error"}), 500, 
+            )  
+            
     
