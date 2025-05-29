@@ -75,13 +75,13 @@ class Client(db.Model):
             db.session.add(client)
             db.session.commit()
             
-            filename = "profile-" + str(client.id) + ".jpg"
-            response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
-            data = response.get_json()
-            if data.get("success") == 0:
-                print("Error generating profile picture.")
-            else: 
-                print(response) 
+            # filename = "profile-" + str(client.id) + ".jpg"
+            # response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
+            # data = response.get_json()
+            # if data.get("success") == 0:
+            #     print("Error generating profile picture.")
+            # else: 
+            #     print(response) 
             
             return jsonify({
                 "success": 1, 
@@ -610,8 +610,9 @@ class Client(db.Model):
                 font_size = int(img_size * 0.6)
 
                 # Generate background color
-                r, g, b = [random.randint(0, 255) for _ in range(3)]
-                background_color = (r, g, b)
+                base_color = [random.randint(0, 255) for _ in range(3)]
+                pastel_color = tuple((c + 255) // 2 for c in base_color)  # Mix 50% with white
+                background_color = pastel_color
 
                 # Create the image
                 image = Image.new('RGB', (img_size, img_size), background_color)
