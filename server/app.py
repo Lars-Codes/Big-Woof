@@ -23,6 +23,8 @@ from controllers.organisms.employee import employee_bp
 from controllers.prefilled_tables.payment_types import payment_types_bp
 from controllers.prefilled_tables.document_types import document_types_bp
 
+from controllers.misc.sticky_notes import stickies_bp
+
 app = Flask(__name__)
 
 CORS(app)
@@ -57,6 +59,7 @@ app.register_blueprint(employee_bp)
 app.register_blueprint(payment_types_bp)
 app.register_blueprint(document_types_bp)
 app.register_blueprint(pet_bp)
+app.register_blueprint(stickies_bp)
 
 
 with app.app_context():

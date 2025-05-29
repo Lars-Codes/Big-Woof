@@ -44,6 +44,7 @@ class Client(db.Model):
     added_time = db.relationship('AddedTime', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AddedTime.client_id')
 
     files = db.relationship('ClientFiles', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='ClientFiles.client_id')
+    sticky_notes = db.relationship('StickyNotes', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='StickyNotes.client_id')
 
 
     __table_args__ = (
