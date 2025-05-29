@@ -123,7 +123,8 @@ class Client(db.Model):
                     # "typical_groomer": {},
                     "emergency_contacts": [], 
                     "pets": [],
-                    "client_vets": []
+                    "client_vets": [], 
+                    "sticky_notes": [],
                 }
                 
                 # if client.typical_groomer: 
@@ -133,6 +134,15 @@ class Client(db.Model):
                 #         "employee_id": client.typical_groomer.id if client.typical_groomer else -1, 
                 #     }
                 
+                for sticky in client.sticky_notes: 
+                    if sticky.pet_id==None: 
+                        sticky_note = {
+                            "id": sticky.id, 
+                            "note": sticky.note if sticky.note else "", 
+                            "date": sticky.date if sticky.date else ""
+                        }
+                        clients_data["sticky_notes"].append(sticky_note)
+                    
                 for vet in client.vet: 
                     vet_info = {
                         "fname": getattr(vet, "fname"),

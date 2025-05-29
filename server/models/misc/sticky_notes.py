@@ -10,7 +10,7 @@ class StickyNotes(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
     pet_id = db.Column(db.Integer, db.ForeignKey('pets.id'), nullable=True)
     note = db.Column(db.Text, nullable = True)
-    date = db.Column(db.DateTime, nullable=True) 
+    date = db.Column(db.DateTime, nullable=False) 
 
     def __init__(self, client_id, note, date, pet_id=None):
         self.client_id = client_id
