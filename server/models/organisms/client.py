@@ -631,7 +631,18 @@ class Client(db.Model):
 
                 # Use truetype font if available, else fallback
                 try:
-                    font = ImageFont.truetype("arial.ttf", font_size)
+                    fontstore_url = os.environ.get('FONTSTORE_URL')
+                    font_files = [f for f in os.listdir(fontstore_url) if f.lower().endswith(('.ttf', '.otf'))]
+
+                    if not font_files:
+                        raise Exception("No fonts found in FONTSTORE_URL")
+
+                    # Choose one at random
+                    random_font_file = random.choice(font_files)
+                    random_font_path = os.path.join(fontstore_url, random_font_file)
+
+                    # Load it
+                    font = ImageFont.truetype(random_font_path, font_size)
                 except:
                     font = ImageFont.load_default()
 
