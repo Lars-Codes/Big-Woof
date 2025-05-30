@@ -2,7 +2,7 @@ myenv/
 migrations/
 __pycache__/
 models/__pycache__/
-
+images/
 *.db
-
+*.jpg
 .env

@@ -7,13 +7,12 @@ from flask import jsonify, send_from_directory
 from sqlalchemy.orm import joinedload
 from dotenv import load_dotenv
 import os 
-from PIL import Image
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw, ImageFont
 import random 
-import json 
 import shutil
 import colorsys
+
 class Client(db.Model):
     __tablename__ = 'clients'
      
@@ -781,39 +780,6 @@ class Client(db.Model):
             )   
 
         
-    # @classmethod 
-    # def get_favorite_clients(cls): 
-    #     try: 
-    #         favorite_clients = Client.query.filter_by(favorite=1).all()
-    #         clients_data = [
-    #             {
-    #                 "client_id": client.id, 
-    #                 "fname": client.fname,
-    #                 "lname": client.lname,
-    #                 "num_pets": client.num_pets, 
-    #                 "phone_number": client.contact_info.primary_phone, 
-    #                 "favorite": client.favorite,
-    #             }
-    #             for client in favorite_clients 
-    #         ]
-    #         return jsonify({
-    #             "success": 1, 
-    #             "data": clients_data, 
-    #         }) 
- 
-    #     except SQLAlchemyError as e: 
-    #         db.session.rollback()
-    #         print(f"Database error: {e}")
-    #         return (
-    #             jsonify({"success": 0, "error": "Failed to get favorited clients. Database error"}), 500,
-    #         )  
-    #     except Exception as e: 
-    #         db.session.rollback()
-    #         print(f"Unknown error: {e}")
-    #         return (
-    #             jsonify({"success": 0, "error": "Failed to get favorited clients. Unknown error"}), 500, 
-    #         )   
-            
     @classmethod 
     def edit_client_contact(cls, **kwargs):
         client_id = kwargs.get('client_id')

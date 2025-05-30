@@ -24,6 +24,7 @@ from controllers.prefilled_tables.payment_types import payment_types_bp
 from controllers.prefilled_tables.document_types import document_types_bp
 
 from controllers.misc.sticky_notes import stickies_bp
+from controllers.misc.images import pet_images_bp
 
 app = Flask(__name__)
 
@@ -60,6 +61,7 @@ app.register_blueprint(payment_types_bp)
 app.register_blueprint(document_types_bp)
 app.register_blueprint(pet_bp)
 app.register_blueprint(stickies_bp)
+app.register_blueprint(pet_images_bp)
 
 
 with app.app_context():

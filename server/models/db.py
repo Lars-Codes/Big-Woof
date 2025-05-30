@@ -30,3 +30,4 @@ from models.timemachine.added_time import AddedTime
 from models.files.client_files import ClientFiles
 
 from models.misc.sticky_notes import StickyNotes
+from models.misc.images import PetImages
