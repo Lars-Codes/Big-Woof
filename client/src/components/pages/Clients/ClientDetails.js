@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, Image } from 'react-native';
+import { View, Text, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useSelector } from 'react-redux';
 import {
@@ -16,7 +16,12 @@ export default function ClientDetails() {
   const clientProfilePicture = useSelector(selectClientProfilePicture);
 
   return (
-    <View className="flex-1">
+    <ScrollView
+      className="flex-1"
+      contentInsetAdjustmentBehavior="automatic" // iOS automatic adjustment
+      automaticallyAdjustContentInsets={true} // Additional iOS adjustment
+      showsVerticalScrollIndicator={false}
+    >
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -65,6 +70,6 @@ export default function ClientDetails() {
           </View>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }

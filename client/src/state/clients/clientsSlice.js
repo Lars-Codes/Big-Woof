@@ -4,19 +4,19 @@ export const clientsSlice = createSlice({
   name: 'clients',
   initialState: {
     loading: true,
-    clients: [], // List of all clients
+    clients: [],
     filteredBy: 'all',
     filteredClients: [],
     sortedBy: 'lname',
     sortedDirection: 'asc',
     searchBy: '',
-    clientsResultSet: [], // sorted, filtered list used for the client-list component
-    searchResultSet: [], // optimized client list used for searching
-    searchedResultSet: null, // process search result set flag
+    clientsResultSet: [],
+    searchResultSet: [],
+    searchedResultSet: null,
+    hideHeaders: false,
 
     deleteMode: false,
     clientsDeleteSet: [],
-    closeAllRows: false,
 
     createClientResult: null,
     updateClientResult: null,
@@ -75,11 +75,28 @@ export const clientsSlice = createSlice({
     setSearchedResultSet: (state, action) => {
       state.searchedResultSet = action.payload;
     },
+    setHideHeaders: (state, action) => {
+      state.hideHeaders = action.payload;
+    },
     setDeleteMode: (state, action) => {
       state.deleteMode = action.payload;
+      // Clear delete set when exiting delete mode
+      if (!action.payload) {
+        state.clientsDeleteSet = [];
+      }
     },
     setClientsDeleteSet: (state, action) => {
       state.clientsDeleteSet = action.payload;
+    },
+    // Optimized toggle function - single action for add/remove
+    toggleClientInDeleteSet: (state, action) => {
+      const clientId = action.payload;
+      const index = state.clientsDeleteSet.indexOf(clientId);
+      if (index === -1) {
+        state.clientsDeleteSet.push(clientId);
+      } else {
+        state.clientsDeleteSet.splice(index, 1);
+      }
     },
     addClientToDeleteSet: (state, action) => {
       const clientId = action.payload;
@@ -89,12 +106,37 @@ export const clientsSlice = createSlice({
     },
     removeClientFromDeleteSet: (state, action) => {
       const clientId = action.payload;
+      const index = state.clientsDeleteSet.indexOf(clientId);
+      if (index !== -1) {
+        state.clientsDeleteSet.splice(index, 1);
+      }
+    },
+    // Batch operations for select all/deselect all
+    addMultipleClientsToDeleteSet: (state, action) => {
+      const clientIds = action.payload;
+      const newIds = clientIds.filter(
+        (id) => !state.clientsDeleteSet.includes(id),
+      );
+      state.clientsDeleteSet.push(...newIds);
+    },
+    removeMultipleClientsFromDeleteSet: (state, action) => {
+      const clientIds = action.payload;
       state.clientsDeleteSet = state.clientsDeleteSet.filter(
-        (id) => id !== clientId,
+        (id) => !clientIds.includes(id),
       );
     },
-    setCloseAllRows: (state, action) => {
-      state.closeAllRows = action.payload;
+    // Select all clients in current result set
+    selectAllClients: (state) => {
+      const allClientIds = state.clientsResultSet.map(
+        (client) => client.client_id,
+      );
+      state.clientsDeleteSet = [
+        ...new Set([...state.clientsDeleteSet, ...allClientIds]),
+      ];
+    },
+    // Deselect all clients
+    deselectAllClients: (state) => {
+      state.clientsDeleteSet = [];
     },
     setCreateClientResult: (state, action) => {
       state.createClientResult = action.payload;
@@ -105,7 +147,7 @@ export const clientsSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
+// Action creators
 export const {
   setLoading,
   setClients,
@@ -120,16 +162,21 @@ export const {
   setClientsResultSet,
   setSearchResultSet,
   setSearchedResultSet,
+  setHideHeaders,
   setDeleteMode,
   setClientsDeleteSet,
+  toggleClientInDeleteSet,
   addClientToDeleteSet,
   removeClientFromDeleteSet,
-  setCloseAllRows,
+  addMultipleClientsToDeleteSet,
+  removeMultipleClientsFromDeleteSet,
+  selectAllClients,
+  deselectAllClients,
   setCreateClientResult,
   setUpdateClientResult,
 } = clientsSlice.actions;
 
-// Selectors
+// Selectors (memoized for better performance)
 export const selectLoading = (state) => state.clients.loading;
 export const selectClients = (state) => state.clients.clients;
 export const selectFilteredBy = (state) => state.clients.filteredBy;
@@ -141,12 +188,25 @@ export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
+export const selectHideHeaders = (state) => state.clients.hideHeaders;
 export const selectDeleteMode = (state) => state.clients.deleteMode;
 export const selectClientsDeleteSet = (state) => state.clients.clientsDeleteSet;
-export const selectCloseAllRows = (state) => state.clients.closeAllRows;
 export const selectCreateClientResult = (state) =>
   state.clients.createClientResult;
 export const selectUpdateClientResult = (state) =>
   state.clients.updateClientResult;
+
+// Derived selectors
+export const selectIsAllClientsSelected = (state) => {
+  const resultSet = state.clients.clientsResultSet;
+  const deleteSet = state.clients.clientsDeleteSet;
+  return (
+    resultSet.length > 0 &&
+    resultSet.every((client) => deleteSet.includes(client.client_id))
+  );
+};
+
+export const selectSelectedClientsCount = (state) =>
+  state.clients.clientsDeleteSet.length;
 
 export default clientsSlice.reducer;

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createClientAction } from '../../../../sagas/clients/createClient/action';
 import { fetchClientDetailsAction } from '../../../../sagas/clients/fetchClientDetails/action';
+import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice';
 import {
   setCreateClientResult,
   selectCreateClientResult,
@@ -11,9 +12,9 @@ import {
   setUpdateClientResult,
 } from '../../../../state/clients/clientsSlice';
 
-export default function ClientForm({ route, onSuccess }) {
+export default function ClientForm({ onSuccess }) {
   const dispatch = useDispatch();
-  const client = route?.params?.client;
+  const client = useSelector(selectClientDetails);
   const createClientResult = useSelector(selectCreateClientResult);
   const updateClientResult = useSelector(selectUpdateClientResult);
   const loading = useSelector(selectLoading);
