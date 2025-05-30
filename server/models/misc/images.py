@@ -60,12 +60,12 @@ class PetImages(db.Model):
                         
             filename = image.filename
             
-            # duplicate_image = PetImages.query.filter_by(pet_id=pet_id, filename=filename).first()
-            # if duplicate_image: 
-            #     return jsonify({
-            #         "success": 0,
-            #         "error": "Duplicate filename detected in filestore. Rename image to upload."
-            #     })
+            duplicate_image = PetImages.query.filter_by(pet_id=pet_id, filename=filename).first()
+            if duplicate_image: 
+                return jsonify({
+                    "success": 0,
+                    "error": "Duplicate filename detected in filestore. Rename image to upload."
+                })
                 
             format_map = {
                 "jpg": "JPEG",
