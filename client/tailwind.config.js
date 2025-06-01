@@ -6,12 +6,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#F4A261', // Warm Orange
-        secondary: '#4A90E2', // Soft Blue
-        background: '#FAF3E0', // Cream
-        textPrimary: '#333333', // Charcoal
-        accent: '#88B04B', // Grass Green
-        gold: '#FFD700', // gold for favorite star
+        primary: '#8A5742', // brown
+        'primary-light': '#B89C86', // light brown
+        secondary: '#DBD9D8', // almost white
+        'secondary-light': '#E1E8E9', // light sky blue
+        tertiary: '#8B8482', // gray
       },
       fontFamily: {
         'hn-black': ['hn-black'],
