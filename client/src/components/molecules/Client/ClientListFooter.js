@@ -1,40 +1,26 @@
 import * as Blur from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Text, View, Animated, Alert, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { deleteClientAction } from '../../../sagas/clients/deleteClient/action';
 import {
   selectDeleteMode,
   setDeleteMode,
-  batchUpdateSelection, // Replace selectAllClients and deselectAllClients with this
+  batchUpdateSelection,
+  selectSelectedClientsCount,
+  selectSelectedClientIds,
+  selectIsAllClientsSelected,
+  selectClientsResultSet,
 } from '../../../state/clients/clientsSlice';
 
 export default function ClientListFooter() {
   const dispatch = useDispatch();
   const deleteMode = useSelector(selectDeleteMode);
-
-  // Combine selectors to reduce re-renders
-  const selectionState = useSelector(
-    useCallback((state) => {
-      const resultSet = state.clients.clientsResultSet;
-      const selectedClients = resultSet.filter(
-        (client) => client.isSelected === true,
-      );
-
-      return {
-        selectedCount: selectedClients.length,
-        selectedClientIds: selectedClients.map((client) => client.client_id),
-        isAllSelected:
-          resultSet.length > 0 && selectedClients.length === resultSet.length,
-        clientsResultSet: resultSet, // Add this to access in handleSelectAll
-      };
-    }, []),
-    shallowEqual,
-  );
-
-  const { selectedCount, selectedClientIds, isAllSelected, clientsResultSet } =
-    selectionState;
+  const selectedCount = useSelector(selectSelectedClientsCount);
+  const selectedClientIds = useSelector(selectSelectedClientIds);
+  const isAllSelected = useSelector(selectIsAllClientsSelected);
+  const clientsResultSet = useSelector(selectClientsResultSet);
 
   const slideAnim = useRef(new Animated.Value(100)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
