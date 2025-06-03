@@ -1,8 +1,6 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { Star } from 'lucide-react-native';
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { SwipeListView } from 'react-native-swipe-list-view';
+import { View, Text, ActivityIndicator, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { clientsSearchByAction } from '../../../sagas/clients/clientsSearchBy/action';
 import { clientsSortedByAction } from '../../../sagas/clients/clientsSortedBy/action';
@@ -20,89 +18,15 @@ import {
   selectSortedDirection,
   setHideHeaders,
 } from '../../../state/clients/clientsSlice';
+import { createSectionedData } from '../../../utils/clients/createSectionedData';
+import SectionHeader from '../../atoms/Clients/SectionHeader';
 import ClientItem from '../../molecules/Client/ClientItem';
 import SearchInput from '../../molecules/SearchInput/SearchInput';
-
-// Section Header Component
-const SectionHeader = ({ title, icon }) => (
-  <View className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-    <View className="flex-row items-center">
-      <Text className="text-lg font-semibold text-gray-700">{title}</Text>
-      {icon && <View className="ml-2">{icon}</View>}
-    </View>
-  </View>
-);
-
-// Function to transform clients data into sectioned format
-const createSectionedData = (clients, sortedBy = 'fname') => {
-  if (!clients || clients.length === 0) return [];
-
-  // Separate favorites and non-favorites
-  const favorites = clients.filter((client) => client.favorite);
-  const nonFavorites = clients.filter((client) => !client.favorite);
-
-  const result = [];
-
-  // Add favorites section if there are any
-  if (favorites.length > 0) {
-    result.push({
-      id: 'favorites-header',
-      type: 'section-header',
-      title: 'Favorites',
-      icon: <Star size={16} color="#000" />,
-    });
-
-    favorites.forEach((client) => {
-      result.push({
-        ...client,
-        type: 'client',
-      });
-    });
-  }
-
-  // Group non-favorites by first letter of the specified field
-  const groupedClients = nonFavorites.reduce((acc, client) => {
-    const name = sortedBy === 'fname' ? client.fname : client.lname;
-    const firstLetter = (name || '').charAt(0).toUpperCase();
-    const letter = firstLetter.match(/[A-Z]/) ? firstLetter : '#';
-
-    if (!acc[letter]) {
-      acc[letter] = [];
-    }
-    acc[letter].push(client);
-    return acc;
-  }, {});
-
-  // Sort letters and add to result
-  const sortedLetters = Object.keys(groupedClients).sort((a, b) => {
-    if (a === '#') return 1;
-    if (b === '#') return -1;
-    return a.localeCompare(b);
-  });
-
-  sortedLetters.forEach((letter) => {
-    // Add section header
-    result.push({
-      id: `section-${letter}`,
-      type: 'section-header',
-      title: letter,
-    });
-
-    // Add clients for this letter
-    groupedClients[letter].forEach((client) => {
-      result.push({
-        ...client,
-        type: 'client',
-      });
-    });
-  });
-
-  return result;
-};
 
 export default function ClientList() {
   const dispatch = useDispatch();
   const { showActionSheetWithOptions } = useActionSheet();
+
   const clientsResultSet = useSelector(selectClientsResultSet);
   const searchedResultsSet = useSelector(selectSearchedResultSet);
   const sortedDirection = useSelector(selectSortedDirection);
@@ -116,10 +40,9 @@ export default function ClientList() {
   const rawClients =
     searchBy && searchBy.length > 0 ? searchedResultsSet : clientsResultSet;
 
-  // Transform clients into sectioned data
   const sectionedData = useMemo(() => {
-    return createSectionedData(rawClients, sortedBy);
-  }, [rawClients, sortedBy]);
+    return createSectionedData(rawClients, sortedBy, sortedDirection);
+  }, [rawClients, sortedBy, sortedDirection]);
 
   // Memoize the search handler to prevent unnecessary re-renders
   const handleClientSearch = useCallback(
@@ -236,7 +159,7 @@ export default function ClientList() {
 
   return (
     <View className="flex-1">
-      <SwipeListView
+      <FlatList
         data={filteredSectionedData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -248,17 +171,20 @@ export default function ClientList() {
         )}
         onRefresh={handleRefresh}
         refreshing={loading}
-        disableRightSwipe={true}
-        rightOpenValue={-75} // Only allow swipe for client items, not headers
-        disableRowSwipeForHandler={(item) => item.type === 'section-header'}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        initialNumToRender={10}
+        updateCellsBatchingPeriod={100}
         contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets={true}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
+        indicatorStyle="black"
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentContainerStyle={{
           paddingBottom: deleteMode ? 52 : 0,
         }}
+        disableVirtualization={false}
       />
     </View>
   );

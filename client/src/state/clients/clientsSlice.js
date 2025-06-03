@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 export const clientsSlice = createSlice({
   name: 'clients',
@@ -16,7 +16,7 @@ export const clientsSlice = createSlice({
     hideHeaders: false,
 
     deleteMode: false,
-    clientsDeleteSet: [],
+    // Removed clientsDeleteSet since we're using isSelected on each client
 
     createClientResult: null,
     updateClientResult: null,
@@ -26,10 +26,14 @@ export const clientsSlice = createSlice({
       state.loading = action.payload;
     },
     setClients: (state, action) => {
-      state.clients = action.payload;
+      // Add isSelected: false to each client when setting them
+      state.clients = action.payload.map((client) => ({
+        ...client,
+        isSelected: false,
+      }));
     },
     addClient: (state, action) => {
-      const newClient = action.payload;
+      const newClient = { ...action.payload, isSelected: false };
       state.clients.push(newClient);
       state.clientsResultSet = [...state.clients];
       state.clientsResultSet.sort((a, b) => a.lname.localeCompare(b.lname));
@@ -42,7 +46,11 @@ export const clientsSlice = createSlice({
         (client) => client.client_id === updatedClient.client_id,
       );
       if (index !== -1) {
-        state.clients[index] = updatedClient;
+        // Preserve isSelected state when updating
+        state.clients[index] = {
+          ...updatedClient,
+          isSelected: state.clients[index].isSelected,
+        };
       }
     },
     removeClient: (state, action) => {
@@ -67,76 +75,146 @@ export const clientsSlice = createSlice({
       state.searchBy = action.payload;
     },
     setClientsResultSet: (state, action) => {
-      state.clientsResultSet = action.payload;
+      // Ensure isSelected property exists on result set items
+      state.clientsResultSet = action.payload.map((client) => ({
+        ...client,
+        isSelected: client.isSelected || false,
+      }));
     },
     setSearchResultSet: (state, action) => {
-      state.searchResultSet = action.payload;
+      // Ensure isSelected property exists on search result set items
+      state.searchResultSet = action.payload.map((client) => ({
+        ...client,
+        isSelected: client.isSelected || false,
+      }));
     },
     setSearchedResultSet: (state, action) => {
-      state.searchedResultSet = action.payload;
+      if (action.payload) {
+        state.searchedResultSet = action.payload.map((client) => ({
+          ...client,
+          isSelected: client.isSelected || false,
+        }));
+      } else {
+        state.searchedResultSet = action.payload;
+      }
     },
     setHideHeaders: (state, action) => {
       state.hideHeaders = action.payload;
     },
     setDeleteMode: (state, action) => {
       state.deleteMode = action.payload;
-      // Clear delete set when exiting delete mode
       if (!action.payload) {
-        state.clientsDeleteSet = [];
+        // Clear all selections when exiting delete mode
+        state.clients.forEach((client) => {
+          client.isSelected = false;
+        });
+        state.clientsResultSet.forEach((client) => {
+          client.isSelected = false;
+        });
+        if (state.searchResultSet) {
+          state.searchResultSet.forEach((client) => {
+            client.isSelected = false;
+          });
+        }
+        if (state.searchedResultSet) {
+          state.searchedResultSet.forEach((client) => {
+            client.isSelected = false;
+          });
+        }
       }
     },
-    setClientsDeleteSet: (state, action) => {
-      state.clientsDeleteSet = action.payload;
-    },
-    // Optimized toggle function - single action for add/remove
-    toggleClientInDeleteSet: (state, action) => {
+    toggleClientSelection: (state, action) => {
       const clientId = action.payload;
-      const index = state.clientsDeleteSet.indexOf(clientId);
-      if (index === -1) {
-        state.clientsDeleteSet.push(clientId);
-      } else {
-        state.clientsDeleteSet.splice(index, 1);
+
+      // More efficient: only update the main source array and let derived arrays be computed
+      const mainClient = state.clients.find((c) => c.client_id === clientId);
+      if (mainClient) {
+        mainClient.isSelected = !mainClient.isSelected;
+
+        // Update result set more efficiently
+        const resultClient = state.clientsResultSet.find(
+          (c) => c.client_id === clientId,
+        );
+        if (resultClient) {
+          resultClient.isSelected = mainClient.isSelected;
+        }
+
+        // Only update search arrays if they exist and contain the client
+        if (state.searchedResultSet) {
+          const searchedClient = state.searchedResultSet.find(
+            (c) => c.client_id === clientId,
+          );
+          if (searchedClient) {
+            searchedClient.isSelected = mainClient.isSelected;
+          }
+        }
       }
     },
-    addClientToDeleteSet: (state, action) => {
-      const clientId = action.payload;
-      if (!state.clientsDeleteSet.includes(clientId)) {
-        state.clientsDeleteSet.push(clientId);
-      }
-    },
-    removeClientFromDeleteSet: (state, action) => {
-      const clientId = action.payload;
-      const index = state.clientsDeleteSet.indexOf(clientId);
-      if (index !== -1) {
-        state.clientsDeleteSet.splice(index, 1);
-      }
-    },
-    // Batch operations for select all/deselect all
-    addMultipleClientsToDeleteSet: (state, action) => {
-      const clientIds = action.payload;
-      const newIds = clientIds.filter(
-        (id) => !state.clientsDeleteSet.includes(id),
-      );
-      state.clientsDeleteSet.push(...newIds);
-    },
-    removeMultipleClientsFromDeleteSet: (state, action) => {
-      const clientIds = action.payload;
-      state.clientsDeleteSet = state.clientsDeleteSet.filter(
-        (id) => !clientIds.includes(id),
-      );
-    },
-    // Select all clients in current result set
+
     selectAllClients: (state) => {
-      const allClientIds = state.clientsResultSet.map(
-        (client) => client.client_id,
-      );
-      state.clientsDeleteSet = [
-        ...new Set([...state.clientsDeleteSet, ...allClientIds]),
-      ];
+      // Batch update for better performance
+      const shouldSelect = true;
+
+      // Update main clients array
+      state.clients.forEach((client) => {
+        client.isSelected = shouldSelect;
+      });
+
+      // Update result set
+      state.clientsResultSet.forEach((client) => {
+        client.isSelected = shouldSelect;
+      });
+
+      // Update search arrays if they exist
+      if (state.searchedResultSet) {
+        state.searchedResultSet.forEach((client) => {
+          client.isSelected = shouldSelect;
+        });
+      }
     },
-    // Deselect all clients
+
     deselectAllClients: (state) => {
-      state.clientsDeleteSet = [];
+      // Batch update for better performance
+      const shouldSelect = false;
+
+      // Update main clients array
+      state.clients.forEach((client) => {
+        client.isSelected = shouldSelect;
+      });
+
+      // Update result set
+      state.clientsResultSet.forEach((client) => {
+        client.isSelected = shouldSelect;
+      });
+
+      // Update search arrays if they exist
+      if (state.searchedResultSet) {
+        state.searchedResultSet.forEach((client) => {
+          client.isSelected = shouldSelect;
+        });
+      }
+    },
+    batchUpdateSelection: (state, action) => {
+      const { clientIds, isSelected } = action.payload;
+
+      // Create a Set for O(1) lookups
+      const clientIdSet = new Set(clientIds);
+
+      // Update all arrays efficiently
+      [
+        state.clients,
+        state.clientsResultSet,
+        state.searchResultSet,
+        state.searchedResultSet,
+      ].forEach((array) => {
+        if (array) {
+          array.forEach((client) => {
+            if (clientIdSet.has(client.client_id)) {
+              client.isSelected = isSelected;
+            }
+          });
+        }
+      });
     },
     setCreateClientResult: (state, action) => {
       state.createClientResult = action.payload;
@@ -164,14 +242,10 @@ export const {
   setSearchedResultSet,
   setHideHeaders,
   setDeleteMode,
-  setClientsDeleteSet,
-  toggleClientInDeleteSet,
-  addClientToDeleteSet,
-  removeClientFromDeleteSet,
-  addMultipleClientsToDeleteSet,
-  removeMultipleClientsFromDeleteSet,
+  toggleClientSelection,
   selectAllClients,
   deselectAllClients,
+  batchUpdateSelection,
   setCreateClientResult,
   setUpdateClientResult,
 } = clientsSlice.actions;
@@ -190,23 +264,38 @@ export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
 export const selectHideHeaders = (state) => state.clients.hideHeaders;
 export const selectDeleteMode = (state) => state.clients.deleteMode;
-export const selectClientsDeleteSet = (state) => state.clients.clientsDeleteSet;
-export const selectCreateClientResult = (state) =>
-  state.clients.createClientResult;
-export const selectUpdateClientResult = (state) =>
-  state.clients.updateClientResult;
 
-// Derived selectors
-export const selectIsAllClientsSelected = (state) => {
-  const resultSet = state.clients.clientsResultSet;
-  const deleteSet = state.clients.clientsDeleteSet;
-  return (
-    resultSet.length > 0 &&
-    resultSet.every((client) => deleteSet.includes(client.client_id))
-  );
-};
+// Updated derived selectors to use isSelected instead of clientsDeleteSet
+export const selectSelectedClients = createSelector(
+  [(state) => state.clients.clientsResultSet],
+  (clientsResultSet) => {
+    return clientsResultSet.filter((client) => client.isSelected === true);
+  },
+);
 
-export const selectSelectedClientsCount = (state) =>
-  state.clients.clientsDeleteSet.length;
+export const selectSelectedClientsCount = createSelector(
+  [selectSelectedClients],
+  (selectedClients) => selectedClients.length,
+);
+
+export const selectIsAllClientsSelected = createSelector(
+  [(state) => state.clients.clientsResultSet],
+  (resultSet) => {
+    return (
+      resultSet.length > 0 &&
+      resultSet.every((client) => client.isSelected === true)
+    );
+  },
+);
+
+// New selector to get array of selected client IDs (if needed for API calls)
+export const selectSelectedClientIds = createSelector(
+  [(state) => state.clients.clientsResultSet],
+  (clientsResultSet) => {
+    return clientsResultSet
+      .filter((client) => client.isSelected === true)
+      .map((client) => client.client_id);
+  },
+);
 
 export default clientsSlice.reducer;

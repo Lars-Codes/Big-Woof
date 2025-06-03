@@ -1,38 +1,64 @@
 import * as Blur from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { Text, View, Animated, Alert, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { deleteClientAction } from '../../../sagas/clients/deleteClient/action';
 import {
-  selectClients,
-  selectClientsDeleteSet,
   selectDeleteMode,
-  setClientsDeleteSet,
   setDeleteMode,
+  batchUpdateSelection, // Replace selectAllClients and deselectAllClients with this
 } from '../../../state/clients/clientsSlice';
 
 export default function ClientListFooter() {
   const dispatch = useDispatch();
-  const clients = useSelector(selectClients);
   const deleteMode = useSelector(selectDeleteMode);
-  const clientsDeleteSet = useSelector(selectClientsDeleteSet);
+
+  // Combine selectors to reduce re-renders
+  const selectionState = useSelector(
+    useCallback((state) => {
+      const resultSet = state.clients.clientsResultSet;
+      const selectedClients = resultSet.filter(
+        (client) => client.isSelected === true,
+      );
+
+      return {
+        selectedCount: selectedClients.length,
+        selectedClientIds: selectedClients.map((client) => client.client_id),
+        isAllSelected:
+          resultSet.length > 0 && selectedClients.length === resultSet.length,
+        clientsResultSet: resultSet, // Add this to access in handleSelectAll
+      };
+    }, []),
+    shallowEqual,
+  );
+
+  const { selectedCount, selectedClientIds, isAllSelected, clientsResultSet } =
+    selectionState;
+
   const slideAnim = useRef(new Animated.Value(100)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   const handleSelectAll = () => {
-    // Light haptic feedback for selection actions
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    if (clientsDeleteSet.length !== clients.length) {
-      dispatch(setClientsDeleteSet(clients.map((c) => c.client_id)));
+    if (isAllSelected) {
+      // Get all client IDs and batch deselect
+      const allClientIds = clientsResultSet.map((client) => client.client_id);
+      dispatch(
+        batchUpdateSelection({ clientIds: allClientIds, isSelected: false }),
+      );
     } else {
-      dispatch(setClientsDeleteSet([]));
+      // Get all client IDs and batch select
+      const allClientIds = clientsResultSet.map((client) => client.client_id);
+      dispatch(
+        batchUpdateSelection({ clientIds: allClientIds, isSelected: true }),
+      );
     }
   };
 
   const handleConfirmDelete = () => {
-    if (clientsDeleteSet.length === 0) {
+    if (selectedCount === 0) {
       handleCancel();
       return;
     }
@@ -42,7 +68,7 @@ export default function ClientListFooter() {
 
     Alert.alert(
       'Delete Selected Clients',
-      `Are you sure you want to delete ${clientsDeleteSet.length} selected client${clientsDeleteSet.length > 1 ? 's' : ''}?`,
+      `Are you sure you want to delete ${selectedCount} selected client${selectedCount > 1 ? 's' : ''}?`,
       [
         {
           text: 'Cancel',
@@ -55,9 +81,8 @@ export default function ClientListFooter() {
         {
           text: 'Delete',
           onPress: () => {
-            dispatch(deleteClientAction(clientsDeleteSet));
+            dispatch(deleteClientAction(selectedClientIds));
             dispatch(setDeleteMode(false));
-            dispatch(setClientsDeleteSet([]));
             // Success haptic feedback after deletion
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           },
@@ -71,7 +96,6 @@ export default function ClientListFooter() {
     // Light haptic feedback for cancel action
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     dispatch(setDeleteMode(false));
-    dispatch(setClientsDeleteSet([]));
   };
 
   useEffect(() => {
@@ -132,18 +156,16 @@ export default function ClientListFooter() {
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         >
           <Text className="text-2xl font-hn-medium text-blue-500 underline">
-            {clientsDeleteSet.length === clients.length
-              ? 'Deselect All'
-              : 'Select All'}
+            {isAllSelected ? 'Deselect All' : 'Select All'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleConfirmDelete}
-          disabled={clientsDeleteSet.length === 0}
+          disabled={selectedCount === 0}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         >
           <Text
-            className={`text-2xl font-hn-medium underline ${clientsDeleteSet.length > 0 ? 'text-blue-500' : 'text-gray-300'}`}
+            className={`text-2xl font-hn-medium underline ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}
           >
             Delete
           </Text>

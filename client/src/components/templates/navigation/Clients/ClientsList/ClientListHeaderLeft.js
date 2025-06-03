@@ -3,7 +3,6 @@ import { Text, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectDeleteMode,
-  setClientsDeleteSet,
   setDeleteMode,
 } from '../../../../../state/clients/clientsSlice';
 
@@ -13,7 +12,7 @@ export default function ClientListHeaderLeft() {
 
   const handleCancel = () => {
     dispatch(setDeleteMode(false));
-    dispatch(setClientsDeleteSet([]));
+    // No need to clear clientsDeleteSet anymore - setDeleteMode(false) handles clearing selections
   };
 
   return (
