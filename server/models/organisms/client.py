@@ -1,3 +1,4 @@
+import base64
 from models.db import db
 from models.contact_info import ContactInfo 
 from models.logistics.appointment import Appointment
@@ -35,7 +36,7 @@ class Client(db.Model):
     
     vet = db.relationship('Vet', uselist=True, backref='client', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='Vet.client_id')
     
-    appointments = db.relationship('Appointment', backref='client', lazy='select', foreign_keys='Appointment.client_id')
+    appointments = db.relationship('Appointment', backref='client', lazy='select', cascade='all, delete-orphan', foreign_keys='Appointment.client_id')
     appointment_stats = db.relationship('AppointmentStats', backref='client', lazy='select', uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AppointmentStats.client_id')
 
     # online_payments_id = db.Column(db.Integer, db.ForeignKey('online_payments.id'), nullable=True)  # Nullable if not all clients have an employee assigned
@@ -388,9 +389,9 @@ class Client(db.Model):
                     if up.type=="single": 
                         upcoming = {
                             "id": up.id,
-                            "date": up.date.strftime('%Y-%m-%d'), 
-                            "start_time": up.start_time, 
-                            "end_time": up.end_time, 
+                            "date": up.date.strftime('%Y-%m-%d') if up.date else "", 
+                            "start_time": up.start_time.strftime('%H:%M:%S') if up.start_time else "", 
+                            "end_time": up.end_time.strftime('%H:%M:%S') if up.end_time else "", 
                         }
                         clients_data["upcoming_non_recurring_appointments"].append(upcoming)
                         
@@ -399,24 +400,24 @@ class Client(db.Model):
                         "id": recur.id,
                         "start_recur_date": recur.start_recur_date.strftime('%Y-%m-%d') if recur.start_recur_date else "", 
                         "end_recur_date": recur.end_recur_date.strftime('%Y-%m-%d') if recur.end_recur_date else "",
-                        "start_time": recur.start_time, 
-                        "end_time": recur.end_time, 
+                        "start_time": recur.start_time.strftime('%H:%M:%S') if recur.start_time else "", 
+                        "end_time": recur.end_time.strftime('%H:%M:%S') if recur.end_time else "", 
                     }
                     clients_data["recurring_appointments"].append(recurring)
 
                 for saved in saved_appointments: 
                     save = {
                         "id": saved.id, 
-                        "saved_appointment_name": saved.saved_appointment_config_name, 
+                        "saved_appointment_name": saved.saved_appointment_config_name if saved.saved_appointment_config_name else "", 
                     }
                     clients_data["saved_appointment_config"].append(save)
                     
                 for p in past_appointments_preview: 
                     past = {
                         "id": p.id,
-                        "date": p.date.strftime('%Y-%m-%d'), 
-                        "start_time": p.start_time.strftime('%H:%M:%S'), 
-                        "end_time": p.end_time.strftime('%H:%M:%S'), 
+                        "date": p.date.strftime('%Y-%m-%d') if p.date else "", 
+                        "start_time": p.start_time.strftime('%H:%M:%S') if p.start_time else "", 
+                        "end_time": p.end_time.strftime('%H:%M:%S') if p.end_time else "", 
                         "appointment_status": p.appointment_status if p.appointment_status else "", 
                         "payment_status": p.payment_status if p.payment_status else "",
                     }
@@ -429,9 +430,9 @@ class Client(db.Model):
             else: 
                 return jsonify({
                     "success": 0, 
-                    "error": "No client found for client id: " + client_id, 
+                    "error": "No client found for client id: " + str(client_id), 
                 }) 
-
+    
         except SQLAlchemyError as e:
             db.session.rollback()
             print(f"Database error: {e}")
@@ -443,7 +444,7 @@ class Client(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to fetch client appointment data. Unknown error"}), 500,
-            )  
+            )
     
     @classmethod 
     def get_client_document_metadata(cls, client_id):
@@ -715,14 +716,26 @@ class Client(db.Model):
             if not client or client.profile_pic_url == "":
                 return jsonify({"success": 1, "exists": 0, "message": "No profile picture associated with this user."}), 404
 
-            
+
             image_dir = os.path.join(image_store, client_id)
             
             full_path = os.path.join(image_dir, client.profile_pic_url)
             if not os.path.exists(full_path):
                 return jsonify({"success": 0, "error": "Image URL associated with this user does not map to an image in the image store."}), 404
             
-            return send_from_directory(image_dir, client.profile_pic_url)
+            # Read the image file and convert to base64
+            with open(full_path, 'rb') as image_file:
+                image_data = image_file.read()
+                # Determine MIME type based on file extension
+                file_ext = client.profile_pic_url.lower().split('.')[-1]
+                mime_type = 'image/jpeg' if file_ext in ['jpg', 'jpeg'] else f'image/{file_ext}'
+                base64_string = base64.b64encode(image_data).decode('utf-8')
+                data_url = f"data:{mime_type};base64,{base64_string}"
+            return jsonify({
+                "success": 1,
+                "exists": 1,
+                "image_data": data_url
+            }), 200
             
         except SQLAlchemyError as e: 
             db.session.rollback()

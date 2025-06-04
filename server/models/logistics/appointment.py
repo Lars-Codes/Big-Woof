@@ -35,5 +35,5 @@ class Appointment(db.Model):
     # Every time we edit an appointment, make sure to update appointment stats 
     # If appointment is recurring, save a copy of it every time the appointment passes or gets edited. Option to change for all of recurring appointments or just that one. 
     # 
-    def __init__():
+    def __init__(self):
         pass

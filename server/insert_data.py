@@ -1,6 +1,27 @@
-import requests
-import random 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from app import app
+from models.db import db
+from models.organisms.client import Client
+from models.organisms.pet import Pet
+from models.organisms.emergency_contact import EmergencyContact
+from models.organisms.vet import Vet
+from models.contact_info import ContactInfo
+from models.logistics.appointment import Appointment
+from models.logistics.appointment_stats import AppointmentStats
+from models.finances.client_payment_types import ClientPaymentTypes
+from models.files.client_files import ClientFiles
+from models.misc.sticky_notes import StickyNotes
+from models.timemachine.added_time import AddedTime
+from models.finances.additional_costs import AdditionalCosts
+
+import random
+from datetime import datetime, date, time, timedelta
+from sqlalchemy.exc import SQLAlchemyError
+
+# Sample data arrays (same as your original file)
 first_name = [
     "Aiden", "Olivia", "Liam", "Emma", "Noah", "Ava", "Elijah", "Sophia", "Lucas", "Isabella",
     "Mason", "Mia", "Logan", "Charlotte", "Ethan", "Amelia", "James", "Harper", "Alexander", "Evelyn",
@@ -27,14 +48,6 @@ last_name = [
     "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster", "Jimenez"
 ]
 
-email = [
-    f"user{i}@example.com" for i in range(1, 101)
-]
-
-street_address = [
-    f"{1000 + i} Main St" for i in range(100)
-]
-
 city = [
     "Springfield", "Rivertown", "Lakeside", "Fairview", "Oakwood",
     "Maplewood", "Brookfield", "Cedarville", "Franklin", "Georgetown",
@@ -44,18 +57,7 @@ city = [
     "Farmington", "Glenwood", "Hamilton", "Inverness", "Jamestown",
     "Kirkland", "Lakemont", "Mansfield", "Norwood", "Oakridge",
     "Parkdale", "Quincy", "Rosemont", "Shady Grove", "Torrington",
-    "Upland", "Vernon", "Weston", "Yorktown", "Zion",
-    "Aberdeen", "Bellevue", "Chester", "Dover", "Elmwood",
-    "Foxboro", "Greenville", "Hudson", "Ironwood", "Jacksonville",
-    "Kenwood", "Lexington", "Medford", "Newport", "Orchard Park",
-    "Pleasanton", "Quarryville", "Rockville", "Saddlebrook", "Timberlake",
-    "Upperville", "Valleyview", "Windham", "Xenia", "Yarmouth",
-    "Zephyr", "Arlington", "Bradford", "Centerville", "Dunedin",
-    "Edgewater", "Fairmont", "Granite Falls", "Hampton", "Ivydale",
-    "Jefferson", "Kensington", "Laurel", "Montrose", "Norwich",
-    "Oakton", "Palmdale", "Queensbury", "Rochester", "Stonehaven",
-    "Tiverton", "Underhill", "Vicksburg", "Weston", "Yardley",
-    "Zebulon", "Alpine", "Bluffdale", "Cottonwood", "Draper"
+    "Upland", "Vernon", "Weston", "Yorktown", "Zion"
 ]
 
 state = [
@@ -64,282 +66,309 @@ state = [
     "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
     "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
     "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-] * 2  # repeated to make 100
-
-zip = [
-    f"{str(10000 + i).zfill(5)}" for i in range(100)
-]
-
-phone_number = [
-    "123456789", "234567891", "345678912", "456789123", "567891234",
-    "678912345", "789123456", "891234567", "912345678", "102938475",
-    "112358132", "223344556", "334455667", "445566778", "556677889",
-    "667788990", "778899001", "889900112", "990011223", "101112131",
-    "111213141", "121314151", "131415161", "141516171", "151617181",
-    "161718191", "171819202", "181920212", "192021222", "202122232",
-    "212223242", "222324252", "232425262", "242526272", "252627282",
-    "262728292", "272829303", "282930313", "293031323", "303132343",
-    "313234353", "323435363", "333536373", "343637383", "353738393",
-    "363839404", "373940414", "384041424", "394142434", "404243444",
-    "414344454", "424445464", "434546474", "444647484", "454748494",
-    "464849505", "474950515", "485051525", "495152535", "505253545",
-    "515354555", "525455565", "535556575", "545657585", "555758595",
-    "565859606", "575960616", "586061626", "596162636", "606263646",
-    "616364656", "626465666", "636566676", "646667686", "656768696",
-    "666869707", "676970717", "687071727", "697172737", "707273747",
-    "717374757", "727475767", "737576777", "747677787", "757778797",
-    "767879808", "777980818", "788081828", "798182838", "808283848",
-    "818384858", "828485868", "838586878", "848687888", "858788898",
-    "868889908", "878990918", "889091928", "899192938", "909293948",
-    "919394958", "929495968", "939596978", "949697988", "959798998"
 ]
 
 pet_grooming_notes = [
-    "Dog is nervous around clippers.",
-    "Prefers warm water baths.",
-    "Allergic to certain shampoos.",
-    "Owner requests blueberry facial every visit.",
-    "Aggressive when touched near tail.",
-    "Likes belly rubs before grooming.",
-    "Sensitive paws; use caution.",
-    "Matting under ears requires extra care.",
-    "Owner prefers short trim all over.",
-    "Regular anal gland expression needed.",
-    "Easily startled by loud noises.",
-    "Senior dog – be gentle and slow.",
-    "Request for nail grinding instead of clipping.",
-    "Avoid spraying water directly on face.",
-    "Dog gets along well with other pets.",
-    "Prefers being dried with a towel.",
-    "Has arthritis – handle joints gently.",
-    "Do not use scented sprays.",
-    "Prone to hot spots on back legs.",
-    "Cat is fearful – use calming spray.",
-    "Prefers being brushed before bath.",
-    "Owner brings their own shampoo.",
-    "Add bandana after grooming.",
-    "Pet is crate-trained and calm.",
-    "Use hypoallergenic shampoo only.",
-    "Doesn’t like blow dryer noise.",
-    "Please clean ears thoroughly.",
-    "Trim tail feathering slightly.",
-    "Dog loves treats – use during brushing.",
-    "Matted tail – may need to be shaved.",
-    "Schedule next appointment in 6 weeks.",
-    "Use deshedding brush on undercoat.",
-    "Sensitive around eyes – no scissors there.",
-    "Remove loose hair from underbelly.",
-    "Cat requires sedation for grooming.",
-    "Avoid trimming whiskers.",
-    "Prefers owner to be nearby during grooming.",
-    "Check for ticks around neck area.",
-    "Brush teeth if time allows.",
-    "Pet has flea allergy – inspect skin closely.",
-    "Leave longer hair on ears.",
-    "Request for seasonal trim style.",
-    "Doesn't like leash – carry if needed.",
-    "Clip nails extra short today.",
-    "Friendly and cooperative.",
-    "Owner asked for mohawk cut again.",
-    "Include bow on collar post-groom.",
-    "Apply paw balm after bath.",
-    "Gets anxious after 30 minutes – keep session short.",
-    "Trim eyebrows but leave some length.",
-    "Groom with harness instead of neck loop.",
-    "Watch for dry patches on skin.",
-    "Only use cotton towels – no dryer.",
-    "Owner prefers a lion cut.",
-    "No cologne spray after groom.",
-    "Give a treat before bath to relax.",
-    "Brush tail thoroughly – tends to tangle.",
-    "Dog tries to bite when touched near mouth.",
-    "Check for ear mites – common with this pet.",
-    "Uses pet stairs to get into tub.",
-    "Prefers early morning appointments.",
-    "Avoid touching hindquarters – previously injured.",
-    "Use gloves – prone to biting.",
-    "Blow dryer on low setting only.",
-    "Bring out dog with a bandana tied.",
-    "No nail polish this time.",
-    "Owner will trim nails at home.",
-    "Clean tear stains under eyes.",
-    "Use detangler before brushing tail.",
-    "Owner brings special conditioner.",
-    "Clip between paw pads.",
-    "Trim face in teddy bear style.",
-    "Be mindful of post-surgery scar.",
-    "Apply flea spray after grooming.",
-    "Needs ear plucking every visit.",
-    "Aggressive with other animals – keep separated.",
-    "Senior cat – very sensitive.",
-    "Owner requests feather trim on legs.",
-    "Brush in direction of hair growth.",
-    "Grooming every 4 weeks preferred.",
-    "Avoid chin – has rash.",
-    "Use lavender calming spray.",
-    "Cat will hide in carrier – coax gently.",
-    "Dog is deaf – approach from front.",
-    "Give extra brushing to undercoat.",
-    "Pet doesn't like feet touched.",
-    "Wrap in towel during drying.",
-    "Use soft-bristle brush for finishing.",
-    "Only trim top of head lightly.",
-    "No treats – food allergy.",
-    "Clean in-between facial folds.",
-    "Check tail for matting every visit.",
-    "Owner wants report card after session.",
-    "Dog has recurring skin condition.",
-    "Tends to scoot – check anal glands.",
-    "Keep ears dry – history of infections.",
-    "Blow dryer causes anxiety – towel dry only.",
-    "Use tearless shampoo on face.",
-    "Owner will provide ear cleaner.",
-    "Brush coat twice – lots of shedding.",
-    "Apply sunscreen to nose (outdoor dog).",
-    "Dog jumps off table – watch closely.",
-    "Dog prefers being groomed lying down.",
-    "Trim around paws into round shape.",
-    "Owner prefers no haircut – brush and bathe only."
+    "Dog is nervous around clippers.", "Prefers warm water baths.", "Allergic to certain shampoos.",
+    "Owner requests blueberry facial every visit.", "Aggressive when touched near tail.",
+    "Likes belly rubs before grooming.", "Sensitive paws; use caution.", "Matting under ears requires extra care.",
+    "Owner prefers short trim all over.", "Regular anal gland expression needed.", "Easily startled by loud noises.",
+    "Senior dog – be gentle and slow.", "Request for nail grinding instead of clipping.",
+    "Avoid spraying water directly on face.", "Dog gets along well with other pets.",
+    "Prefers being dried with a towel.", "Has arthritis – handle joints gently.", "Do not use scented sprays.",
+    "Prone to hot spots on back legs.", "Cat is fearful – use calming spray.", "Prefers being brushed before bath.",
+    "Owner brings their own shampoo.", "Add bandana after grooming.", "Pet is crate-trained and calm.",
+    "Use hypoallergenic shampoo only.", "Doesn't like blow dryer noise.", "Please clean ears thoroughly.",
+    "Trim tail feathering slightly.", "Dog loves treats – use during brushing.", "Matted tail – may need to be shaved.",
+    "Schedule next appointment in 6 weeks.", "Use deshedding brush on undercoat.", "Sensitive around eyes – no scissors there.",
+    "Remove loose hair from underbelly.", "Cat requires sedation for grooming.", "Avoid trimming whiskers.",
+    "Prefers owner to be nearby during grooming.", "Check for ticks around neck area.", "Brush teeth if time allows.",
+    "Pet has flea allergy – inspect skin closely.", "Leave longer hair on ears.", "Request for seasonal trim style.",
+    "Doesn't like leash – carry if needed.", "Clip nails extra short today.", "Friendly and cooperative.",
+    "Owner asked for mohawk cut again.", "Include bow on collar post-groom.", "Apply paw balm after bath.",
+    "Gets anxious after 30 minutes – keep session short.", "Trim eyebrows but leave some length."
 ]
 
 vet_notes = [
-    "Administered annual rabies vaccination.",
-    "Recommended dental cleaning within 3 months.",
-    "Treated for ear infection in left ear.",
-    "Prescribed antibiotics for skin condition.",
-    "Dog is due for heartworm test next visit.",
-    "Noticed mild hip dysplasia – monitor mobility.",
-    "Vaccinated for bordetella (kennel cough).",
-    "Client declined flea and tick medication today.",
-    "Performed routine wellness exam – no issues found.",
-    "Cleaned and expressed anal glands.",
-    "Noted weight gain – suggested diet adjustment.",
-    "Removed ticks during exam.",
-    "Client asked about microchipping options.",
-    "Referred to orthopedic specialist for limp.",
-    "Performed nail trim during check-up.",
-    "Follow-up needed for allergy testing.",
-    "Prescribed anti-itch medication for dermatitis.",
-    "Pet has heart murmur – continue monitoring.",
-    "Suggested joint supplements for arthritis.",
-    "Vaccinations are up to date.",
-    "Treated for mild conjunctivitis – eye drops prescribed.",
-    "Bloodwork within normal limits.",
-    "Owner requested health certificate for travel.",
-    "Scheduled spay/neuter for next visit.",
-    "Ear mites found – treated with drops.",
-    "Behavioral consultation recommended for anxiety.",
-    "Fecal exam negative for parasites.",
-    "Treated hotspot on rear leg.",
-    "Advised dental chew usage daily.",
-    "Vaccinated for leptospirosis today.",
-    "Prescribed ear cleanser for recurring buildup.",
-    "Noted cracked tooth – recommend dental x-rays.",
-    "Checked lump on abdomen – benign.",
-    "Pet anxious during exam – suggested sedative for future.",
-    "Removed dewclaws during surgery.",
-    "Started monthly flea preventative plan.",
-    "Increased dosage of thyroid medication.",
-    "Dog may have food allergy – recommend diet trial.",
-    "Cleaned minor wound – applied topical antibiotic.",
-    "Prescribed medication for urinary tract infection.",
-    "Weight steady – continue current feeding schedule.",
-    "Vaccinated for Lyme disease.",
-    "Heartworm prevention up to date.",
-    "Noted signs of aging – discussed pain management.",
-    "Trimmed fur around eyes for better vision.",
-    "Scheduled dental cleaning for next month.",
-    "Suggested soft bedding for joint support.",
-    "Mild tartar buildup noted.",
-    "Requested x-rays for limping front leg.",
-    "Reviewed blood panel results – everything normal."
+    "Administered annual rabies vaccination.", "Recommended dental cleaning within 3 months.",
+    "Treated for ear infection in left ear.", "Prescribed antibiotics for skin condition.",
+    "Dog is due for heartworm test next visit.", "Noticed mild hip dysplasia – monitor mobility.",
+    "Vaccinated for bordetella (kennel cough).", "Client declined flea and tick medication today.",
+    "Performed routine wellness exam – no issues found.", "Cleaned and expressed anal glands.",
+    "Noted weight gain – suggested diet adjustment.", "Removed ticks during exam.",
+    "Client asked about microchipping options.", "Referred to orthopedic specialist for limp.",
+    "Performed nail trim during check-up.", "Follow-up needed for allergy testing.",
+    "Prescribed anti-itch medication for dermatitis.", "Pet has heart murmur – continue monitoring.",
+    "Suggested joint supplements for arthritis.", "Vaccinations are up to date.",
+    "Treated for mild conjunctivitis – eye drops prescribed.", "Bloodwork within normal limits.",
+    "Owner requested health certificate for travel.", "Scheduled spay/neuter for next visit.",
+    "Ear mites found – treated with drops.", "Behavioral consultation recommended for anxiety.",
+    "Fecal exam negative for parasites.", "Treated hotspot on rear leg.", "Advised dental chew usage daily.",
+    "Vaccinated for leptospirosis today.", "Prescribed ear cleanser for recurring buildup.",
+    "Noted cracked tooth – recommend dental x-rays.", "Checked lump on abdomen – benign.",
+    "Pet anxious during exam – suggested sedative for future.", "Removed dewclaws during surgery.",
+    "Started monthly flea preventative plan.", "Increased dosage of thyroid medication.",
+    "Dog may have food allergy – recommend diet trial.", "Cleaned minor wound – applied topical antibiotic.",
+    "Prescribed medication for urinary tract infection.", "Weight steady – continue current feeding schedule."
 ]
 
-relationships = ["mom", "dad", "sister", "brother", "roommate", "friend", "partner", "girlfriend", "boyfriend", "theyfriend", "cousin", "uncle", "grandma", "grandpa"]
+relationships = ["mom", "dad", "sister", "brother", "roommate", "friend", "partner", "girlfriend", "boyfriend", "cousin", "uncle", "grandma", "grandpa"]
 
-num_clients_to_create = 100 
+document_types = ["Vaccination record", "Contract agreement", "Receipt", "Invoice", "Rabies record", "Other"]
 
-# CREATE CLIENT ============================================================
-client_url = "http://localhost:5000/createClient"  
-emergency_contact_url = "http://localhost:5000/createEmergencyContact"  
-vet_url = "http://localhost:5000/createVet"  
-payment_type_url = "http://localhost:5000/assignPaymentTypeToClient"
-create_pet_url = "http://localhost:5000/createPet"
+def generate_phone():
+    return f"{random.randint(100, 999)}{random.randint(100, 999)}{random.randint(1000, 9999)}"
 
+def generate_email(fname, lname):
+    return f"{fname.lower()}.{lname.lower()}{random.randint(1, 999)}@example.com"
 
-for i in range(1, num_clients_to_create): 
-    client_data = {
-        "fname": random.choice(first_name),
-        "lname": random.choice(last_name),
-        "phone_number": random.choice(phone_number),
-        "secondary_phone": random.choice(phone_number),
-        "email": random.choice(email),
-        "street_address": random.choice(street_address),
+def generate_address():
+    return {
+        "street_address": f"{random.randint(100, 9999)} {random.choice(['Main', 'Oak', 'First', 'Second', 'Park', 'Elm', 'Washington', 'Maple'])} {random.choice(['St', 'Ave', 'Rd', 'Blvd', 'Dr'])}",
         "city": random.choice(city),
         "state": random.choice(state),
-        "zip": random.choice(zip),
-        "notes": random.choice(pet_grooming_notes),  # optional
+        "zip": f"{random.randint(10000, 99999)}"
     }
-    create_client_response = requests.post(client_url, data=client_data).json()
-    if create_client_response.get("success") == 0: 
-        print(create_client_response.get("error"))
-    
-    payment_type_data = {
-        "client_id": i, 
-        "payment_type_id": random.randint(1, 6)
-    }
-    assign_payment_type_res = requests.post(payment_type_url, data=payment_type_data).json()
-    if assign_payment_type_res.get("success") == 0: 
-        print(assign_payment_type_res.get("error"))
-    
-    for j in range(0, random.randint(1, 3)): 
-        emergency_contact_data = {
-            "user_type": "client", 
-            "relationship": random.choice(relationships), 
-            "fname": random.choice(first_name),
-            "lname": random.choice(last_name),
-            "primary_phone": random.choice(phone_number),
-            "secondary_phone": random.choice(phone_number),
-            "email": random.choice(email),
-            "street_address": random.choice(street_address),
-            "city": random.choice(city),
-            "state": random.choice(state),
-            "zip": random.choice(zip),
-            "id": i, 
-        }
-        create_emergency_contact_response = requests.post(emergency_contact_url, data=emergency_contact_data).json()
-        if create_emergency_contact_response.get("success") == 0: 
-            print(create_emergency_contact_response.get("error"))
 
-    for k in range(0, random.randint(1, 3)): 
-        vet_data = {
-            "client_id": i, 
-            "fname": random.choice(first_name),
-            "lname": random.choice(last_name),
-            "primary_phone": random.choice(phone_number),
-            "secondary_phone": random.choice(phone_number),
-            "email": random.choice(email),
-            "street_address": random.choice(street_address),
-            "city": random.choice(city),
-            "state": random.choice(state),
-            "zip": random.choice(zip),
-            "notes": random.choice(vet_notes),
-        }
-        create_vet_response = requests.post(vet_url, data=vet_data).json()
-        if create_vet_response.get("success") == 0: 
-            print(create_vet_response.get("error"))
+def create_data():
+    with app.app_context():
+        try:
+            num_clients = 50
+            print(f"Creating {num_clients} clients with associated data...")
             
-    for l in range(0, random.randint(1, 3)):
-        pet_data = {
-            "client_id": i, 
-            "name": random.choice(first_name), 
-            "age": random.randint(1, 20), 
-            "breed_id": random.randint(1, 25), 
-            "size_tier_id": random.randint(1, 4),
-            "notes": random.choice(pet_grooming_notes), 
-            "weight": random.randint(5, 60),
-            "coat_type_id": random.randint(1, 4)
-        }
-        create_pet_response = requests.post(create_pet_url, data=pet_data).json()
-        if create_pet_response.get("success") == 0: 
-            print(create_pet_response.get("error"))
+            for i in range(1, num_clients + 1):
+                print(f"Creating client {i}/{num_clients}")
+                
+                # Create client contact info
+                address = generate_address()
+                client_fname = random.choice(first_name)
+                client_lname = random.choice(last_name)
+                
+                contact_info = ContactInfo(
+                    primary_phone=generate_phone(),
+                    secondary_phone=generate_phone() if random.choice([True, False]) else None,
+                    email=generate_email(client_fname, client_lname),
+                    street_address=address["street_address"],
+                    city=address["city"],
+                    state=address["state"],
+                    zip=address["zip"]
+                )
+                
+                # Create client using proper constructor
+                client = Client(
+                    fname=client_fname,
+                    lname=client_lname,
+                    contact_info=contact_info,
+                    notes=random.choice(pet_grooming_notes),
+                    num_pets=0,
+                    favorite=random.choice([0, 0, 0, 1])  # 25% chance of being favorite
+                )
+                
+                db.session.add(client)
+                db.session.flush()  # Get the client ID
+                
+                # Generate profile picture using the existing auto-generation functionality
+                filename = f"profile-{client.id}.jpg"
+                try:
+                    profile_pic_response = Client.upload_profile_picture(
+                        client.id, 
+                        image=None, 
+                        filename=filename, 
+                        ext="jpg", 
+                        initial_generation=1
+                    )
+                    print(f"  Generated profile picture for client {client.id}")
+                except Exception as e:
+                    print(f"  Warning: Failed to generate profile picture for client {client.id}: {e}")
+                
+                # ...rest of your existing code for creating appointment stats, emergency contacts, etc...
+                
+                # Create appointment stats (using direct assignment since __init__ is empty)
+                appointment_stats = AppointmentStats()
+                appointment_stats.client_id = client.id
+                appointment_stats.late = random.randint(0, 5)
+                appointment_stats.no_shows = random.randint(0, 3)
+                appointment_stats.cancelled = random.randint(0, 4)
+                appointment_stats.cancelled_late = random.randint(0, 2)
+                db.session.add(appointment_stats)
+                
+                # Create payment type association
+                payment_type = ClientPaymentTypes(
+                    payment_type_id=random.randint(1, 6),
+                    client_id=client.id
+                )
+                db.session.add(payment_type)
+                
+                # Create 1-2 emergency contacts
+                num_emergency_contacts = random.randint(1, 2)
+                for j in range(num_emergency_contacts):
+                    ec_address = generate_address()
+                    ec_fname = random.choice(first_name)
+                    ec_lname = random.choice(last_name)
+                    
+                    ec_contact_info = ContactInfo(
+                        primary_phone=generate_phone(),
+                        secondary_phone=generate_phone() if random.choice([True, False]) else None,
+                        email=generate_email(ec_fname, ec_lname),
+                        street_address=ec_address["street_address"],
+                        city=ec_address["city"],
+                        state=ec_address["state"],
+                        zip=ec_address["zip"]
+                    )
+                    
+                    emergency_contact = EmergencyContact(
+                        fname=ec_fname,
+                        lname=ec_lname,
+                        contact_info=ec_contact_info,
+                        relationship=random.choice(relationships),
+                        client_id=client.id
+                    )
+                    db.session.add(emergency_contact)
+                
+                # Create 1-5 vets
+                num_vets = random.randint(1, 5)
+                for k in range(num_vets):
+                    vet_address = generate_address()
+                    vet_fname = random.choice(first_name)
+                    vet_lname = random.choice(last_name)
+                    
+                    vet_contact_info = ContactInfo(
+                        primary_phone=generate_phone(),
+                        secondary_phone=generate_phone() if random.choice([True, False]) else None,
+                        email=generate_email(vet_fname, vet_lname),
+                        street_address=vet_address["street_address"],
+                        city=vet_address["city"],
+                        state=vet_address["state"],
+                        zip=vet_address["zip"]
+                    )
+                    
+                    vet = Vet(
+                        fname=vet_fname,
+                        lname=vet_lname,
+                        client_id=client.id,
+                        contact_info=vet_contact_info,
+                        notes=random.choice(vet_notes)
+                    )
+                    db.session.add(vet)
+                
+                # Create 1-5 pets
+                num_pets = random.randint(1, 5)
+                client.num_pets = num_pets
+                
+                pets_created = []
+                for l in range(num_pets):
+                    pet = Pet(
+                        client_id=client.id,
+                        name=random.choice(first_name),
+                        age=random.randint(1, 18),
+                        breed_id=random.randint(1, 25),
+                        size_tier_id=random.randint(1, 4),
+                        notes=random.choice(pet_grooming_notes),
+                        weight=random.randint(5, 80),
+                        coat_type_id=random.randint(1, 4),
+                        gender=random.choice([0, 1]),
+                        fixed=random.choice([0, 1])
+                    )
+                    
+                    db.session.add(pet)
+                    db.session.flush()
+                    pets_created.append(pet)
+                
+                num_past_appointments = random.randint(2, 5)
+                for m in range(num_past_appointments):
+                    appointment_date = datetime.now().date() - timedelta(days=random.randint(1, 365))
+                    start_time = time(hour=random.randint(8, 16), minute=random.choice([0, 15, 30, 45]))
+                    end_time = time(hour=start_time.hour + random.randint(1, 3), minute=start_time.minute)
+                    
+                    # Create appointment with explicit column assignments
+                    appointment = Appointment()
+                    appointment.client_id = client.id
+                    appointment.type = "single"
+                    appointment.date = appointment_date
+                    appointment.start_time = start_time
+                    appointment.end_time = end_time
+                    appointment.appointment_status = random.choice(["completed", "completed", "completed", "late", "no-show", "cancelled"])
+                    appointment.payment_status = random.choice(["paid", "paid", "paid", "unpaid", "paid late"])
+                    appointment.payment_method = random.choice(["cash", "credit", "debit", "venmo", "paypal"])
+                    appointment.estimated_cost = random.randint(30, 150)
+                    appointment.final_cost = random.randint(30, 150)
+                    appointment.estimated_time = random.randint(60, 180)
+                    appointment.notes = random.choice(pet_grooming_notes)
+                    
+                    # Add and flush immediately to ensure client_id is set
+                    db.session.add(appointment)
+                    db.session.flush()
+                
+                # Create 1-4 upcoming appointments - same fix
+                num_upcoming_appointments = random.randint(1, 4)
+                for n in range(num_upcoming_appointments):
+                    appointment_date = datetime.now().date() + timedelta(days=random.randint(1, 90))
+                    start_time = time(hour=random.randint(8, 16), minute=random.choice([0, 15, 30, 45]))
+                    end_time = time(hour=start_time.hour + random.randint(1, 3), minute=start_time.minute)
+                    
+                    appointment = Appointment()
+                    appointment.client_id = client.id
+                    appointment.type = "single"
+                    appointment.date = appointment_date
+                    appointment.start_time = start_time
+                    appointment.end_time = end_time
+                    appointment.estimated_cost = random.randint(30, 150)
+                    appointment.estimated_time = random.randint(60, 180)
+                    appointment.notes = random.choice(pet_grooming_notes)
+                    db.session.add(appointment)
+                    db.session.flush()
+
+                # Create 1-3 additional costs
+                num_documents = random.randint(1, 3)
+                for o in range(num_documents):
+                    document = ClientFiles(
+                        client_id=client.id,
+                        document_name=f"Document_{random.randint(1000, 9999)}",
+                        document_url=f"/fake/path/to/document_{random.randint(1000, 9999)}.pdf",
+                        document_type=random.choice(document_types),
+                        description=random.choice(["Medical records", "Vaccination proof", "Contract copy", "Receipt copy", "Insurance docs"]),
+                        initial_filename=f"original_file_{random.randint(1000, 9999)}.pdf",
+                        pet_id=random.choice(pets_created).id if pets_created and random.choice([True, False]) else None
+                    )
+                    db.session.add(document)
+                
+                # Create 1-2 sticky notes
+                num_sticky_notes = random.randint(1, 2)
+                for p in range(num_sticky_notes):
+                    note_text = random.choice([
+                        "Call before next appointment",
+                        "Prefers morning appointments", 
+                        "Cash payment only",
+                        "Bring treats for nervous dog",
+                        "Check vaccination records",
+                        "Update contact information",
+                        "Discount applied - regular customer"
+                    ])
+                    note_date = datetime.now() - timedelta(days=random.randint(1, 30))
+                    pet_id = random.choice(pets_created).id if pets_created and random.choice([True, False]) else None
+                    
+                    sticky_note = StickyNotes(
+                        client_id=client.id,
+                        note=note_text,
+                        date=note_date,
+                        pet_id=pet_id
+                    )
+                    db.session.add(sticky_note)
+                
+                # Commit each client individually for easier debugging
+                db.session.commit()
+                print(f"Successfully created client {i} with profile picture")
+            
+            print(f"Successfully created {num_clients} clients with all associated data and profile pictures!")
+            
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error: {e}")
+            import traceback
+            traceback.print_exc()
+
+if __name__ == "__main__":
+    create_data()

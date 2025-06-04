@@ -11,6 +11,5 @@ class AppointmentStats(db.Model):
     cancelled = db.Column(db.Integer, nullable=False, default=0)
     cancelled_late = db.Column(db.Integer, nullable=False, default=0)
 
-
-    def __init__():
+    def __init__(self):
         pass
