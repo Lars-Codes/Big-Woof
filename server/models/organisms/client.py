@@ -278,7 +278,7 @@ class Client(db.Model):
                                 "id": a.id, 
                                 "added_cost": a.added_cost,
                                 "is_percentage": a.is_percentage,
-                                "reason": a.reasonm if a.reason else "",
+                                "reason": a.reason if a.reason else "",
                             }
                             clients_data["added_cost_other"].append(other_addition)
                    
@@ -392,7 +392,7 @@ class Client(db.Model):
                             "start_time": up.start_time, 
                             "end_time": up.end_time, 
                         }
-                        clients_data["upcoming_appointments"].append(upcoming)
+                        clients_data["upcoming_non_recurring_appointments"].append(upcoming)
                         
                 for recur in recurring_appointments: 
                     recurring = {

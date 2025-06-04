@@ -97,7 +97,7 @@ def getClientMetadata():
 @client_bp.route('/getCostAndTimeStatsMetadata', methods=['GET'])
 def getCostAndTimeStatsMetadata():
     try: 
-        client_id = request.form.get("client_id")
+        client_id = request.args.get("client_id")
         res = Client.get_cost_and_time_stats_metadata(client_id)
         return res 
     except Exception as e: 
@@ -107,7 +107,7 @@ def getCostAndTimeStatsMetadata():
 @client_bp.route('/getClientDocumentsMetadata', methods=['GET'])
 def getClientDocumentMetadata():
     try: 
-        client_id = request.form.get("client_id")
+        client_id = request.args.get("client_id")
         if client_id==None: 
             return jsonify({
                 "success": 0, 
@@ -122,7 +122,7 @@ def getClientDocumentMetadata():
 @client_bp.route('/getAppointmentMetadata', methods=['GET'])
 def getAppointmentMetadata():
     try: 
-        client_id = request.form.get("client_id")
+        client_id = request.args.get("client_id")
         res = Client.get_appointment_metadata(client_id)
         return res
     except Exception as e: 
