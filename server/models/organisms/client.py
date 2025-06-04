@@ -608,8 +608,7 @@ class Client(db.Model):
             if initial_generation == 1: 
                 initials = client.fname[0].upper() + client.lname[0].upper()
                 img_size = 512
-                font_size = int(img_size * 0.6)
-
+                font_size = int(img_size * 0.8)  # Start much bigger - 80% of image size
                 # Generate background color
                 # base_color = [random.randint(0, 255) for _ in range(3)]
                 # pastel_color = tuple(int(c * 0.25 + 255 * 0.75) for c in base_color)  # 75% white blend
@@ -629,36 +628,51 @@ class Client(db.Model):
                 image = Image.new('RGB', (img_size, img_size), background_color)
                 draw = ImageDraw.Draw(image)
 
-                # Use truetype font if available, else fallback
+                # Use the specific Helvetica font
                 try:
-                    fontstore_url = os.environ.get('FONTSTORE_URL')
-                    font_files = [f for f in os.listdir(fontstore_url) if f.lower().endswith(('.ttf', '.otf'))]
-
-                    if not font_files:
-                        raise Exception("No fonts found in FONTSTORE_URL")
-
-                    # Choose one at random
-                    random_font_file = random.choice(font_files)
-                    random_font_path = os.path.join(fontstore_url, random_font_file)
-
-                    # Load it
-                    font = ImageFont.truetype(random_font_path, font_size)
-                except:
+                    # Get the directory where this client.py file is located
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    # Navigate up to server directory, then to fonts
+                    font_path = os.path.join(current_dir, '..', '..', 'fonts', 'HelveticaNeueMedium.otf')
+                    font_path = os.path.normpath(font_path)  # Clean up the path
+                    
+                    # Load the font with initial size
+                    font = ImageFont.truetype(font_path, font_size)
+                except Exception as e:
+                    print(f"Could not load font: {e}")
                     font = ImageFont.load_default()
-
-                # Get text bounding box (instead of deprecated textsize)
+            
+                # Get text bounding box and adjust font size
                 bbox = draw.textbbox((0, 0), initials, font=font)
                 text_width = bbox[2] - bbox[0]
                 text_height = bbox[3] - bbox[1]
-
+                
+                # Target 60% of image size for the text
+                target_size = img_size * 0.6
+                current_max_size = max(text_width, text_height)
+                
+                # Always scale to target size
+                scale_factor = target_size / current_max_size
+                new_font_size = int(font_size * scale_factor)
+                
+                try:
+                    font = ImageFont.truetype(font_path, new_font_size)
+                except:
+                    font = ImageFont.load_default()
+                
+                # Recalculate bounding box with new font
+                bbox = draw.textbbox((0, 0), initials, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+            
                 # Center the text
                 x = (img_size - text_width) / 2
                 y = (img_size - text_height) / 2
-
+            
                 # Choose text color based on luminance
                 luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
                 text_color = (255, 255, 255) if luminance < 0.5 else (0, 0, 0)
-
+            
                 draw.text((x, y), initials, font=font, fill=text_color)
 
             # Save the FileStorage image to the local path
