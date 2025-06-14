@@ -195,6 +195,22 @@ export const clientsSlice = createSlice({
     setUpdateClientResult: (state, action) => {
       state.updateClientResult = action.payload;
     },
+    updateClientFavorite: (state, action) => {
+      const { clientId, isFavorite } = action.payload;
+      [
+        state.clients,
+        state.clientsResultSet,
+        state.searchResultSet,
+        state.searchedResultSet,
+      ].forEach((array) => {
+        if (array) {
+          const client = array.find((c) => c.client_id === clientId);
+          if (client) {
+            client.favorite = isFavorite ? 1 : 0;
+          }
+        }
+      });
+    },
   },
 });
 
@@ -218,6 +234,7 @@ export const {
   batchUpdateSelection,
   setCreateClientResult,
   setUpdateClientResult,
+  updateClientFavorite,
 } = clientsSlice.actions;
 
 // Selectors (memoized for better performance)

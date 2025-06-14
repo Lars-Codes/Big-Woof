@@ -1,14 +1,17 @@
+import { Pin } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   selectClientDetails,
+  selectClientFavorite,
   selectClientProfilePicture,
 } from '../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientDetailsHeader() {
   const client = useSelector(selectClientDetails);
   const clientProfilePicture = useSelector(selectClientProfilePicture);
+  const clientFavorite = useSelector(selectClientFavorite);
 
   if (!client) {
     return (
@@ -39,9 +42,16 @@ export default function ClientDetailsHeader() {
         {renderProfilePicture()}
       </View>
       <View className="w-[65%] p-4 justify-center">
-        <Text className="text-3xl text-gray-800 font-hn-bold mb-2">
-          {client.client_data.fname} {client.client_data.lname}
-        </Text>
+        <View className="flex-row items-center mb-2">
+          <Text className="text-3xl text-gray-800 font-hn-bold">
+            {client.client_data.fname} {client.client_data.lname}
+          </Text>
+          {clientFavorite && (
+            <View className="ml-2">
+              <Pin size={16} color="#000" fill="#999" />
+            </View>
+          )}
+        </View>
 
         <View className="flex-row h-5 mb-1">
           <Text className="text-base font-hn-regular text-gray-800">

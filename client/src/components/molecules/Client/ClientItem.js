@@ -12,6 +12,7 @@ import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDeta
 import { fetchClientDocumentsAction } from '../../../sagas/clients/fetchClientDocuments/action';
 import { fetchClientProfilePictureAction } from '../../../sagas/clients/fetchClientProfilePicture/action';
 import { fetchClientStatsAction } from '../../../sagas/clients/fetchClientStats/action';
+import { updateClientIsFavoriteAction } from '../../../sagas/clients/updateClientIsFavorite/action';
 import { setClientSelectedInfo } from '../../../state/clientDetails/clientDetailsSlice';
 import {
   selectDeleteMode,
@@ -63,8 +64,8 @@ export default memo(
 
         // Define action sheet options
         const favoriteOption = client.favorite
-          ? 'Remove from Favorites'
-          : 'Add to Favorites';
+          ? 'Remove from Pinned'
+          : 'Add to Pinned';
 
         const options = [
           'View Details',
@@ -106,8 +107,13 @@ export default memo(
                 break;
 
               case 2: // Add to Favorites
-                // Implement your favorite logic here
-                // dispatch(toggleClientFavoriteAction(client.client_id));
+                // Dispatch the saga action
+                dispatch(
+                  updateClientIsFavoriteAction({
+                    clientId: client.client_id,
+                    isFavorite: !client.favorite,
+                  }),
+                );
                 Haptics.notificationAsync(
                   Haptics.NotificationFeedbackType.Success,
                 );
