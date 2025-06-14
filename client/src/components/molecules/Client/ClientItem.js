@@ -1,14 +1,18 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { ChevronRight, Trash2, Star } from 'lucide-react-native';
+import { ChevronRight, Trash2, Pin } from 'lucide-react-native';
 import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { SwipeRow } from 'react-native-swipe-list-view';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteClientAction } from '../../../sagas/clients/deleteClient/action';
+import { fetchClientAppointmentsAction } from '../../../sagas/clients/fetchClientAppointments/action';
 import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
+import { fetchClientDocumentsAction } from '../../../sagas/clients/fetchClientDocuments/action';
 import { fetchClientProfilePictureAction } from '../../../sagas/clients/fetchClientProfilePicture/action';
+import { fetchClientStatsAction } from '../../../sagas/clients/fetchClientStats/action';
+import { setClientSelectedInfo } from '../../../state/clientDetails/clientDetailsSlice';
 import {
   selectDeleteMode,
   setDeleteMode,
@@ -42,8 +46,8 @@ export default memo(
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         return;
       }
-      dispatch(fetchClientDetailsAction(client.client_id));
-      dispatch(fetchClientProfilePictureAction(client.client_id));
+      dispatch(setClientSelectedInfo('pets')); // Reset to pets view
+      batchFetch(); // Fetch all necessary data for the client
       navigation.navigate('ClientDetails');
     }, [deleteMode, client.client_id, dispatch, navigation]);
 
@@ -92,18 +96,12 @@ export default memo(
           (selectedIndex) => {
             switch (selectedIndex) {
               case 0: // View Details
-                dispatch(fetchClientDetailsAction(client.client_id));
-                dispatch(fetchClientProfilePictureAction(client.client_id));
+                batchFetch(); // Fetch all necessary data for the client
                 navigation.navigate('ClientDetails');
                 break;
 
               case 1: // Edit Client
-                dispatch(fetchClientDetailsAction(client.client_id));
-                // *working here, lets do this: if a client is selected, navigate to ClientForm, no params.
-                // then in clientForm, we do the same as clientdetails, using loading from clientdetailsslice,
-                // and selectClientDetails. if a client is slected, display the form prefilled,
-                // if not selected, display an empty form. this way is better instead of using routes,
-                // we can also change the forms title this way
+                batchFetch(); // Fetch all necessary data for the client
                 navigation.navigate('ClientForm');
                 break;
 
@@ -174,6 +172,14 @@ export default memo(
       dispatch(toggleClientSelection(client.client_id));
     }, [client.client_id, dispatch]);
 
+    const batchFetch = useCallback(() => {
+      dispatch(fetchClientDetailsAction(client.client_id));
+      dispatch(fetchClientStatsAction(client.client_id));
+      dispatch(fetchClientDocumentsAction(client.client_id));
+      dispatch(fetchClientAppointmentsAction(client.client_id));
+      dispatch(fetchClientProfilePictureAction(client.client_id));
+    }, [client.client_id, dispatch]);
+
     return (
       <SwipeRow
         ref={rowRef}
@@ -208,7 +214,7 @@ export default memo(
                 {client.fname} {client.lname}
               </Text>
               {hideHeaders && client.favorite ? (
-                <Star size={16} color="#000" />
+                <Pin size={16} color="#000" fill="#999" />
               ) : null}
             </View>
             {deleteMode ? (

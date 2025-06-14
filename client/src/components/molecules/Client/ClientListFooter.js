@@ -139,7 +139,7 @@ export default function ClientListFooter() {
       <View className="flex flex-row items-center justify-between py-4 px-6">
         <TouchableOpacity
           onPress={handleSelectAll}
-          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text className="text-2xl font-hn-medium text-blue-500 underline">
             {isAllSelected ? 'Deselect All' : 'Select All'}
@@ -148,7 +148,7 @@ export default function ClientListFooter() {
         <TouchableOpacity
           onPress={handleConfirmDelete}
           disabled={selectedCount === 0}
-          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text
             className={`text-2xl font-hn-medium underline ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}

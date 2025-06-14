@@ -166,7 +166,9 @@ export default function ClientList() {
         ListHeaderComponent={renderListHeader}
         ListEmptyComponent={() => (
           <View className="flex-1 items-center justify-center min-h-80">
-            <Text className="text-lg text-gray-500">No clients available.</Text>
+            <Text className="text-lg text-gray-500 font-hn-medium">
+              No clients available.
+            </Text>
           </View>
         )}
         onRefresh={handleRefresh}

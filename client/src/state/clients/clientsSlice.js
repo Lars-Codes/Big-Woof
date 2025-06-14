@@ -32,33 +32,6 @@ export const clientsSlice = createSlice({
         isSelected: false,
       }));
     },
-    addClient: (state, action) => {
-      const newClient = { ...action.payload, isSelected: false };
-      state.clients.push(newClient);
-      state.clientsResultSet = [...state.clients];
-      state.clientsResultSet.sort((a, b) => a.lname.localeCompare(b.lname));
-      state.searchResultSet = [...state.clients];
-      state.searchResultSet.sort((a, b) => a.lname.localeCompare(b.lname));
-    },
-    updateClient: (state, action) => {
-      const updatedClient = action.payload;
-      const index = state.clients.findIndex(
-        (client) => client.client_id === updatedClient.client_id,
-      );
-      if (index !== -1) {
-        // Preserve isSelected state when updating
-        state.clients[index] = {
-          ...updatedClient,
-          isSelected: state.clients[index].isSelected,
-        };
-      }
-    },
-    removeClient: (state, action) => {
-      const clientId = action.payload;
-      state.clients = state.clients.filter(
-        (client) => client.client_id !== clientId,
-      );
-    },
     setFilteredBy: (state, action) => {
       state.filteredBy = action.payload;
     },
@@ -229,9 +202,6 @@ export const clientsSlice = createSlice({
 export const {
   setLoading,
   setClients,
-  addClient,
-  updateClient,
-  removeClient,
   setFilteredBy,
   setFilteredClients,
   setSortedBy,
@@ -264,6 +234,10 @@ export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
 export const selectHideHeaders = (state) => state.clients.hideHeaders;
 export const selectDeleteMode = (state) => state.clients.deleteMode;
+export const selectCreateClientResult = (state) =>
+  state.clients.createClientResult;
+export const selectUpdateClientResult = (state) =>
+  state.clients.updateClientResult;
 
 // Updated derived selectors to use isSelected instead of clientsDeleteSet
 export const selectSelectedClients = createSelector(

@@ -18,10 +18,11 @@ export default function searchClients(str, clientResultSet) {
       }
       if (
         client.phone_number &&
-        client.phone_number.toLowerCase().indexOf(searchStr) !== -1
+        client.phone_number.toString().toLowerCase().indexOf(searchStr) !== -1
       ) {
         return true;
       }
+      return false;
     })
     .value();
 }

@@ -36,6 +36,7 @@ export default memo(function SearchInput({
           height: 35,
         }}
         inputStyle={{
+          fontFamily: 'hn-regular',
           color: '#333',
         }}
         searchIcon={() => (

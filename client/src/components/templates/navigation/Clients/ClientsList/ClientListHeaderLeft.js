@@ -25,7 +25,7 @@ export default function ClientListHeaderLeft() {
           dispatch(setDeleteMode(true));
         }
       }}
-      hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
       <Text className="text-2xl font-hn-medium text-blue-500 underline">
         {deleteMode ? 'Cancel' : 'Edit'}

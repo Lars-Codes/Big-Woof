@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react-native';
+import { Pin } from 'lucide-react-native';
 import React from 'react';
 
 // Use a more efficient memoization approach
@@ -52,8 +52,8 @@ export const createSectionedData = (clients, sortedBy, sortedDirection) => {
     result.push({
       id: 'favorites-header',
       type: 'section-header',
-      title: 'Favorites',
-      icon: <Star size={16} color="#000" />,
+      title: 'Pinned',
+      icon: <Pin size={16} color="#000" fill="#999" />,
     });
     result.push(...favorites);
   }

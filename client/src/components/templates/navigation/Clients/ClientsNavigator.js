@@ -1,18 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Blur from 'expo-blur';
-import { ChevronLeft, CircleEllipsis } from 'lucide-react-native';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import ClientFormHeaderRight from './ClientForm/ClientFormHeaderRight.js';
 import ClientListHeaderLeft from './ClientsList/ClientListHeaderLeft';
 import ClientListHeaderRight from './ClientsList/ClientListHeaderRight.js';
 import ClientDetails from '../../../pages/Clients/ClientDetails';
 import Clients from '../../../pages/Clients/Clients';
 import ClientForm from '../../../templates/forms/Client/ClientForm';
 import HeaderTitle from '../helpers/HeaderTitle.js';
+import ClientDetailsHeaderLeft from './ClientDetails/ClientDetailsHeaderLeft.js';
+import ClientDetailsHeaderRight from './ClientDetails/ClientDetailsHeaderRight.js';
+import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice.js';
 
 const Stack = createNativeStackNavigator();
 
 export default function ClientsNavigator() {
+  const clientDetails = useSelector(selectClientDetails);
+
   return (
     <Stack.Navigator
       screenOptions={() => ({
@@ -39,11 +44,7 @@ export default function ClientsNavigator() {
         component={Clients}
         options={({ navigation }) => ({
           headerTitle: () => <HeaderTitle title="Clients" />,
-          headerLeft: () => (
-            <View className="">
-              <ClientListHeaderLeft />
-            </View>
-          ),
+          headerLeft: () => <ClientListHeaderLeft />,
           headerRight: () => <ClientListHeaderRight navigation={navigation} />,
           gestureEnabled: false,
         })}
@@ -53,22 +54,9 @@ export default function ClientsNavigator() {
         component={ClientDetails}
         options={({ navigation }) => ({
           headerTitle: () => <HeaderTitle title="Client Details" />,
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <ChevronLeft size={32} color="#000" />
-            </TouchableOpacity>
-          ),
+          headerLeft: () => <ClientDetailsHeaderLeft navigation={navigation} />,
           headerRight: () => (
-            <TouchableOpacity
-              className="mr-2"
-              onPress={() => navigation.navigate('ClientForm')}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <CircleEllipsis size={32} color="#000" />
-            </TouchableOpacity>
+            <ClientDetailsHeaderRight navigation={navigation} />
           ),
         })}
       />
@@ -77,29 +65,13 @@ export default function ClientsNavigator() {
         component={ClientForm}
         options={({ navigation }) => ({
           presentation: 'modal',
+          gestureEnabled: false,
           headerTitle: () => (
-            <Text className="text-2xl font-hn-bold">New Client</Text>
+            <HeaderTitle title={clientDetails ? 'Edit Client' : 'Add Client'} />
           ),
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Text className="text-blue-500 text-lg">Cancel</Text>
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => {
-                navigation.goBack();
-              }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Text className="text-blue-500 text-lg font-semibold">Done</Text>
-            </TouchableOpacity>
-          ),
+          headerRight: () => <ClientFormHeaderRight navigation={navigation} />,
           headerStyle: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)', // Less transparent for modal
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
           },
         })}
       />

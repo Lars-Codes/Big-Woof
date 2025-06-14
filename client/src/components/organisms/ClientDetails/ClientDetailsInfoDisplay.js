@@ -1,34 +1,41 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useSelector } from 'react-redux';
+import ClientAppointmentsList from './ClientAppointmentsList';
+import ClientDocumentsList from './ClientDocumentsList';
+import ClientECList from './ClientECList';
+import ClientPetsList from './ClientPetsList';
+import ClientStatsList from './ClientStatsList';
+import ClientVetsList from './ClientVetsList';
 import { selectClientSelectedInfo } from '../../../state/clientDetails/clientDetailsSlice';
 
-export default function ClientDetailsInfoDisplay() {
+export default memo(function ClientDetailsInfoDisplay() {
   const selectedInfo = useSelector(selectClientSelectedInfo);
 
-  const infoOptions = [
-    { label: 'Pets', value: 'pets' },
-    { label: 'Notes', value: 'notes' },
-    { label: 'Emergency Contacts', value: 'emergency_contacts' },
-    { label: 'Vets', value: 'vets' },
-    { label: 'Statistics', value: 'statistics' },
-    { label: 'Documents', value: 'documents' },
-  ];
+  const renderContent = () => {
+    switch (selectedInfo) {
+      case 'pets':
+        return <ClientPetsList />;
+      case 'vets':
+        return <ClientVetsList />;
+      case 'statistics':
+        return <ClientStatsList />;
+      case 'appointments':
+        return <ClientAppointmentsList />;
+      case 'documents':
+        return <ClientDocumentsList />;
+      case 'extra':
+        return <ClientECList />;
+      default:
+        return (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-lg font-hn-medium text-gray-500">
+              Select an option above
+            </Text>
+          </View>
+        );
+    }
+  };
 
-  return (
-    <View className="flex-1">
-      {infoOptions.map((option) => {
-        if (option.value === selectedInfo) {
-          return (
-            <View key={option.value} className="">
-              <Text className="text-lg font-hn-medium">
-                Content for {option.label}
-              </Text>
-            </View>
-          );
-        }
-        return null;
-      })}
-    </View>
-  );
-}
+  return <View className="flex-1">{renderContent()}</View>;
+});
