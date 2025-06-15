@@ -9,7 +9,6 @@ import { selectClientDetails } from '../../../../../state/clientDetails/clientDe
 export default function ClientDetailsHeaderRight({ navigation }) {
   const dispatch = useDispatch();
   const clientDetails = useSelector(selectClientDetails);
-  console.log('ClientDetailsHeaderRight clientDetails:', clientDetails);
   const { showActionSheetWithOptions } = useActionSheet();
 
   const handleEditPress = () => {

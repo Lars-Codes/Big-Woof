@@ -5,6 +5,7 @@ export const clientDetailsSlice = createSlice({
   initialState: {
     loading: true,
     clientDetails: null,
+    clientPets: [],
     clientProfilePicture: null,
     clientSelectedInfo: 'pets',
     clientStats: null,
@@ -17,6 +18,7 @@ export const clientDetailsSlice = createSlice({
     },
     setClientDetails: (state, action) => {
       state.clientDetails = action.payload;
+      state.clientPets = action.payload.pets || [];
     },
     setClientFavorite: (state, action) => {
       if (state.clientDetails) {
@@ -56,6 +58,7 @@ export const selectLoading = (state) => state.clientDetails.loading;
 export const selectClientDetails = (state) => state.clientDetails.clientDetails;
 export const selectClientFavorite = (state) =>
   state.clientDetails.clientDetails?.client_data.favorite || false;
+export const selectClientPets = (state) => state.clientDetails.clientPets;
 export const selectClientProfilePicture = (state) =>
   state.clientDetails.clientProfilePicture;
 export const selectClientSelectedInfo = (state) =>

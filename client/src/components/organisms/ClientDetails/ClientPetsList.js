@@ -2,11 +2,10 @@ import { Dog } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectClientDetails } from '../../../state/clientDetails/clientDetailsSlice';
+import { selectClientPets } from '../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientPetsList() {
-  const client = useSelector(selectClientDetails);
-  const pets = client?.pets || [];
+  const pets = useSelector(selectClientPets);
 
   if (!pets || pets.length === 0) {
     return (
