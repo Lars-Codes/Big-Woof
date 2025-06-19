@@ -141,7 +141,7 @@ export default function ClientListFooter() {
           onPress={handleSelectAll}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text className="text-2xl font-hn-medium text-blue-500 underline">
+          <Text className="text-2xl font-hn-medium text-blue-500">
             {isAllSelected ? 'Deselect All' : 'Select All'}
           </Text>
         </TouchableOpacity>
@@ -151,7 +151,7 @@ export default function ClientListFooter() {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text
-            className={`text-2xl font-hn-medium underline ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}
+            className={`text-2xl font-hn-medium ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}
           >
             Delete
           </Text>

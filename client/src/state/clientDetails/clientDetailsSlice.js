@@ -18,7 +18,7 @@ export const clientDetailsSlice = createSlice({
     },
     setClientDetails: (state, action) => {
       state.clientDetails = action.payload;
-      state.clientPets = action.payload.pets || [];
+      state.clientPets = action.payload?.pets || [];
     },
     setClientFavorite: (state, action) => {
       if (state.clientDetails) {

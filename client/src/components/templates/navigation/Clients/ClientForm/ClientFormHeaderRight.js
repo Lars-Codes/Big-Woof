@@ -9,7 +9,7 @@ export default function ClientFormHeaderRight({ navigation }) {
       }}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      <Text className="text-2xl font-hn-medium text-blue-500 underline">
+      <Text className="text-2xl font-hn-medium text-blue-500">
         Cancel
       </Text>
     </TouchableOpacity>

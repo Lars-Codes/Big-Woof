@@ -16,7 +16,6 @@ export const clientsSlice = createSlice({
     hideHeaders: false,
 
     deleteMode: false,
-    // Removed clientsDeleteSet since we're using isSelected on each client
 
     createClientResult: null,
     updateClientResult: null,
@@ -31,6 +30,35 @@ export const clientsSlice = createSlice({
         ...client,
         isSelected: false,
       }));
+    },
+    removeClients: (state, action) => {
+      const clientIdsToRemove = new Set(action.payload);
+
+      // Remove from all arrays using the same pattern as updateClientFavorite
+      [
+        state.clients,
+        state.clientsResultSet,
+        state.searchResultSet,
+        state.searchedResultSet,
+      ].forEach((array) => {
+        if (array) {
+          // Filter out clients that should be removed
+          const filteredArray = array.filter(
+            (client) => !clientIdsToRemove.has(client.client_id),
+          );
+
+          // Update the array reference
+          if (array === state.clients) {
+            state.clients = filteredArray;
+          } else if (array === state.clientsResultSet) {
+            state.clientsResultSet = filteredArray;
+          } else if (array === state.searchResultSet) {
+            state.searchResultSet = filteredArray;
+          } else if (array === state.searchedResultSet) {
+            state.searchedResultSet = filteredArray;
+          }
+        }
+      });
     },
     setFilteredBy: (state, action) => {
       state.filteredBy = action.payload;
@@ -123,7 +151,6 @@ export const clientsSlice = createSlice({
         }
       }
     },
-
     selectAllClients: (state) => {
       // Batch update for better performance
       const shouldSelect = true;
@@ -145,7 +172,6 @@ export const clientsSlice = createSlice({
         });
       }
     },
-
     deselectAllClients: (state) => {
       // Batch update for better performance
       const shouldSelect = false;
@@ -218,6 +244,7 @@ export const clientsSlice = createSlice({
 export const {
   setLoading,
   setClients,
+  removeClients,
   setFilteredBy,
   setFilteredClients,
   setSortedBy,
