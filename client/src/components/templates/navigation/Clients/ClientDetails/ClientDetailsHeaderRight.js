@@ -67,9 +67,7 @@ export default function ClientDetailsHeaderRight({ navigation }) {
       onPress={handleEditPress}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      <Text className="text-2xl font-hn-medium text-blue-500">
-        Edit
-      </Text>
+      <Text className="text-2xl font-hn-medium text-blue-500">Edit</Text>
     </TouchableOpacity>
   );
 }

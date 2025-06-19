@@ -136,22 +136,31 @@ export default function ClientListFooter() {
           backgroundColor: 'rgba(255, 255, 255, 0.25)',
         }}
       />
-      <View className="flex flex-row items-center justify-between py-4 px-6">
+      <View className="flex flex-row items-center py-4 px-6">
         <TouchableOpacity
           onPress={handleSelectAll}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          className="flex-1"
         >
-          <Text className="text-2xl font-hn-medium text-blue-500">
+          <Text className="text-2xl font-hn-medium text-blue-500 text-left">
             {isAllSelected ? 'Deselect All' : 'Select All'}
           </Text>
         </TouchableOpacity>
+
+        <View className="flex-1">
+          <Text className="text-2xl font-hn-medium text-center">
+            {selectedCount} Selected
+          </Text>
+        </View>
+
         <TouchableOpacity
           onPress={handleConfirmDelete}
           disabled={selectedCount === 0}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          className="flex-1"
         >
           <Text
-            className={`text-2xl font-hn-medium ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}
+            className={`text-2xl font-hn-medium text-right ${selectedCount > 0 ? 'text-blue-500' : 'text-gray-300'}`}
           >
             Delete
           </Text>
