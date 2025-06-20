@@ -1,4 +1,5 @@
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as Haptics from 'expo-haptics';
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,6 +32,7 @@ export default memo(function ClientDetailsInfoSelector() {
         selectedIndex={selectedIndex}
         onChange={(event) => {
           const index = event.nativeEvent.selectedSegmentIndex;
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           dispatch(setClientSelectedInfo(infoOptions[index].value));
         }}
         style={{ flex: 1, height: 48 }}
