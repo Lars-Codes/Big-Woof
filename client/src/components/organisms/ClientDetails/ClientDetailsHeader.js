@@ -93,50 +93,51 @@ export default function ClientDetailsHeader() {
           )}
         </View>
 
-        <View className="flex-row h-5">
-          <TouchableOpacity onPress={handlePhonePress}>
-            <Text className="text-base font-hn-regular text-blue-600">
-              {formatPhoneNumber(client.client_contact.primary_phone)}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="flex-row h-5">
+        <View className="flex-col h-22">
+          <View className="flex-row h-5">
+            <TouchableOpacity onPress={handlePhonePress}>
+              <Text className="text-base font-hn-regular text-blue-600">
+                {formatPhoneNumber(client.client_contact.primary_phone)}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {client.client_contact.email && (
-            <Text
-              className="text-base font-hn-regular text-gray-800 flex-1"
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {client.client_contact.email}
-            </Text>
+            <View className="flex-row h-5 mb-1">
+              <Text
+                className="text-base font-hn-regular text-gray-800 flex-1"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {client.client_contact.email}
+              </Text>
+            </View>
           )}
-        </View>
-
-        <View className="flex-col h-10">
-          {client.client_contact.street_address && (
-            <>
-              <View className="flex-row h-5">
-                <Text
-                  className="text-base font-hn-regular text-gray-800 flex-1"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {client.client_contact.street_address}
-                </Text>
-              </View>
-              <View className="flex-row h-5">
-                <Text
-                  className="text-base font-hn-regular text-gray-800 flex-1"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {client.client_contact.city}, {client.client_contact.state}{' '}
-                  {client.client_contact.zip}
-                </Text>
-              </View>
-            </>
-          )}
+          {client.client_contact.street_address &&
+            client.client_contact.city &&
+            client.client_contact.state &&
+            client.client_contact.zip && (
+              <>
+                <View className="flex-row h-5">
+                  <Text
+                    className="text-base font-hn-regular text-gray-800 flex-1"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {client.client_contact.street_address}
+                  </Text>
+                </View>
+                <View className="flex-row h-5">
+                  <Text
+                    className="text-base font-hn-regular text-gray-800 flex-1"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {client.client_contact.city}, {client.client_contact.state}{' '}
+                    {client.client_contact.zip}
+                  </Text>
+                </View>
+              </>
+            )}
         </View>
       </View>
     </View>
