@@ -1,6 +1,6 @@
 import { Pin } from 'lucide-react-native';
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Linking, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   selectClientDetails,
@@ -13,6 +13,12 @@ export default function ClientDetailsHeader() {
   const client = useSelector(selectClientDetails);
   const clientProfilePicture = useSelector(selectClientProfilePicture);
   const clientFavorite = useSelector(selectClientFavorite);
+
+  const handlePhonePress = () => {
+    const phoneNumber = client.client_contact.primary_phone;
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    Linking.openURL(`tel:${cleanPhone}`);
+  };
 
   if (!client) {
     return (
@@ -55,9 +61,11 @@ export default function ClientDetailsHeader() {
         </View>
 
         <View className="flex-row h-5">
-          <Text className="text-base font-hn-regular text-gray-800">
-            {formatPhoneNumber(client.client_contact.primary_phone)}
-          </Text>
+          <TouchableOpacity onPress={handlePhonePress}>
+            <Text className="text-base font-hn-regular text-blue-600 underline">
+              {formatPhoneNumber(client.client_contact.primary_phone)}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View className="flex-row h-5">
