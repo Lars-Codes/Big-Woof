@@ -95,7 +95,7 @@ export default function ClientDetailsHeader() {
 
         <View className="flex-row h-5">
           <TouchableOpacity onPress={handlePhonePress}>
-            <Text className="text-base font-hn-regular text-blue-600 underline">
+            <Text className="text-base font-hn-regular text-blue-600">
               {formatPhoneNumber(client.client_contact.primary_phone)}
             </Text>
           </TouchableOpacity>
