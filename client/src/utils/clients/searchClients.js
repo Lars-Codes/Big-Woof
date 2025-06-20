@@ -1,7 +1,11 @@
 import _ from 'lodash';
 
 export default function searchClients(str, clientResultSet) {
-  const searchStr = str.toLowerCase();
+  const searchStr = str.toLowerCase().trim();
+  if (!searchStr) {
+    return clientResultSet;
+  }
+
   return _.chain(clientResultSet)
     .filter((client) => {
       if (
@@ -15,6 +19,14 @@ export default function searchClients(str, clientResultSet) {
         client.lname.toLowerCase().indexOf(searchStr) !== -1
       ) {
         return true;
+      }
+      if (client.fname || client.lname) {
+        const fullName = `${client.fname || ''} ${client.lname || ''}`
+          .trim()
+          .toLowerCase();
+        if (fullName.indexOf(searchStr) !== -1) {
+          return true;
+        }
       }
       if (
         client.phone_number &&
