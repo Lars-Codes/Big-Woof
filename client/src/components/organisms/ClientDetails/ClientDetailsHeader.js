@@ -1,3 +1,4 @@
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Pin } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, Image, Linking, TouchableOpacity } from 'react-native';
@@ -13,11 +14,43 @@ export default function ClientDetailsHeader() {
   const client = useSelector(selectClientDetails);
   const clientProfilePicture = useSelector(selectClientProfilePicture);
   const clientFavorite = useSelector(selectClientFavorite);
+  const { showActionSheetWithOptions } = useActionSheet();
 
   const handlePhonePress = () => {
     const phoneNumber = client.client_contact.primary_phone;
     const cleanPhone = phoneNumber.replace(/\D/g, '');
-    Linking.openURL(`tel:${cleanPhone}`);
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+
+    const options = ['Call', 'Text', 'Cancel'];
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: formattedPhone,
+        tintColor: '#007AFF',
+        containerStyle: {
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        },
+        textStyle: {
+          fontSize: 18,
+        },
+      },
+      (selectedIndex) => {
+        switch (selectedIndex) {
+          case 0: // Call
+            Linking.openURL(`tel:${cleanPhone}`);
+            break;
+          case 1: // Text
+            Linking.openURL(`sms:${cleanPhone}`);
+            break;
+          case 2: // Cancel
+            // Do nothing
+            break;
+        }
+      },
+    );
   };
 
   if (!client) {
