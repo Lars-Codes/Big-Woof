@@ -13,6 +13,8 @@ const CustomTextInput = forwardRef(
       autoCapitalize = 'words',
       multiline = false,
       required = false,
+      error = false,
+      errorMessage = '',
       ...props
     },
     ref,
@@ -20,10 +22,17 @@ const CustomTextInput = forwardRef(
     return (
       <View className="mb-4">
         {label && (
-          <Text className="text-xl font-hn-medium mb-1">
-            {label}
-            {required ? ' *' : ''}
-          </Text>
+          <View className="flex-row items-baseline mb-1">
+            <Text className="text-xl font-hn-medium">
+              {label}
+              {required ? ' *' : ''}
+            </Text>
+            {error && errorMessage && (
+              <Text className="text-red-500 text-sm font-hn-medium ml-2">
+                {errorMessage}
+              </Text>
+            )}
+          </View>
         )}
         <SearchBar
           ref={ref}

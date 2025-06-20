@@ -25,6 +25,8 @@ import {
   selectLoading,
   setUpdateClientResult,
 } from '../../../../state/clients/clientsSlice';
+import { validateEmail } from '../../../../utils/helpers/emailUtil';
+import { validatePhoneNumber } from '../../../../utils/helpers/phoneNumberUtil';
 import CustomTextInput from '../../../atoms/CustomTextInput/CustomTextInput';
 
 export default function ClientForm({ navigation }) {
@@ -53,6 +55,22 @@ export default function ClientForm({ navigation }) {
     city: '',
     state: '',
     zip: '',
+    secondary_phone: '',
+  });
+
+  const [errors, setErrors] = useState({
+    fname: false,
+    lname: false,
+    phone_number: false,
+    email: false,
+    secondary_phone: false,
+  });
+
+  const [errorMessages, setErrorMessages] = useState({
+    fname: '',
+    lname: '',
+    phone_number: '',
+    email: '',
     secondary_phone: '',
   });
 
@@ -190,9 +208,69 @@ export default function ClientForm({ navigation }) {
   // Handle input changes
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: false }));
+      setErrorMessages((prev) => ({ ...prev, [field]: '' }));
+    }
+  };
+  const validateForm = () => {
+    const newErrors = {};
+    const newErrorMessages = {};
+    let isValid = true;
+
+    // Validate required fields
+    if (!form.fname.trim()) {
+      newErrors.fname = true;
+      newErrorMessages.fname = 'First name is required';
+      isValid = false;
+    }
+
+    if (!form.lname.trim()) {
+      newErrors.lname = true;
+      newErrorMessages.lname = 'Last name is required';
+      isValid = false;
+    }
+
+    if (!form.phone_number.trim()) {
+      newErrors.phone_number = true;
+      newErrorMessages.phone_number = 'Phone number is required';
+      isValid = false;
+    } else if (!validatePhoneNumber(form.phone_number)) {
+      newErrors.phone_number = true;
+      newErrorMessages.phone_number = 'Please enter a valid phone number';
+      isValid = false;
+    }
+
+    // Validate email if provided
+    if (form.email.trim() && !validateEmail(form.email)) {
+      newErrors.email = true;
+      newErrorMessages.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    // Validate secondary phone if provided
+    if (
+      form.secondary_phone.trim() &&
+      !validatePhoneNumber(form.secondary_phone)
+    ) {
+      newErrors.secondary_phone = true;
+      newErrorMessages.secondary_phone =
+        'Please enter a valid secondary phone number';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    setErrorMessages(newErrorMessages);
+    return isValid;
   };
 
   const handleSubmit = () => {
+    if (!validateForm()) {
+      return;
+    }
+
     if (client && client.client_data) {
       // append the client_id to the form data
       const updatedForm = { ...form, client_id: client.client_data.client_id };
@@ -231,6 +309,8 @@ export default function ClientForm({ navigation }) {
             label="First Name"
             placeholder="Enter first name"
             required
+            error={errors.fname}
+            errorMessage={errorMessages.fname}
             returnKeyType="next"
             onSubmitEditing={() => lnameRef.current?.focus()}
           />
@@ -242,6 +322,8 @@ export default function ClientForm({ navigation }) {
             label="Last Name"
             placeholder="Enter last name"
             required
+            error={errors.lname}
+            errorMessage={errorMessages.lname}
             returnKeyType="next"
             onSubmitEditing={() => phoneRef.current?.focus()}
           />
@@ -253,6 +335,8 @@ export default function ClientForm({ navigation }) {
             label="Phone Number"
             placeholder="(555) 123-4567"
             required
+            error={errors.phone_number}
+            errorMessage={errorMessages.phone_number}
             returnKeyType="next"
             onSubmitEditing={() => emailRef.current?.focus()}
           />
@@ -265,6 +349,8 @@ export default function ClientForm({ navigation }) {
             placeholder="email@example.com"
             keyboardType="email-address"
             autoCapitalize="none"
+            error={errors.email}
+            errorMessage={errorMessages.email}
             returnKeyType="next"
             onSubmitEditing={() => streetRef.current?.focus()}
           />
@@ -315,6 +401,8 @@ export default function ClientForm({ navigation }) {
             onChangeText={(text) => handleChange('secondary_phone', text)}
             label="Secondary Phone"
             placeholder="(555) 987-6543"
+            error={errors.secondary_phone}
+            errorMessage={errorMessages.secondary_phone}
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
           />

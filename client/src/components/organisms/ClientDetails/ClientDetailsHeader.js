@@ -82,7 +82,7 @@ export default function ClientDetailsHeader() {
         {renderProfilePicture()}
       </View>
       <View className="w-[65%] p-4 justify-center">
-        <View className="flex-row items-center mb-1">
+        <View className="flex-row items-center h-8">
           <Text className="text-3xl text-gray-800 font-hn-bold">
             {client.client_data.fname} {client.client_data.lname}
           </Text>
@@ -113,29 +113,31 @@ export default function ClientDetailsHeader() {
           )}
         </View>
 
-        {client.client_contact.street_address && (
-          <View className="flex-col">
-            <View className="flex-row h-5">
-              <Text
-                className="text-base font-hn-regular text-gray-800 flex-1"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {client.client_contact.street_address}
-              </Text>
-            </View>
-            <View className="flex-row h-5">
-              <Text
-                className="text-base font-hn-regular text-gray-800 flex-1"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {client.client_contact.city}, {client.client_contact.state}{' '}
-                {client.client_contact.zip}
-              </Text>
-            </View>
-          </View>
-        )}
+        <View className="flex-col h-10">
+          {client.client_contact.street_address && (
+            <>
+              <View className="flex-row h-5">
+                <Text
+                  className="text-base font-hn-regular text-gray-800 flex-1"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {client.client_contact.street_address}
+                </Text>
+              </View>
+              <View className="flex-row h-5">
+                <Text
+                  className="text-base font-hn-regular text-gray-800 flex-1"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {client.client_contact.city}, {client.client_contact.state}{' '}
+                  {client.client_contact.zip}
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
       </View>
     </View>
   );
