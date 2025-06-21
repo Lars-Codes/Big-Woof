@@ -53,6 +53,32 @@ export default function ClientDetailsHeader() {
     );
   };
 
+  const handleAddressPress = () => {
+    const { street_address, city, state, zip } = client.client_contact;
+    const fullAddress = `${street_address}, ${city}, ${state} ${zip}`;
+    const encodedAddress = encodeURIComponent(fullAddress);
+
+    // This will open the default maps app on both iOS and Android
+    const mapsUrl = `maps:0,0?q=${encodedAddress}`;
+
+    Linking.openURL(mapsUrl).catch(() => {
+      // Fallback for Android or if maps: doesn't work
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+      Linking.openURL(googleMapsUrl);
+    });
+  };
+
+  const handleEmailPress = () => {
+    const email = client.client_contact.email;
+    if (email) {
+      Linking.openURL(`mailto:${email}`).catch((err) => {
+        console.error('Failed to open email:', err);
+      });
+    } else {
+      console.warn('No email address available');
+    }
+  };
+
   if (!client) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -95,48 +121,57 @@ export default function ClientDetailsHeader() {
 
         <View className="flex-col h-22">
           <View className="flex-row h-5">
-            <TouchableOpacity onPress={handlePhonePress}>
-              <Text className="text-base font-hn-regular text-blue-600">
+            <TouchableOpacity onPress={handlePhonePress} onLongPress={() => {}}>
+              <Text
+                className="text-base font-hn-regular text-blue-600"
+                selectable={true}
+              >
                 {formatPhoneNumber(client.client_contact.primary_phone)}
               </Text>
             </TouchableOpacity>
           </View>
+
           {client.client_contact.email && (
             <View className="flex-row h-5 mb-1">
-              <Text
-                className="text-base font-hn-regular text-gray-800 flex-1"
-                numberOfLines={1}
-                ellipsizeMode="tail"
+              <TouchableOpacity
+                onPress={handleEmailPress}
+                onLongPress={() => {}}
               >
-                {client.client_contact.email}
-              </Text>
+                <Text
+                  className="text-base font-hn-regular text-blue-600 flex-1"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  selectable={true}
+                >
+                  {client.client_contact.email}
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
+
           {client.client_contact.street_address &&
             client.client_contact.city &&
             client.client_contact.state &&
             client.client_contact.zip && (
-              <>
-                <View className="flex-row h-5">
+              <View className="flex-row h-10">
+                <TouchableOpacity
+                  onPress={handleAddressPress}
+                  onLongPress={() => {}}
+                  selectable={true}
+                >
                   <Text
-                    className="text-base font-hn-regular text-gray-800 flex-1"
-                    numberOfLines={1}
+                    className="text-base font-hn-regular text-blue-600 flex-1"
+                    numberOfLines={2}
                     ellipsizeMode="tail"
+                    selectable={true}
                   >
                     {client.client_contact.street_address}
-                  </Text>
-                </View>
-                <View className="flex-row h-5">
-                  <Text
-                    className="text-base font-hn-regular text-gray-800 flex-1"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
+                    {'\n'}
                     {client.client_contact.city}, {client.client_contact.state}{' '}
                     {client.client_contact.zip}
                   </Text>
-                </View>
-              </>
+                </TouchableOpacity>
+              </View>
             )}
         </View>
       </View>
