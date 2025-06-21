@@ -111,7 +111,7 @@ export default function* updateClient(action) {
 
     // Simplified result logic
     const allSuccessful =
-      results.length > 0 && results.every((res) => res.success);
+      results.length > 0 && results.every((res) => res?.success);
     const combinedResult = {
       success: allSuccessful ? 1 : 0,
       message: allSuccessful

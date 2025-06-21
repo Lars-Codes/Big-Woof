@@ -22,7 +22,7 @@ export default function* updateClientIsFavorite(action) {
       'Content-Type': 'multipart/form-data',
     });
 
-    if (!res.success) {
+    if (!res?.success === 1) {
       // If server update fails, revert the local change
       yield put(updateClientFavorite({ clientId, isFavorite: !isFavorite }));
       yield put(setClientFavorite(!isFavorite ? 1 : 0));

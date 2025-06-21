@@ -15,6 +15,8 @@ export default function* deleteClient(action) {
       yield put(removeClients(clientIds));
       yield call(processResultSet);
       yield call(processSearchResultSet);
+    } else {
+      console.error('Failed to delete client:', res);
     }
     return res;
   } catch (error) {
