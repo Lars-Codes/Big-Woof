@@ -6,6 +6,9 @@
     "web": {
       "bundler": "metro"
     },
-    "userInterfaceStyle": "automatic"
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

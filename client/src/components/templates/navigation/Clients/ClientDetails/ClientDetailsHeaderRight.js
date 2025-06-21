@@ -1,15 +1,107 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { deleteClientProfilePictureAction } from '../../../../../sagas/clients/deleteClientProfilePicture/action';
 import { updateClientIsFavoriteAction } from '../../../../../sagas/clients/updateClientIsFavorite/action';
+import { uploadClientProfilePictureAction } from '../../../../../sagas/clients/uploadClientProfilePicture/action';
 import { selectClientDetails } from '../../../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientDetailsHeaderRight({ navigation }) {
   const dispatch = useDispatch();
   const clientDetails = useSelector(selectClientDetails);
   const { showActionSheetWithOptions } = useActionSheet();
+
+  const handleImageUpload = async () => {
+    try {
+      // Request permissions
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (permissionResult.granted === false) {
+        Alert.alert(
+          'Permission Required',
+          'Permission to access camera roll is required!',
+        );
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: false,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+
+        // Extract file extension from URI
+        const uriParts = asset.uri.split('.');
+        const fileExtension = uriParts[uriParts.length - 1].toLowerCase();
+
+        // Validate file type
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        if (!allowedExtensions.includes(fileExtension)) {
+          Alert.alert(
+            'Invalid File Type',
+            'Please select a JPG, JPEG, or PNG image.',
+          );
+          return;
+        }
+
+        // Create FormData compatible object
+        const imageFile = {
+          uri: asset.uri,
+          type: `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`,
+          name: `profile-${clientDetails.client_data.client_id}.${fileExtension}`,
+        };
+
+        // Dispatch upload action
+        dispatch(
+          uploadClientProfilePictureAction({
+            clientId: clientDetails.client_data.client_id,
+            image: imageFile,
+            ext: fileExtension,
+          }),
+        );
+
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    } catch (error) {
+      console.error('Error selecting image:', error);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
+    }
+  };
+
+  const handleDeleteProfilePicture = () => {
+    Alert.alert(
+      'Delete Profile Picture',
+      'Are you sure you want to delete this profile picture?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(
+              deleteClientProfilePictureAction(
+                clientDetails.client_data.client_id,
+              ),
+            );
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          },
+        },
+      ],
+    );
+  };
 
   const handleEditPress = () => {
     // Haptic feedback
@@ -20,9 +112,15 @@ export default function ClientDetailsHeaderRight({ navigation }) {
       ? 'Remove from Pinned'
       : 'Add to Pinned';
 
-    const options = [favoriteOption, 'Edit Client', 'Cancel'];
+    const options = [
+      favoriteOption,
+      'Upload New Profile Picture',
+      'Delete Profile Picture',
+      'Edit Client',
+      'Cancel',
+    ];
 
-    const cancelButtonIndex = 2;
+    const cancelButtonIndex = 4;
 
     showActionSheetWithOptions(
       {
@@ -50,10 +148,18 @@ export default function ClientDetailsHeaderRight({ navigation }) {
             break;
           }
           case 1: {
-            navigation.navigate('ClientForm');
+            handleImageUpload();
             break;
           }
           case 2: {
+            handleDeleteProfilePicture();
+            break;
+          }
+          case 3: {
+            navigation.navigate('ClientForm');
+            break;
+          }
+          case 4: {
             break;
           }
         }

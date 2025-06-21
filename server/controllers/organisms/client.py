@@ -76,7 +76,8 @@ def getProfilePicture():
 @client_bp.route('/deleteProfilePicture', methods=["DELETE"])
 def deleteProfilePicture():
     try: 
-        client_id = request.form.get("client_id")
+        data = request.get_json()
+        client_id = data.get("client_id")
         res = Client.delete_profile_picture(client_id)
         return res 
     except Exception as e: 

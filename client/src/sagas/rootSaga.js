@@ -14,6 +14,8 @@ import { CREATE_CLIENT_ACTION_TYPE } from './clients/createClient/action';
 import createClientSaga from './clients/createClient/createClient';
 import { DELETE_CLIENT_ACTION_TYPE } from './clients/deleteClient/action';
 import deleteClientSaga from './clients/deleteClient/deleteClient';
+import { DELETE_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/deleteClientProfilePicture/action';
+import deleteClientProfilePictureSaga from './clients/deleteClientProfilePicture/deleteClientProfilePicture';
 import { FETCH_CLIENT_APPOINTMENTS_ACTION_TYPE } from './clients/fetchClientAppointments/action';
 import fetchClientAppointmentsSaga from './clients/fetchClientAppointments/fetchClientAppointments';
 import { FETCH_CLIENT_DETAILS_ACTION_TYPE } from './clients/fetchClientDetails/action';
@@ -32,6 +34,8 @@ import { UPDATE_CLIENT_ACTION_TYPE } from './clients/updateClient/action';
 import updateClientSaga from './clients/updateClient/updateClient';
 import { UPDATE_CLIENT_IS_FAVORITE_ACTION_TYPE } from './clients/updateClientIsFavorite/action';
 import updateClientIsFavoriteSaga from './clients/updateClientIsFavorite/updateClientIsFavorite';
+import { UPLOAD_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/uploadClientProfilePicture/action';
+import uploadClientProfilePictureSaga from './clients/uploadClientProfilePicture/uploadClientProfilePicture';
 import { INIT_ACTION_TYPE } from './init/action';
 import initSaga from './init/init';
 import { LOGGED_IN_ACTION_TYPE } from './loggedIn/action';
@@ -58,6 +62,14 @@ export default function* rootSaga() {
     takeLatest(
       FETCH_CLIENT_PROFILE_PICTURE_ACTION_TYPE,
       fetchClientProfilePictureSaga,
+    ),
+    takeLeading(
+      UPLOAD_CLIENT_PROFILE_PICTURE_ACTION_TYPE,
+      uploadClientProfilePictureSaga,
+    ),
+    takeLeading(
+      DELETE_CLIENT_PROFILE_PICTURE_ACTION_TYPE,
+      deleteClientProfilePictureSaga,
     ),
     takeLatest(FETCH_CLIENT_STATS_ACTION_TYPE, fetchClientStatsSaga),
     takeLatest(

@@ -14,7 +14,7 @@ export default function* fetchClientProfilePicture(action) {
       `/getProfilePicture?client_id=${clientId}`,
       'GET',
     );
-    if (res && res.success === 1 && res.exists === 1) {
+    if (res?.success === 1 && res?.exists === 1) {
       yield put(setClientProfilePicture(res.image_data));
     } else {
       yield put(setClientProfilePicture(null));

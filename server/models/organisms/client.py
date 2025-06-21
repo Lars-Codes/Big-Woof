@@ -675,10 +675,19 @@ class Client(db.Model):
             
                 draw.text((x, y), initials, font=font, fill=text_color)
 
-            # Save the FileStorage image to the local path
-            image.save(local_path)
+                # Save the generated image
+                image.save(local_path)
+            else:
+                # Handle uploaded image
+                if not image:
+                    return jsonify({
+                        "success": 0, 
+                        "error": "Image file is required when not generating initial profile picture"
+                    }) 
 
-            if initial_generation==0: 
+                # Save the FileStorage image to the local path
+                image.save(local_path)
+
                 # Resize the image
                 img = Image.open(local_path)
                 img.thumbnail((512, 512))  # Resize to 512x512
@@ -769,7 +778,7 @@ class Client(db.Model):
         try: 
             load_dotenv()
             image_store = os.environ.get('IMAGESTORE_URL').strip()
-            image_dir = os.path.join(image_store, client_id)
+            image_dir = os.path.join(image_store, str(client_id))
 
             client = Client.query.filter_by(id=client_id).first()
             if not client:
@@ -791,7 +800,7 @@ class Client(db.Model):
             db.session.commit()
             filename = "profile-" + str(client.id) + ".jpg"
             Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
-            return jsonify({"success": 1, "error": "Successfully deleted profile picture for this user"}), 404
+            return jsonify({"success": 1, "message": "Successfully deleted profile picture for this user"})
 
         except SQLAlchemyError as e: 
             db.session.rollback()
