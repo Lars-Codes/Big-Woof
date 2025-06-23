@@ -37,3 +37,93 @@ class CoatTypes(db.Model):
                 db.session.rollback()
                 print(f"Error inserting prefilled coat types on app start:: {e}")
            
+
+
+    @classmethod 
+    def get_coat_types(cls):
+        try: 
+            coat_types = db.session.query(CoatTypes).all()
+            
+            # Prepare data
+            coat_types_data = [
+                {
+                    "coat_type_id": coat.id, 
+                    "coat_type": coat.coat_type
+                }
+                for coat in coat_types 
+            ]
+            
+            return jsonify({
+                "success": 1, 
+                "data": coat_types_data
+            }) 
+    
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all coat types. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all coat types. Unknown error"}), 500, 
+            )
+
+    @classmethod 
+    def create_new_coat_type(cls, new_coat_type):
+        try: 
+            new_coat_type = cls(new_coat_type)
+            db.session.add(new_coat_type)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Coat type created succesfully",
+                "coat_type_id": new_coat_type.id
+            })       
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create coat type. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create coat type. Unknown error"}), 500,
+            )  
+            
+    @classmethod 
+    def delete_coat_type(cls, coat_type_id):
+        try: 
+            coat_type = cls.query.filter_by(id=coat_type_id).first()
+
+            if not coat_type:
+                db.session.rollback()
+                return jsonify({
+                    "success": 0, 
+                    "error": "Coat type not found for specified id",
+                })
+                
+            db.session.delete(coat_type)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Coat type deleted succesfully",
+            })
+    
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete coat type. Database error"}), 500,
+            )    
+    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete coat type. Unknown error"}), 500, 
+            ) 

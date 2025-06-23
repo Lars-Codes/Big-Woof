@@ -77,17 +77,91 @@ class Breed(db.Model):
                 db.session.rollback()
                 print(f"Error inserting prefilled breeds on app start:: {e}")
                 
-    @classmethod     
-    def create_breed(cls, name):
-        pass
-    
     @classmethod 
-    def get_all_breeds(cls):
-        pass 
+    def get_breeds(cls):
+        try: 
+            breeds = db.session.query(Breed).all()
+            
+            # Prepare data
+            breeds = [
+                {
+                    "breed_id": breed.id, 
+                    "breed": breed.name
+                }
+                for breed in breeds 
+            ]
+            
+            return jsonify({
+                "success": 1, 
+                "data": breeds
+            }) 
     
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all breeds. Database error"}), 500,
+            )    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all breeds. Unknown error"}), 500, 
+            )
+
     @classmethod 
-    def update_breed_name(cls, breed_id, new_name):
-        pass 
-    
+    def create_breed(cls, new_breed):
+        try: 
+            new_breed_name = cls(new_breed)
+            db.session.add(new_breed_name)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Breed created succesfully",
+                "breed_id": new_breed_name.id
+            })       
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create breed. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to create breed. Unknown error"}), 500,
+            )  
+            
+    @classmethod 
     def delete_breed(cls, breed_id):
-        pass 
+        try: 
+            breed = cls.query.filter_by(id=breed_id).first()
+
+            if not breed:
+                db.session.rollback()
+                return jsonify({
+                    "success": 0, 
+                    "error": "Breed not found for specified id",
+                })
+                
+            db.session.delete(breed)
+            db.session.commit()
+            return jsonify({
+                "success": 1, 
+                "message": "Breed deleted succesfully",
+            })
+    
+        except SQLAlchemyError as e: 
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete breed. Database error"}), 500,
+            )    
+    
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to delete breed. Unknown error"}), 500, 
+            ) 

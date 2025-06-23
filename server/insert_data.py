@@ -133,7 +133,7 @@ def generate_address():
 def create_data():
     with app.app_context():
         try:
-            num_clients = 1
+            num_clients = 100
             print(f"Creating {num_clients} clients with associated data...")
             
             for i in range(1, num_clients + 1):
@@ -186,6 +186,7 @@ def create_data():
                 # Create appointment stats (using direct assignment since __init__ is empty)
                 appointment_stats = AppointmentStats()
                 appointment_stats.client_id = client.id
+                
                 appointment_stats.late = random.randint(0, 5)
                 appointment_stats.no_shows = random.randint(0, 3)
                 appointment_stats.cancelled = random.randint(0, 4)
@@ -254,7 +255,8 @@ def create_data():
                 # Create 1-5 pets
                 num_pets = random.randint(1, 5)
                 client.num_pets = num_pets
-                
+               
+                pet_id = None  
                 pets_created = []
                 for l in range(num_pets):
                     pet = Pet(
@@ -273,6 +275,7 @@ def create_data():
                     db.session.add(pet)
                     db.session.flush()
                     pets_created.append(pet)
+                    pet_id = pet.id 
                 
                 num_past_appointments = random.randint(2, 5)
                 for m in range(num_past_appointments):
@@ -283,6 +286,7 @@ def create_data():
                     # Create appointment with explicit column assignments
                     appointment = Appointment()
                     appointment.client_id = client.id
+                    appointment.pet_id = pet_id
                     appointment.type = "single"
                     appointment.date = appointment_date
                     appointment.start_time = start_time
@@ -308,6 +312,7 @@ def create_data():
                     
                     appointment = Appointment()
                     appointment.client_id = client.id
+                    appointment.pet_id = pet_id
                     appointment.type = "single"
                     appointment.date = appointment_date
                     appointment.start_time = start_time

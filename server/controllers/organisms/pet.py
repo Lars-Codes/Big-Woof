@@ -17,8 +17,9 @@ def createPet():
     coat_type_id = request.form.get("coat_type_id")
     gender = request.form.get("gender")
     fixed = request.form.get("fixed")
+    hair_length_id = request.form.get("hair_length_id")
     try: 
-        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, coat_type_id, gender, fixed)
+        res = Pet.create_pet(client_id, name, age, breed_id, size_id, notes, weight, coat_type_id, gender, fixed, hair_length_id)
         return res 
     except Exception as e:
         print(f"Unexpected error from /createPet: {e}")
@@ -28,7 +29,7 @@ def createPet():
 def editPetBasicData():
     data = {}
     possible_fields = [
-        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id', 'gender', 'fixed'
+        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id'
     ]
     
     for field in possible_fields:
@@ -172,6 +173,16 @@ def deleteProfilePicture():
     try: 
         pet_id = request.form.get("pet_id")
         res = Pet.delete_profile_picture(pet_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deletePetProfilePicture: {e}")
+        return res   
+
+@pet_bp.route('/getPetMetadata', methods=["GET"])
+def getPetMetadata():
+    try: 
+        pet_id = request.form.get("pet_id")
+        res = Pet.get_pet_metdata(pet_id)
         return res 
     except Exception as e: 
         print(f"Unexpected error from /deletePetProfilePicture: {e}")
