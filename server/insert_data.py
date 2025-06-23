@@ -133,7 +133,7 @@ def generate_address():
 def create_data():
     with app.app_context():
         try:
-            num_clients = 1
+            num_clients = 100
             print(f"Creating {num_clients} clients with associated data...")
             
             for i in range(1, num_clients + 1):

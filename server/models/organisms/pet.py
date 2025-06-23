@@ -17,9 +17,12 @@ class Pet(db.Model):
     weight = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.Integer, nullable=True)
     fixed = db.Column(db.Integer, nullable=True)
+    
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
     coat_type_id = db.Column(db.Integer, db.ForeignKey('coat_types.id'), nullable=True)
+    hair_length_id = db.Column(db.Integer, db.ForeignKey('hair_length.id'), nullable=True)
+    
     typical_groomer_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)
     breed = db.relationship('Breed', backref='pets', lazy='select')
     size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
@@ -41,7 +44,7 @@ class Pet(db.Model):
         db.Index('idx_pet_id_client_fk', 'client_id'),
     )
     
-    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None):
+    def __init__(self, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None, hair_length_id=None):
         self.client_id = client_id
         self.name = name 
         self.age = age 
@@ -52,10 +55,11 @@ class Pet(db.Model):
         self.coat_type_id = coat_type_id
         self.gender = gender 
         self.fixed = fixed
+        self.hair_length_id = hair_length_id
     
     
     @classmethod 
-    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None):
+    def create_pet(cls, client_id, name, age=None, breed_id=None, size_tier_id=None, notes=None, weight=None, coat_type_id=None, gender=None, fixed=None, hair_length_id=None):
         client = Client.query.filter_by(id=client_id).first()
         if not client: 
             return (
@@ -74,7 +78,8 @@ class Pet(db.Model):
             weight, 
             coat_type_id, 
             gender,
-            fixed
+            fixed, 
+            hair_length_id
         )
         try: 
             db.session.add(pet)
@@ -105,7 +110,7 @@ class Pet(db.Model):
             pet = cls.query.filter_by(id=pet_id).first()
 
             if pet:                
-                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id', 'gender', 'fixed']:
+                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id']:
                     if field in kwargs:
                         setattr(pet, field, kwargs[field])
 

@@ -14,6 +14,8 @@ from models.prefilled_tables.document_types import DocumentTypes
 from models.prefilled_tables.size_tier import SizeTier
 from models.prefilled_tables.breed import Breed
 from models.prefilled_tables.coat_types import CoatTypes
+from models.prefilled_tables.hair_length import HairLength
+
 
 from controllers.organisms.client import client_bp
 from controllers.organisms.pet import pet_bp
@@ -22,6 +24,7 @@ from controllers.organisms.vet import vet_bp
 from controllers.organisms.employee import employee_bp
 from controllers.prefilled_tables.payment_types import payment_types_bp
 from controllers.prefilled_tables.document_types import document_types_bp
+from controllers.prefilled_tables.pet_attributes import pet_attributes_bp
 
 from controllers.misc.sticky_notes import stickies_bp
 from controllers.misc.images import pet_images_bp
@@ -62,7 +65,7 @@ app.register_blueprint(document_types_bp)
 app.register_blueprint(pet_bp)
 app.register_blueprint(stickies_bp)
 app.register_blueprint(pet_images_bp)
-
+app.register_blueprint(pet_attributes_bp)
 
 with app.app_context():
     # Check if migrations directory exists before trying to upgrade
@@ -84,6 +87,8 @@ with app.app_context():
         SizeTier.populate_prefilled_values()
         Breed.populate_prefilled_values()
         CoatTypes.populate_prefilled_values()
+        HairLength.populate_prefilled_values()
+
     else:
         print("Tables not created yet — skipping prefill.")
 
