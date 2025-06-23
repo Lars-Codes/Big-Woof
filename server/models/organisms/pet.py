@@ -2,15 +2,22 @@ from models.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, send_from_directory
 from models.organisms.client import Client 
+from models.organisms.employee import Employee
+from models.prefilled_tables.breed import Breed
+from models.prefilled_tables.size_tier import SizeTier
+from models.prefilled_tables.coat_types import CoatTypes
+from models.prefilled_tables.hair_length import HairLength
 from dotenv import load_dotenv
 from PIL import Image
 from werkzeug.utils import secure_filename
 import os 
+from sqlalchemy.orm import joinedload
+from sqlalchemy import select
+
 class Pet(db.Model): 
     __tablename__ = "pets"
     
     id = db.Column(db.Integer, primary_key = True)  
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False) 
     name = db.Column(db.String(50), nullable = False) 
     age = db.Column(db.Integer, nullable = True) 
     deceased = db.Column(db.Integer, nullable = True) 
@@ -18,16 +25,20 @@ class Pet(db.Model):
     gender = db.Column(db.Integer, nullable=True)
     fixed = db.Column(db.Integer, nullable=True)
     
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False) 
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   
     coat_type_id = db.Column(db.Integer, db.ForeignKey('coat_types.id'), nullable=True)
     hair_length_id = db.Column(db.Integer, db.ForeignKey('hair_length.id'), nullable=True)
-    
     typical_groomer_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=True)
+    
+    appointments = db.relationship('Appointment', backref='pet', lazy='select', cascade='all, delete-orphan', foreign_keys='Appointment.pet_id')
     breed = db.relationship('Breed', backref='pets', lazy='select')
     size_tier = db.relationship('SizeTier', backref='pets', lazy='select')
     coat_type = db.relationship('CoatTypes', backref='pets', lazy='select')
     client = db.relationship('Client', back_populates='pets', lazy='select')
+    typical_groomer = db.relationship('Employee', backref='pets', lazy='select')
+    hair_length = db.relationship('HairLength', backref='pets', lazy='select')
     typical_groomer = db.relationship('Employee', backref='pets', lazy='select')
 
     pet_problems = db.relationship('PetProblems', back_populates='pet', lazy='select', cascade='all, delete-orphan', foreign_keys='PetProblems.pet_id')
@@ -392,6 +403,78 @@ class Pet(db.Model):
             return (
                 jsonify({"success": 0, "error": "Failed to get profile picture. Unknown error"}), 500, 
             )       
+            
+    @classmethod 
+    def get_pet_metdata(cls, pet_id):
+        try: 
+            pet = cls.query.with_entities(cls.id, cls.name, cls.age, cls.deceased, cls.weight, cls.gender, cls.fixed, cls.notes).first()
+
+            if pet: 
+                stmt = select(
+                    Client.fname.label("client_fname"),
+                    Client.lname.label("client_lname"), 
+                    Client.id.label("client_id"), 
+                    Breed.name.label("breed_name"),
+                    SizeTier.size_tier.label("size_tier"), 
+                    CoatTypes.coat_type.label("coat_type"), 
+                    HairLength.length.label("hair_length"), 
+                    Employee.fname.label("employee_fname"), 
+                    Employee.lname.label("employee_lname"), 
+                    Employee.id.label("employee_id")
+                ).outerjoin(Pet.breed).outerjoin(Pet.size_tier).outerjoin(Pet.coat_type).join(Pet.client).outerjoin(Pet.hair_length).outerjoin(Pet.typical_groomer).where(Pet.id == pet_id)
+
+                result = db.session.execute(stmt).first()
+                
+                owner_name = result.client_fname + " " + result.client_lname
+                employee_name = None 
+                if result.employee_fname and result.employee_lname: 
+                    employee_name = result.employee_fname + " " + result.employee_lname
+                
+                pet_data = {
+                    "pet_data": {
+                        "id": pet.id, 
+                        "name": pet.name, 
+                        "age": pet.age if pet.age else "", 
+                        "deceased": pet.deceased if pet.deceased else "", 
+                        "weight": pet.weight if pet.weight else "", 
+                        "gender": pet.gender if pet.gender else "", 
+                        "fixed": pet.fixed if pet.fixed else "", 
+                        "notes": pet.notes if pet.notes else "", 
+                        "owner_name": owner_name,
+                        "breed": result.breed_name, 
+                        "size_tier": result.size_tier if result.size_tier else "", 
+                        "coat_type": result.coat_type if result.coat_type else "", 
+                        "hair_length": result.hair_length if result.hair_length else "", 
+                        "typical_groomer": employee_name if employee_name else "", 
+                        "typical_groomer_id": result.employee_id if result.employee_id else "", 
+                        "owner_id": result.client_id
+                    }
+                }
+
+                return jsonify({
+                    "success": 1, 
+                    "data": pet_data, 
+                }) 
+            else: 
+                return jsonify({
+                    "success": 0, 
+                    "error": "No pet found for pet id: " + pet_id, 
+                })  
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch pet data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch pet data. Unknown error"}), 500,
+            )  
+        
+    
+    
     @classmethod 
     def get_initial_image_data(cls, pet_id):
         pass 

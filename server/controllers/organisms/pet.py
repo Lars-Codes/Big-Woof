@@ -177,4 +177,14 @@ def deleteProfilePicture():
     except Exception as e: 
         print(f"Unexpected error from /deletePetProfilePicture: {e}")
         return res   
+
+@pet_bp.route('/getPetMetadata', methods=["GET"])
+def getPetMetadata():
+    try: 
+        pet_id = request.form.get("pet_id")
+        res = Pet.get_pet_metdata(pet_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deletePetProfilePicture: {e}")
+        return res   
     
