@@ -2,6 +2,7 @@ import base64
 from models.db import db
 from models.contact_info import ContactInfo 
 from models.logistics.appointment import Appointment
+# from models.organisms.pet import Pet 
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, send_from_directory
@@ -447,19 +448,21 @@ class Client(db.Model):
             )
     
     @classmethod 
-    def get_client_document_metadata(cls, client_id):
+    def get_client_document_metadata(cls, client_id, pet_id=None):
         try: 
             
             client = Client.query.options(
                 joinedload(Client.files)
             ).filter_by(id=client_id).first()       
-        
+                    
             if client: 
                 clients_data = {
                     "documents": []
                 }
                 if client.files: 
                     for d in client.files:
+                        if (pet_id!=None and not d.pet_id) or (pet_id!=None and int(d.pet_id)!=int(pet_id)): 
+                            continue 
                         files = {
                             "id": d.id,  
                             "pet_id": d.pet_id if d.pet_id else -1, 
@@ -468,7 +471,6 @@ class Client(db.Model):
                             "description": d.description if d.description else "", 
                             "document_name": d.document_name if d.document_name else "", 
                             "initial_filename": d.initial_filename if d.initial_filename else "", 
-                            
                         }
                         clients_data["documents"].append(files)
                     

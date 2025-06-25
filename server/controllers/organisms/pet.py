@@ -29,7 +29,7 @@ def createPet():
 def editPetBasicData():
     data = {}
     possible_fields = [
-        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id'
+        'pet_id', 'name', 'age', 'weight', 'deceased', 'notes', 'size_tier_id', 'breed_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id', 'typical_groomer_id', 'client_id'
     ]
     
     for field in possible_fields:

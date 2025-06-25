@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 import os 
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select
+import shutil
 
 class Pet(db.Model): 
     __tablename__ = "pets"
@@ -121,8 +122,23 @@ class Pet(db.Model):
             pet = cls.query.filter_by(id=pet_id).first()
 
             if pet:                
-                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id']:
+                for field in ['name', 'age', 'weight', 'notes', 'breed_id', 'size_tier_id', 'coat_type_id', 'gender', 'fixed', 'hair_length_id', 'typical_groomer_id', 'client_id']:
                     if field in kwargs:
+                        
+                        if field=='typical_groomer_id':
+                            employee = Employee.query.filter_by(id=kwargs.get('typical_groomer_id')).first()
+                            if not employee: 
+                                return jsonify({
+                                "success": 0, 
+                                "error": "No employee found for employee id", 
+                                }) 
+                        elif field=='client_id':
+                            client = Client.query.filter_by(id=kwargs.get('client_id')).first()
+                            if not client: 
+                                return jsonify({
+                                "success": 0, 
+                                "error": "No client found for client id", 
+                                }) 
                         setattr(pet, field, kwargs[field])
 
                 db.session.commit()
@@ -163,6 +179,29 @@ class Pet(db.Model):
                     db.session.delete(pet)
                     num_deleted += 1
                     pet.client.num_pets = pet.client.num_pets - 1 
+                    
+                    profile_pic_path = pet.profile_pic_url
+                    load_dotenv()
+                    image_store = os.environ.get('IMAGESTORE_URL')  # e.g., '/static/uploads/' or cloud URL
+                    secure_name = secure_filename(profile_pic_path)
+                    local_path = os.path.join(image_store, str(pet.client_id), str(pet_id), secure_name)
+                    
+                    file_store = os.environ.get('FILESTORE_URL')
+                    path_to_pet_files = os.path.join(file_store, str(pet.client_id), str(pet_id))
+
+                    if os.path.isdir(path_to_pet_files):
+                        shutil.rmtree(path_to_pet_files)
+
+                    if os.path.isfile(local_path):
+                        os.remove(local_path)
+                        # 2. Get the parent directory
+                        parent_dir = os.path.dirname(local_path)
+
+                        # 3. If the directory is now empty, delete it
+                        if os.path.isdir(parent_dir) and not os.listdir(parent_dir):
+                            os.rmdir(parent_dir)
+                    
+                    
                 db.session.commit()
             return jsonify({"success": 1, "num_deleted": num_deleted})
         except SQLAlchemyError as e: 
@@ -474,153 +513,4 @@ class Pet(db.Model):
             )  
         
     
-    
-    @classmethod 
-    def get_initial_image_data(cls, pet_id):
-        pass 
-    
-    @classmethod 
-    def get_cost_and_time_metadata(cls, pet_id):
-        pass
-    
-    @classmethod 
-    def get_document_metadata(cls, pet_id):
-        pass
-    
-    @classmethod 
-    def edit_name(cls, pet_id, new_name): 
-        pass 
-    
-    @classmethod 
-    def edit_age(cls, pet_id, new_age): 
-        pass
-    
-    @classmethod 
-    def edit_breed(cls, pet_id, breed_id):
-        pass 
-    
-    @classmethod 
-    def edit_size_tier(cls, pet_id, size_tier_id):
-        pass
-    
-    @classmethod
-    def edit_notes(cls, pet_id, new_notes):
-        pass 
-    
-    @classmethod 
-    def get_pet(cls, pet_id):
-        """
-            Sending pet info and metadata for rabies/vaccination records 
-        """
-        pass
-    
-    @classmethod
-    def delete_pet(cls, pet_id_array):
-        pass
-    
-    @classmethod 
-    def delete_image(cls, pet_id, image_id):
-        pass
-    
-    @classmethod 
-    def add_profile_picture(cls, pet_id, picture_blob):
-        pass
-    
-    @classmethod 
-    def change_profile_picture(cls, pet_id, new_picture_blob):
-        pass 
-    
-    @classmethod 
-    def get_photo_gallery_lowres(cls, pet_id):
-        pass # get low resolution images for previews 
-    
-    @classmethod 
-    def delete_document(cls, pet_id, document_id):
-        pass
-    
-    @classmethod 
-    def edit_behavioral_issue(cls, pet_id, problem_id, new_problem, new_solution):
-        pass 
-    
-    @classmethod 
-    def delete_behavioral_issue(cls, pet_id, problem_id):
-        pass 
-    
-    @classmethod 
-    def get_image(cls, pet_id, image_id):
-        pass 
-    
-    @classmethod 
-    def add_image(cls, pet_id, comparison, photo):
-        # comparison is bool 
-        pass  
-    
-    @classmethod 
-    def add_document(cls, client_id, pet_id, document_name, document_type, document):
-        pass 
-    
-    # @classmethod 
-    # def deceased(cls, pet_id, deceased=False):
-    #     pass
-    
-    @classmethod
-    def get_pet_document(pet_id, document_id):
-        pass
-    
-    @classmethod 
-    def add_pet_document(pet_id, document_name, document_type, document):
-        pass
-    
-    @classmethod 
-    def add_behavioral_issue(cls, pet_id, problem, solution=None):
-        pass 
-
-    @classmethod 
-    def assign_new_owner(cls, pet_id, new_owner_id):
-        pass
-    
-    @classmethod 
-    def pet_searchbar(cls, characters):
-        pass 
-    
-    @classmethod 
-    def create_frequency_recomendation(cls, pet_id, service_id, recommended_frequency, time_type):
-        pass 
-    
-    @classmethod 
-    def update_frequency_recomendation(cls, pet_id, service_id, recommended_frequency, time_type):
-        pass 
-    
-    @classmethod 
-    def delete_frequency_recomendation(cls, pet_id, frequency_rec_id):
-        pass
-    
-    @classmethod 
-    def add_client_homework(cls, pet_id, homework_title, homework_text, frequency, time_type_id):
-        pass 
-    
-    @classmethod 
-    def edit_client_homework(cls, pet_id, homework_id, homework_title, homework_text, frequency, time_type_id):
-        pass
-    
-    @classmethod 
-    def delete_client_homework(cls, pet_id, homework_id):
-        pass 
-    
-    def added_pet_time(cls, pet_id, time_type_id, additional_time, notes, service_id=None):
-        pass
-    
-    def edit_pet_time(cls, pet_id, added_time_id, time_type_id, additional_time, notes, service_id=None):
-        pass 
-    
-    def delete_pet_time(pet_id, added_time_id):
-        pass
-    
-    def added_pet_cost(cls, pet_id, is_percentage, is_per_mile, reason, price_change, service_id=None):
-        pass
-    
-    def edit_pet_cost(cls, pet_id, additional_costs_id, is_percentage, is_per_mile, reason, price_change, service_id=None):
-        pass 
-    
-    def delete_pet_cost(cls, pet_id, additional_costs_id):
-        pass 
+   

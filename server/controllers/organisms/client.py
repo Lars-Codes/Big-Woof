@@ -109,12 +109,14 @@ def getCostAndTimeStatsMetadata():
 def getClientDocumentMetadata():
     try: 
         client_id = request.args.get("client_id")
+        pet_id = request.args.get("pet_id")
+
         if client_id==None: 
             return jsonify({
                 "success": 0, 
                 "error": "Client ID not detected in input" 
             }) 
-        res = Client.get_client_document_metadata(client_id)
+        res = Client.get_client_document_metadata(client_id, pet_id)
         return res 
     except Exception as e: 
         print(f"Unexpected error from /getClientDocumentsMetadata: {e}")
