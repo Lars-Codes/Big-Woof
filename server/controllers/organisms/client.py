@@ -126,7 +126,9 @@ def getClientDocumentMetadata():
 def getAppointmentMetadata():
     try: 
         client_id = request.args.get("client_id")
-        res = Client.get_appointment_metadata(client_id)
+        pet_id = request.args.get("pet_id")
+
+        res = Client.get_appointment_metadata(client_id, pet_id)
         return res
     except Exception as e: 
         print(f"Unexpected error from /getAppointmentMetadata: {e}")
