@@ -20,7 +20,8 @@ def createHairLength():
     
 @pet_attributes_bp.route('/deleteHairLength', methods=["DELETE"])
 def deleteHairLength():
-    hair_length_id = request.form.get('hair_length_id')
+    data = request.get_json()
+    hair_length_id = data.get('hair_length_id')
     try: 
         res = HairLength.delete_hair_length(hair_length_id)
         return res 
@@ -50,7 +51,8 @@ def createSizeTier():
     
 @pet_attributes_bp.route('/deleteSizeTier', methods=["DELETE"])
 def deleteSizeTier():
-    size_tier_id = request.form.get('size_tier_id')
+    data = request.get_json()
+    size_tier_id = data.get('size_tier_id')
     try: 
         res = SizeTier.delete_size_tier(size_tier_id)
         return res 
@@ -81,7 +83,8 @@ def createCoatType():
     
 @pet_attributes_bp.route('/deleteCoatType', methods=["DELETE"])
 def deleteCoatType():
-    coat_type_id = request.form.get('coat_type_id')
+    data = request.get_json()
+    coat_type_id = data.get('coat_type_id')
     try: 
         res = CoatTypes.delete_coat_type(coat_type_id)
         return res 
@@ -112,7 +115,8 @@ def createBreed():
     
 @pet_attributes_bp.route('/deleteBreed', methods=["DELETE"])
 def deleteBreed():
-    breed_id = request.form.get('breed_id')
+    data = request.get_json()
+    breed_id = data.get('breed_id')
     try: 
         res = Breed.delete_breed(breed_id)
         return res 

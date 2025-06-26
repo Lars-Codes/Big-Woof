@@ -4,10 +4,10 @@ import {
   selectClients,
   setSortedDirection,
 } from '../../../state/clients/clientsSlice';
-import processResultSet from '../processResultSet/processResultSet';
-import processSearchResultSet from '../processSearchResultSet/processSearchResultSet';
+import processClientResultSet from '../processClientResultSet/processClientResultSet';
+import processClientSearchResultSet from '../processClientSearchResultSet/processClientSearchResultSet';
 
-export default function* clientsSortedBy({ payload: direction }) {
+export default function* clientsSortedDirection({ payload: direction }) {
   // will eventully use user id here
   setItem('sorted-direction', direction);
 
@@ -15,7 +15,7 @@ export default function* clientsSortedBy({ payload: direction }) {
 
   const clients = yield select(selectClients);
   if (clients) {
-    yield call(processResultSet);
-    yield call(processSearchResultSet);
+    yield call(processClientResultSet);
+    yield call(processClientSearchResultSet);
   }
 }

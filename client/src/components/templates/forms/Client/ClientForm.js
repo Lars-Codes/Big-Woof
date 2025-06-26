@@ -215,6 +215,7 @@ export default function ClientForm({ navigation }) {
       setErrorMessages((prev) => ({ ...prev, [field]: '' }));
     }
   };
+
   const validateForm = () => {
     const newErrors = {};
     const newErrorMessages = {};

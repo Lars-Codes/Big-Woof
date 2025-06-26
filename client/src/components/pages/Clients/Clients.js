@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import ClientListFooter from '../../molecules/Client/ClientListFooter';
+import ListFooter from '../../molecules/List/ListFooter';
 import ClientList from '../../organisms/Client/ClientList';
 
 export default function Clients() {
@@ -8,7 +8,7 @@ export default function Clients() {
     <View className="flex-1 bg-white">
       <ClientList />
       <View className="absolute bottom-0 left-0 right-0">
-        <ClientListFooter />
+        <ListFooter />
       </View>
     </View>
   );

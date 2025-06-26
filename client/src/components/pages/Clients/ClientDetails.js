@@ -31,9 +31,7 @@ export default function ClientDetails() {
             <ClientDetailsHeader />
           </View>
 
-          <View className="">
-            <ClientDetailsInfoSelector />
-          </View>
+          <ClientDetailsInfoSelector />
 
           <View className="flex-1 px-4">
             <ClientDetailsInfoDisplay />

@@ -37,6 +37,7 @@ const CustomTextInput = forwardRef(
         <SearchBar
           ref={ref}
           placeholder={placeholder}
+          placeholderTextColor="#9CA3AF"
           lightTheme
           round
           value={value}

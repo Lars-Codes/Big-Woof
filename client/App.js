@@ -4,22 +4,34 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { UsersRound } from 'lucide-react-native';
+import { List } from 'lucide-react-native';
 import React, { useEffect, useCallback } from 'react';
 import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useDispatch } from 'react-redux';
-import ClientsNavigator from './src/components/templates/navigation/Clients/ClientsNavigator';
+import ListNavigator from './src/components/templates/navigation/Clients/ListNavigator';
 import { initAction } from './src/sagas/init/action';
 import store from './src/state/store';
 import './src/sagas/rootSaga';
+import { preloadBreedImages } from './src/utils/pets/petBreedImages';
 const Tab = createBottomTabNavigator();
 
 function AppContent({ onLayout }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(initAction());
+    const initializeApp = async () => {
+      try {
+        // Preload breed images
+        await preloadBreedImages();
+        dispatch(initAction());
+      } catch (error) {
+        console.error('Error during app initialization:', error);
+        dispatch(initAction());
+      }
+    };
+
+    initializeApp();
   }, []);
 
   return (
@@ -37,10 +49,10 @@ function AppContent({ onLayout }) {
           }}
         >
           <Tab.Screen
-            name="Clients"
-            component={ClientsNavigator}
+            name="Lists"
+            component={ListNavigator}
             options={{
-              tabBarIcon: ({ color }) => <UsersRound size={32} color={color} />,
+              tabBarIcon: ({ color }) => <List size={32} color={color} />,
             }}
           />
         </Tab.Navigator>

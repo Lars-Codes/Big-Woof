@@ -62,15 +62,8 @@ def deletePet():
 
 @pet_bp.route('/getAllPets', methods=["GET"])
 def getAllPets():
-    print(Pet.get_all_pets)  # Should show it's a bound method to the class
-
-    # page = request.args.get('page', default=1, type=int)
-    page = request.args.get('page', default=1, type=int)
-    page_size = request.args.get('page_size', default=10, type=int)
-    searchbar_chars = request.args.get('searchbar_chars', default="", type=str)
-    
     try: 
-        res = Pet.get_all_pets(page, page_size, searchbar_chars)
+        res = Pet.get_all_pets()
         return res
     
     except Exception as e:
@@ -171,7 +164,8 @@ def getProfilePicture():
 @pet_bp.route('/deletePetProfilePicture', methods=["DELETE"])
 def deleteProfilePicture():
     try: 
-        pet_id = request.form.get("pet_id")
+        data = request.get_json()
+        pet_id = data.get("pet_id")
         res = Pet.delete_profile_picture(pet_id)
         return res 
     except Exception as e: 
@@ -181,10 +175,10 @@ def deleteProfilePicture():
 @pet_bp.route('/getPetMetadata', methods=["GET"])
 def getPetMetadata():
     try: 
-        pet_id = request.form.get("pet_id")
+        pet_id = request.args.get("pet_id")
         res = Pet.get_pet_metdata(pet_id)
         return res 
     except Exception as e: 
-        print(f"Unexpected error from /deletePetProfilePicture: {e}")
+        print(f"Unexpected error from /getPetMetadata: {e}")
         return res   
     

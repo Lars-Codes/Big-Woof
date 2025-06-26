@@ -1,3 +1,4 @@
+import base64
 from models.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, send_from_directory
@@ -219,41 +220,25 @@ class Pet(db.Model):
 
 
     @classmethod 
-    def get_all_pets(cls, page, page_size, searchbar_chars): 
+    def get_all_pets(cls): 
         try: 
-            query = db.session.query(Pet)
-
-            # Apply search criteria if provided
-            if searchbar_chars:
-                search_pattern = f"%{searchbar_chars}%"
-                query = query.filter(
-                (Pet.name.ilike(search_pattern)) 
-            )
-
-            # Order results alphabetically
-            query = query.order_by(Pet.name.asc())
-
-            # Paginate query
-            pagination = query.paginate(page=page, per_page=page_size, error_out=False)
-            pets = pagination.items
-
+            pets = db.session.query(Pet).order_by(Pet.name.asc()).all()
+            
             # Send up data 
             pets_data = [
-            {
-            "pet_id": pet.id, 
-            "name": pet.name,
-            "client_fname": pet.client.fname,
-            "client_lname": pet.client.lname,
-            "breed": pet.breed.name if pet.breed else "", 
-            }
-            for pet in pets 
+                {
+                    "pet_id": pet.id, 
+                    "name": pet.name,
+                    "client_fname": pet.client.fname,
+                    "client_lname": pet.client.lname,
+                    "breed": pet.breed.name if pet.breed else "", 
+                }
+                for pet in pets 
             ]
 
             return jsonify({
             "success": 1, 
-            "data": pets_data, 
-            "total_pages": pagination.pages,
-            "current_page": pagination.page
+            "data": pets_data
             }) 
 
         except SQLAlchemyError as e: 
@@ -376,21 +361,34 @@ class Pet(db.Model):
     @classmethod 
     def get_profile_picture(cls, pet_id):
         try: 
+            load_dotenv()
+            image_store = os.environ.get('IMAGESTORE_URL').strip()
+            
             pet = Pet.query.with_entities(Pet.profile_pic_url).filter_by(id=pet_id).first()
             print("profile pic: ", pet_id)
 
             if not pet or pet.profile_pic_url == "":
                 return jsonify({"success": 1, "exists": 0, "message": "No profile picture associated with this pet."}), 404
-            load_dotenv()
-            image_store = os.environ.get('IMAGESTORE_URL').strip()
-                
+
             image_dir = os.path.join(image_store, pet_id)
             
             full_path = os.path.join(image_dir, pet.profile_pic_url)
             if not os.path.exists(full_path):
                 return jsonify({"success": 0, "error": "Image URL associated with this pet does not map to an image in the image store."}), 404
             
-            return send_from_directory(image_dir, pet.profile_pic_url)
+            # Read the image file and convert to base64
+            with open(full_path, 'rb') as image_file:
+                image_data = image_file.read()
+                # Determine MIME type based on file extension
+                file_ext = pet.profile_pic_url.lower().split('.')[-1]
+                mime_type = 'image/jpeg' if file_ext in ['jpg', 'jpeg'] else f'image/{file_ext}'
+                base64_string = base64.b64encode(image_data).decode('utf-8')
+                data_url = f"data:{mime_type};base64,{base64_string}"
+            return jsonify({
+                "success": 1,
+                "exists": 1,
+                "image_data": data_url
+            }), 200
             
         except SQLAlchemyError as e: 
             db.session.rollback()
@@ -403,7 +401,7 @@ class Pet(db.Model):
             print(f"Unknown error: {e}")
             return (
                 jsonify({"success": 0, "error": "Failed to get profile picture. Unknown error"}), 500, 
-            )  
+            )
 
     @classmethod 
     def delete_profile_picture(cls, pet_id):
@@ -417,7 +415,7 @@ class Pet(db.Model):
             
             load_dotenv()
             image_store = os.environ.get('IMAGESTORE_URL').strip()
-            image_dir = os.path.join(image_store, pet_id)
+            image_dir = os.path.join(image_store, str(pet_id))
             full_path = os.path.join(image_dir, pet.profile_pic_url)
             if not os.path.exists(full_path):
                 return jsonify({"success": 0, "error": "Image URL associated with this pet does not map to an image in the image store."}), 404
@@ -429,7 +427,7 @@ class Pet(db.Model):
             
             pet.profile_pic_url = ""
             db.session.commit()
-            return jsonify({"success": 1, "error": "Successfully deleted profile picture for this pet"}), 404
+            return jsonify({"success": 1, "message": "Successfully deleted profile picture for this pet"})
         except SQLAlchemyError as e: 
             db.session.rollback()
             print(f"Database error: {e}")
@@ -446,7 +444,7 @@ class Pet(db.Model):
     @classmethod 
     def get_pet_metdata(cls, pet_id):
         try: 
-            pet = cls.query.with_entities(cls.id, cls.name, cls.age, cls.deceased, cls.weight, cls.gender, cls.fixed, cls.notes).first()
+            pet = cls.query.with_entities(cls.id, cls.name, cls.age, cls.deceased, cls.weight, cls.gender, cls.fixed, cls.notes).filter_by(id=pet_id).first()
 
             if pet: 
                 stmt = select(
