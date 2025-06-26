@@ -2,6 +2,7 @@ import base64
 from models.db import db
 from models.contact_info import ContactInfo 
 from models.logistics.appointment import Appointment
+# from models.organisms.pet import Pet 
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, send_from_directory
@@ -326,7 +327,118 @@ class Client(db.Model):
             )  
     
     @classmethod 
-    def get_appointment_metadata(cls, client_id):
+    def get_pet_appointment_metdata(cls, client, pet_id):
+        try: 
+            
+            now = datetime.now().date()
+
+            upcoming_appointments = (
+                db.session.query(Appointment)
+                .filter(Appointment.client_id == client.id, Appointment.pet_id==pet_id, Appointment.date > now)
+                .order_by(Appointment.date.asc())
+                .all()
+            )
+
+            past_appointments_preview = (
+                db.session.query(Appointment)
+                .filter(Appointment.client_id == client.id, Appointment.pet_id==pet_id, Appointment.date <= now)
+                .order_by(Appointment.date.desc())
+                .limit(3)
+                .all()
+            )
+            
+            saved_appointments = (
+                db.session.query(Appointment)
+                .filter(
+                    Appointment.client_id == client.id,
+                    Appointment.pet_id==pet_id,
+                    Appointment.type == "saved"
+                )
+                .order_by(Appointment.date.desc())  # Optional: order by latest
+                .all()
+            )
+            
+            recurring_appointments = (
+                db.session.query(Appointment)
+                .filter(
+                    Appointment.client_id == client.id,
+                    Appointment.pet_id==pet_id,
+                    Appointment.type == "recurring"
+                )
+                .order_by(Appointment.date.desc())  # Optional: order by latest
+                .all()
+            )
+                        
+            clients_data = {
+                "appointment_stats": {
+                    "num_late": client.appointment_stats.late if client.appointment_stats else 0,
+                    "num_no_shows": client.appointment_stats.no_shows if client.appointment_stats else 0, 
+                    "num_cancelled": client.appointment_stats.cancelled if client.appointment_stats else 0, 
+                    "num_cancelled_late": client.appointment_stats.cancelled_late if client.appointment_stats else 0,  
+                },
+                "recurring_appointments": [],
+                "upcoming_non_recurring_appointments": [],
+                "past_appointments_preview": [],
+                "saved_appointment_config": [],
+            }
+            
+            for up in upcoming_appointments:
+                if up.type=="single": 
+                    upcoming = {
+                        "id": up.id,
+                        "date": up.date.strftime('%Y-%m-%d') if up.date else "", 
+                        "start_time": up.start_time.strftime('%H:%M:%S') if up.start_time else "", 
+                        "end_time": up.end_time.strftime('%H:%M:%S') if up.end_time else "", 
+                    }
+                    clients_data["upcoming_non_recurring_appointments"].append(upcoming)
+                    
+            for recur in recurring_appointments: 
+                recurring = {
+                    "id": recur.id,
+                    "start_recur_date": recur.start_recur_date.strftime('%Y-%m-%d') if recur.start_recur_date else "", 
+                    "end_recur_date": recur.end_recur_date.strftime('%Y-%m-%d') if recur.end_recur_date else "",
+                    "start_time": recur.start_time.strftime('%H:%M:%S') if recur.start_time else "", 
+                    "end_time": recur.end_time.strftime('%H:%M:%S') if recur.end_time else "", 
+                }
+                clients_data["recurring_appointments"].append(recurring)
+
+            for saved in saved_appointments: 
+                save = {
+                    "id": saved.id, 
+                    "saved_appointment_name": saved.saved_appointment_config_name if saved.saved_appointment_config_name else "", 
+                }
+                clients_data["saved_appointment_config"].append(save)
+                
+            for p in past_appointments_preview: 
+                past = {
+                    "id": p.id,
+                    "date": p.date.strftime('%Y-%m-%d') if p.date else "", 
+                    "start_time": p.start_time.strftime('%H:%M:%S') if p.start_time else "", 
+                    "end_time": p.end_time.strftime('%H:%M:%S') if p.end_time else "", 
+                    "appointment_status": p.appointment_status if p.appointment_status else "", 
+                    "payment_status": p.payment_status if p.payment_status else "",
+                }
+                clients_data["past_appointments_preview"].append(past)
+                
+            return jsonify({
+                "success": 1, 
+                "data": clients_data, 
+            }) 
+    
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client appointment data. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to fetch client appointment data. Unknown error"}), 500,
+            )
+    @classmethod 
+    def get_appointment_metadata(cls, client_id, pet_id=None):
         # returns upcoming appointments, past appointments, appointment stats
         try: 
             client = Client.query.options(
@@ -335,6 +447,8 @@ class Client(db.Model):
             ).filter_by(id=client_id).first() 
             
             if client: 
+                if pet_id!=None: 
+                    return cls.get_pet_appointment_metdata(client, pet_id)
                 now = datetime.now().date()
 
                 upcoming_appointments = (
@@ -447,19 +561,21 @@ class Client(db.Model):
             )
     
     @classmethod 
-    def get_client_document_metadata(cls, client_id):
+    def get_client_document_metadata(cls, client_id, pet_id=None):
         try: 
             
             client = Client.query.options(
                 joinedload(Client.files)
             ).filter_by(id=client_id).first()       
-        
+                    
             if client: 
                 clients_data = {
                     "documents": []
                 }
                 if client.files: 
                     for d in client.files:
+                        if (pet_id!=None and not d.pet_id) or (pet_id!=None and int(d.pet_id)!=int(pet_id)): 
+                            continue 
                         files = {
                             "id": d.id,  
                             "pet_id": d.pet_id if d.pet_id else -1, 
@@ -468,7 +584,6 @@ class Client(db.Model):
                             "description": d.description if d.description else "", 
                             "document_name": d.document_name if d.document_name else "", 
                             "initial_filename": d.initial_filename if d.initial_filename else "", 
-                            
                         }
                         clients_data["documents"].append(files)
                     
