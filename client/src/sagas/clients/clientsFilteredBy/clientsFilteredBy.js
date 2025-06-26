@@ -4,8 +4,8 @@ import {
   selectClients,
   setFilteredBy,
 } from '../../../state/clients/clientsSlice';
-import processResultSet from '../processResultSet/processResultSet';
-import processSearchResultSet from '../processSearchResultSet/processSearchResultSet';
+import processClientResultSet from '../processClientResultSet/processClientResultSet';
+import processClientSearchResultSet from '../processClientSearchResultSet/processClientSearchResultSet';
 
 export default function* clientsFilteredBy({ payload: filterBy }) {
   // will eventually use user id here
@@ -16,7 +16,7 @@ export default function* clientsFilteredBy({ payload: filterBy }) {
   const clients = yield select(selectClients);
 
   if (clients) {
-    yield call(processResultSet);
-    yield call(processSearchResultSet);
+    yield call(processClientResultSet);
+    yield call(processClientSearchResultSet);
   }
 }

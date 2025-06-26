@@ -1,8 +1,7 @@
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import * as Haptics from 'expo-haptics';
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import CustomSelector from '../../../components/atoms/CustomSelector/CustomSelector';
 import {
   selectClientSelectedInfo,
   setClientSelectedInfo,
@@ -27,17 +26,12 @@ export default memo(function ClientDetailsInfoSelector() {
 
   return (
     <View className="flex-row w-full justify-center items-center px-2">
-      <SegmentedControl
-        values={infoOptions.map((option) => option.label)}
+      <CustomSelector
         selectedIndex={selectedIndex}
-        onChange={(event) => {
-          const index = event.nativeEvent.selectedSegmentIndex;
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          dispatch(setClientSelectedInfo(infoOptions[index].value));
+        options={infoOptions}
+        onSelect={(value) => {
+          dispatch(setClientSelectedInfo(value));
         }}
-        style={{ flex: 1, height: 48 }}
-        fontStyle={{ fontFamily: 'hn-medium', fontSize: 16, color: '#000' }}
-        tintColor="#FFF"
       />
     </View>
   );

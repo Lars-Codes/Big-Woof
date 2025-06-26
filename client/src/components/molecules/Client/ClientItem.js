@@ -1,12 +1,11 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { ChevronRight, Trash2, Pin } from 'lucide-react-native';
-import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import { ChevronRight, Pin } from 'lucide-react-native';
+import React, { useCallback, memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { SwipeRow } from 'react-native-swipe-list-view';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteClientAction } from '../../../sagas/clients/deleteClient/action';
+import { deleteClientsAction } from '../../../sagas/clients/deleteClients/action';
 import { fetchClientAppointmentsAction } from '../../../sagas/clients/fetchClientAppointments/action';
 import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
 import { fetchClientDocumentsAction } from '../../../sagas/clients/fetchClientDocuments/action';
@@ -18,27 +17,20 @@ import {
   selectDeleteMode,
   setDeleteMode,
   toggleClientSelection,
-  selectHideHeaders,
 } from '../../../state/clients/clientsSlice';
+import { selectHideHeaders } from '../../../state/list/listSlice';
 import CustomCheckbox from '../../atoms/CustomCheckbox/CustomCheckbox';
 
 export default memo(
   function ClientItem({ client }) {
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const rowRef = useRef(null);
     const deleteMode = useSelector(selectDeleteMode);
     const hideHeaders = useSelector(selectHideHeaders);
     const isClientSelected = useMemo(() => {
       return client.isSelected || false;
     }, [client.isSelected]);
     const { showActionSheetWithOptions } = useActionSheet();
-
-    useEffect(() => {
-      if (deleteMode && rowRef.current) {
-        rowRef.current.closeRow();
-      }
-    }, [deleteMode]);
 
     // Memoize callbacks to prevent unnecessary re-renders
     const handleClientPress = useCallback(() => {
@@ -56,11 +48,6 @@ export default memo(
       if (!deleteMode) {
         // iOS-style haptic feedback
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-        // Close any open swipe rows
-        if (rowRef.current) {
-          rowRef.current.closeRow();
-        }
 
         // Define action sheet options
         const favoriteOption = client.favorite
@@ -149,25 +136,18 @@ export default memo(
           {
             text: 'Cancel',
             style: 'cancel',
-            onPress: () => {
-              if (rowRef.current) {
-                rowRef.current.closeRow();
-              }
-            },
+            onPress: () => {},
           },
           {
             text: 'Delete',
+            style: 'destructive',
             onPress: () => {
-              dispatch(deleteClientAction([client.client_id]));
-              if (rowRef.current) {
-                rowRef.current.closeRow();
-              }
+              dispatch(deleteClientsAction([client.client_id]));
               // Success haptic feedback
               Haptics.notificationAsync(
                 Haptics.NotificationFeedbackType.Success,
               );
             },
-            style: 'destructive',
           },
         ],
       );
@@ -187,54 +167,33 @@ export default memo(
     }, [client.client_id, dispatch]);
 
     return (
-      <SwipeRow
-        ref={rowRef}
-        leftOpenValue={60}
-        disableLeftSwipe={true}
-        disableRightSwipe={true}
-        swipeToOpenPercent={40}
-        swipeToClosePercent={10}
-        friction={100}
-        tension={100}
-        stopLeftSwipe={deleteMode ? 0 : undefined}
-        stopRightSwipe={deleteMode ? 0 : undefined}
-      >
-        <View className="flex-1 flex-row justify-start border-b border-gray-200 bg-red-500">
-          <TouchableOpacity
-            onPress={confirmDelete}
-            className="bg-red-500 w-[60px] h-full justify-center items-center"
-          >
-            <Trash2 size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-        <View className={`${isClientSelected ? 'bg-gray-100' : 'bg-white'}`}>
-          <TouchableOpacity
-            onPress={handleClientPress}
-            onLongPress={handleClientLongPress}
-            activeOpacity={0.4}
-            className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
-            style={{ minHeight: 56 }}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-3xl text-gray-800 font-hn-medium">
-                {client.fname} {client.lname}
-              </Text>
-              {hideHeaders && client.favorite ? (
-                <Pin size={16} color="#000" fill="#999" />
-              ) : null}
-            </View>
-            {deleteMode ? (
-              <CustomCheckbox
-                value={isClientSelected}
-                onValueChange={handleCheckboxChange}
-                className="mr-2"
-              />
-            ) : (
-              <ChevronRight size={32} />
-            )}
-          </TouchableOpacity>
-        </View>
-      </SwipeRow>
+      <View className={`${isClientSelected ? 'bg-gray-100' : 'bg-white'}`}>
+        <TouchableOpacity
+          onPress={handleClientPress}
+          onLongPress={handleClientLongPress}
+          activeOpacity={0.4}
+          className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
+          style={{ minHeight: 56 }}
+        >
+          <View className="flex-row items-center gap-2">
+            <Text className="text-3xl text-gray-800 font-hn-medium">
+              {client.fname} {client.lname}
+            </Text>
+            {hideHeaders && client.favorite ? (
+              <Pin size={16} color="#000" fill="#999" />
+            ) : null}
+          </View>
+          {deleteMode ? (
+            <CustomCheckbox
+              value={isClientSelected}
+              onValueChange={handleCheckboxChange}
+              className="mr-2"
+            />
+          ) : (
+            <ChevronRight size={32} />
+          )}
+        </TouchableOpacity>
+      </View>
     );
   },
   (prevProps, nextProps) => {

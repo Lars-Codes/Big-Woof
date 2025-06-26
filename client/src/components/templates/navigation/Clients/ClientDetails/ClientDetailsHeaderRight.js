@@ -103,6 +103,70 @@ export default function ClientDetailsHeaderRight({ navigation }) {
     );
   };
 
+  const handleCameraCapture = async () => {
+    try {
+      // Request camera permissions
+      const cameraPermission =
+        await ImagePicker.requestCameraPermissionsAsync();
+
+      if (cameraPermission.granted === false) {
+        Alert.alert(
+          'Permission Required',
+          'Permission to access camera is required!',
+        );
+        return;
+      }
+
+      // Launch camera
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: false,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+
+        // Extract file extension from URI
+        const uriParts = asset.uri.split('.');
+        const fileExtension =
+          uriParts[uriParts.length - 1].toLowerCase() || 'jpg';
+
+        // Validate file type
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        if (!allowedExtensions.includes(fileExtension)) {
+          Alert.alert(
+            'Invalid File Type',
+            'Please select a JPG, JPEG, or PNG image.',
+          );
+          return;
+        }
+
+        // Create FormData compatible object
+        const imageFile = {
+          uri: asset.uri,
+          type: `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`,
+          name: `profile-${clientDetails.client_data.client_id}.${fileExtension}`,
+        };
+
+        // Dispatch upload action
+        dispatch(
+          uploadClientProfilePictureAction({
+            clientId: clientDetails.client_data.client_id,
+            image: imageFile,
+            ext: fileExtension,
+          }),
+        );
+
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
   const handleEditPress = () => {
     // Haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -114,13 +178,14 @@ export default function ClientDetailsHeaderRight({ navigation }) {
 
     const options = [
       favoriteOption,
-      'Upload New Profile Picture',
+      'Take Photo',
+      'Upload from Gallery',
       'Delete Profile Picture',
       'Edit Client',
       'Cancel',
     ];
 
-    const cancelButtonIndex = 4;
+    const cancelButtonIndex = 5;
 
     showActionSheetWithOptions(
       {
@@ -148,18 +213,22 @@ export default function ClientDetailsHeaderRight({ navigation }) {
             break;
           }
           case 1: {
-            handleImageUpload();
+            handleCameraCapture();
             break;
           }
           case 2: {
-            handleDeleteProfilePicture();
+            handleImageUpload();
             break;
           }
           case 3: {
-            navigation.navigate('ClientForm');
+            handleDeleteProfilePicture();
             break;
           }
           case 4: {
+            navigation.navigate('ClientForm');
+            break;
+          }
+          case 5: {
             break;
           }
         }

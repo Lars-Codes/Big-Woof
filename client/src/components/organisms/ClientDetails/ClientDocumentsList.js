@@ -61,23 +61,11 @@ export default function ClientDocumentsList() {
             </View>
 
             <View className="flex-row">
-              <TouchableOpacity
-                className="p-2 mr-2"
-                onPress={() => {
-                  // Handle preview
-                  console.log('Preview document:', document.id);
-                }}
-              >
+              <TouchableOpacity className="p-2 mr-2" onPress={() => {}}>
                 <Eye size={20} color="#4A90E2" />
               </TouchableOpacity>
 
-              <TouchableOpacity
-                className="p-2"
-                onPress={() => {
-                  // Handle download
-                  console.log('Download document:', document.id);
-                }}
-              >
+              <TouchableOpacity className="p-2" onPress={() => {}}>
                 <Download size={20} color="#4A90E2" />
               </TouchableOpacity>
             </View>

@@ -7,6 +7,7 @@ export default memo(function SearchInput({
   searchStr,
   handleSearch,
   handleFilter,
+  placeholder,
 }) {
   const handleClear = useCallback(() => {
     handleSearch('');
@@ -19,7 +20,8 @@ export default memo(function SearchInput({
   return (
     <View style={{ backgroundColor: 'white' }}>
       <SearchBar
-        placeholder="Search Clients"
+        placeholder={placeholder}
+        placeholderTextColor="#9CA3AF"
         lightTheme
         round
         value={searchStr}

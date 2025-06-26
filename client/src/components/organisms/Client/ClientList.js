@@ -1,4 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as Haptics from 'expo-haptics';
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, ActivityIndicator, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -6,20 +7,22 @@ import { clientsSearchByAction } from '../../../sagas/clients/clientsSearchBy/ac
 import { clientsSortedByAction } from '../../../sagas/clients/clientsSortedBy/action';
 import { clientsSortedDirectionAction } from '../../../sagas/clients/clientsSortedDirection/action';
 import { fetchClientsAction } from '../../../sagas/clients/fetchClients/action';
-import { processSearchedResultSetAction } from '../../../sagas/clients/processSearchedResultSet/action';
+import { processClientSearchedResultSetAction } from '../../../sagas/clients/processClientSearchedResultSet/action';
 import {
   selectClientsResultSet,
   selectDeleteMode,
-  selectHideHeaders,
   selectLoading,
   selectSearchBy,
   selectSearchedResultSet,
   selectSortedBy,
   selectSortedDirection,
-  setHideHeaders,
 } from '../../../state/clients/clientsSlice';
-import { createSectionedData } from '../../../utils/clients/createSectionedData';
-import SectionHeader from '../../atoms/Clients/SectionHeader';
+import {
+  setHideHeaders,
+  selectHideHeaders,
+} from '../../../state/list/listSlice';
+import { clientSectionedData } from '../../../utils/clients/clientSectionedData';
+import CustomSectionedHeader from '../../atoms/CustomSectionedHeader/CustomSectionedHeader';
 import ClientItem from '../../molecules/Client/ClientItem';
 import SearchInput from '../../molecules/SearchInput/SearchInput';
 
@@ -41,7 +44,7 @@ export default function ClientList() {
     searchBy && searchBy.length > 0 ? searchedResultsSet : clientsResultSet;
 
   const sectionedData = useMemo(() => {
-    return createSectionedData(rawClients, sortedBy, sortedDirection);
+    return clientSectionedData(rawClients, sortedBy, sortedDirection);
   }, [rawClients, sortedBy, sortedDirection]);
 
   // Memoize the search handler to prevent unnecessary re-renders
@@ -49,7 +52,7 @@ export default function ClientList() {
     (e) => {
       dispatch(clientsSearchByAction(e));
       setSearchStr(e);
-      dispatch(processSearchedResultSetAction(e));
+      dispatch(processClientSearchedResultSetAction(e));
     },
     [dispatch],
   );
@@ -72,12 +75,15 @@ export default function ClientList() {
         switch (buttonIndex) {
           case 0:
             handleOrderBy(sortedBy === 'fname' ? 'lname' : 'fname');
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             break;
           case 1:
             handleSortDirection();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             break;
           case 2:
             handleHeaders();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             break;
           default:
             break;
@@ -90,7 +96,7 @@ export default function ClientList() {
     (order) => {
       dispatch(clientsSortedByAction(order));
       if (searchStr) {
-        dispatch(processSearchedResultSetAction(searchStr));
+        dispatch(processClientSearchedResultSetAction(searchStr));
       }
     },
     [dispatch, searchStr],
@@ -100,7 +106,7 @@ export default function ClientList() {
     const newDir = sortedDirection === 'asc' ? 'desc' : 'asc';
     dispatch(clientsSortedDirectionAction(newDir));
     if (searchStr) {
-      dispatch(processSearchedResultSetAction(searchStr));
+      dispatch(processClientSearchedResultSetAction(searchStr));
     }
   }, [dispatch, sortedDirection, searchStr]);
 
@@ -124,7 +130,7 @@ export default function ClientList() {
 
   const renderItem = useCallback(({ item }) => {
     if (item.type === 'section-header') {
-      return <SectionHeader title={item.title} icon={item.icon} />;
+      return <CustomSectionedHeader title={item.title} icon={item.icon} />;
     }
 
     return <ClientItem client={item} />;
@@ -136,6 +142,7 @@ export default function ClientList() {
         searchStr={searchStr}
         handleSearch={handleClientSearch}
         handleFilter={handleClientFilter}
+        placeholder="Search Clients"
       />
     ),
     [searchStr, handleClientSearch, handleClientFilter],

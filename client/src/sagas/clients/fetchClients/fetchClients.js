@@ -1,8 +1,8 @@
 import { call, put, fork } from 'redux-saga/effects';
 import { api } from '../../../services/api';
 import { setClients, setLoading } from '../../../state/clients/clientsSlice';
-import processResultSet from '../processResultSet/processResultSet';
-import processSearchResultSet from '../processSearchResultSet/processSearchResultSet';
+import processClientResultSet from '../processClientResultSet/processClientResultSet';
+import processClientSearchResultSet from '../processClientSearchResultSet/processClientSearchResultSet';
 
 export default function* fetchClients() {
   try {
@@ -10,8 +10,8 @@ export default function* fetchClients() {
     const res = yield call(api, '/getAllClients', 'GET');
     const clients = res.data;
     yield put(setClients(clients));
-    yield call(processResultSet);
-    yield fork(processSearchResultSet);
+    yield call(processClientResultSet);
+    yield fork(processClientSearchResultSet);
   } catch (error) {
     console.error('Error fetching clients:', error);
   } finally {

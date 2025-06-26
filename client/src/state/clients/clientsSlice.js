@@ -13,7 +13,6 @@ export const clientsSlice = createSlice({
     clientsResultSet: [],
     searchResultSet: [],
     searchedResultSet: null,
-    hideHeaders: false,
 
     deleteMode: false,
 
@@ -25,7 +24,6 @@ export const clientsSlice = createSlice({
       state.loading = action.payload;
     },
     setClients: (state, action) => {
-      // Add isSelected: false to each client when setting them
       state.clients = action.payload.map((client) => ({
         ...client,
         isSelected: false,
@@ -76,14 +74,12 @@ export const clientsSlice = createSlice({
       state.searchBy = action.payload;
     },
     setClientsResultSet: (state, action) => {
-      // Ensure isSelected property exists on result set items
       state.clientsResultSet = action.payload.map((client) => ({
         ...client,
         isSelected: client.isSelected || false,
       }));
     },
     setSearchResultSet: (state, action) => {
-      // Ensure isSelected property exists on search result set items
       state.searchResultSet = action.payload.map((client) => ({
         ...client,
         isSelected: client.isSelected || false,
@@ -98,9 +94,6 @@ export const clientsSlice = createSlice({
       } else {
         state.searchedResultSet = action.payload;
       }
-    },
-    setHideHeaders: (state, action) => {
-      state.hideHeaders = action.payload;
     },
     setDeleteMode: (state, action) => {
       state.deleteMode = action.payload;
@@ -253,7 +246,6 @@ export const {
   setClientsResultSet,
   setSearchResultSet,
   setSearchedResultSet,
-  setHideHeaders,
   setDeleteMode,
   toggleClientSelection,
   selectAllClients,
@@ -276,14 +268,12 @@ export const selectClientsResultSet = (state) => state.clients.clientsResultSet;
 export const selectSearchResultSet = (state) => state.clients.searchResultSet;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
-export const selectHideHeaders = (state) => state.clients.hideHeaders;
 export const selectDeleteMode = (state) => state.clients.deleteMode;
 export const selectCreateClientResult = (state) =>
   state.clients.createClientResult;
 export const selectUpdateClientResult = (state) =>
   state.clients.updateClientResult;
 
-// Updated derived selectors to use isSelected instead of clientsDeleteSet
 export const selectSelectedClients = createSelector(
   [(state) => state.clients.clientsResultSet],
   (clientsResultSet) => {
