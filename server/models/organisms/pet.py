@@ -22,7 +22,7 @@ class Pet(db.Model):
     id = db.Column(db.Integer, primary_key = True)  
     name = db.Column(db.String(50), nullable = False) 
     age = db.Column(db.Integer, nullable = True) 
-    deceased = db.Column(db.Integer, nullable = True) 
+    deceased = db.Column(db.Integer, nullable = True, default=0) 
     weight = db.Column(db.Integer, nullable=True)
     gender = db.Column(db.Integer, nullable=True)
     fixed = db.Column(db.Integer, nullable=True)
@@ -232,6 +232,7 @@ class Pet(db.Model):
                     "client_fname": pet.client.fname,
                     "client_lname": pet.client.lname,
                     "breed": pet.breed.name if pet.breed else "", 
+                    "deceased": pet.deceased, 
                 }
                 for pet in pets 
             ]

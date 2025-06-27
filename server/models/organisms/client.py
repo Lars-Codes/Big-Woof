@@ -236,11 +236,6 @@ class Client(db.Model):
             
             if client: 
                 clients_data = {
-                    # "client_online_payments": {
-                    #     "zelle_id": client.online_payments.zelle_user if client.online_payments else "", 
-                    #     "paypal_id": client.online_payments.paypal_user if client.online_payments else "",
-                    #     "venmo_id": client.online_payments.venmo_user if client.online_payments else "",
-                    # },
                     "payment_methods": [],
                     "added_cost_per_service": [],
                     "added_cost_travel": [],
