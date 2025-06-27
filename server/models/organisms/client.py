@@ -161,6 +161,7 @@ class Client(db.Model):
                     
                 for vet in client.vet: 
                     vet_info = {
+                        "id": vet.id,
                         "fname": getattr(vet, "fname"),
                         "lname": getattr(vet, "lname"),
                         "notes": vet.notes if vet.notes else "",

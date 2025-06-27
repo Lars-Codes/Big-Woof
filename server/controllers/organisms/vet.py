@@ -53,8 +53,10 @@ def updateVetContact():
 @vet_bp.route('/deleteVet', methods=["DELETE"])
 def deleteVet():
     client_id = request.form.get('client_id')
+    vet_id = request.form.get('vet_id')
+
     try:
-        res = Vet.delete_vet(client_id)
+        res = Vet.delete_vet(client_id, vet_id)
         return res
     except Exception as e:
         print(f"Unexpected error from /deleteVet: {e}")

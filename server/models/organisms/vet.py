@@ -120,15 +120,15 @@ class Vet(db.Model):
             )
     
     @classmethod 
-    def delete_vet(cls, client_id):
+    def delete_vet(cls, client_id, vet_id):
         try: 
-            vet = cls.query.filter_by(client_id=client_id).first()
+            vet = cls.query.filter_by(client_id=client_id, id=vet_id).first()
 
             if not vet:
                 db.session.rollback()
                 return jsonify({
                     "success": 0, 
-                    "error": "Vet not found for specified client id",
+                    "error": "Vet not found for specified client id and vet_id",
                 })
                 
             db.session.delete(vet)
