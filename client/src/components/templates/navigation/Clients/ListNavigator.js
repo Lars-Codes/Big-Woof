@@ -20,6 +20,7 @@ import PetDetails from '../../../pages/Pets/PetDetails.js';
 import Pets from '../../../pages/Pets/Pets.js';
 import ClientForm from '../../forms/Client/ClientForm.js';
 import PetForm from '../../forms/Pets/PetForm.js';
+import VetForm from '../../forms/Vets/VetForm.js';
 import HeaderSelector from '../helpers/HeaderSelector.js';
 import HeaderTitle from '../helpers/HeaderTitle.js';
 
@@ -99,6 +100,7 @@ export default function Navigator() {
           },
         })}
       />
+
       <Stack.Screen
         name="PetDetails"
         component={PetDetails}
@@ -116,6 +118,22 @@ export default function Navigator() {
           gestureEnabled: false,
           headerTitle: () => (
             <HeaderTitle title={petDetails ? 'Edit Pet' : 'Add Pet'} />
+          ),
+          headerRight: () => <FormHeaderRight navigation={navigation} />,
+          headerStyle: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          },
+        })}
+      />
+
+      <Stack.Screen
+        name="VetForm"
+        component={VetForm}
+        options={({ navigation }) => ({
+          presentation: 'modal',
+          gestureEnabled: false,
+          headerTitle: () => (
+            <HeaderTitle title={petDetails ? 'Edit Vet' : 'Add Vet'} />
           ),
           headerRight: () => <FormHeaderRight navigation={navigation} />,
           headerStyle: {
