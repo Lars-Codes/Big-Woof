@@ -15,6 +15,7 @@ import { deleteVetAction } from '../../../sagas/vets/deleteVet/action';
 import {
   selectClientDetails,
   selectClientVets,
+  setClientVetDetails,
 } from '../../../state/clientDetails/clientDetailsSlice';
 import {
   formatPhoneNumber,
@@ -59,7 +60,8 @@ export default function ClientVetsList() {
   };
 
   const handleEditVet = (vet) => {
-    console.log('Edit vet:', vet);
+    dispatch(setClientVetDetails(vet));
+    navigation.navigate('VetForm');
   };
 
   const handleDeleteVet = (vet) => {
@@ -76,6 +78,19 @@ export default function ClientVetsList() {
               deleteVetAction({
                 clientId: clientDetails.client_data.client_id,
                 vetId: vet.id,
+                onSuccess: () => {
+                  Alert.alert(
+                    'Success',
+                    `Dr. ${vet.fname} ${vet.lname} has been deleted.`,
+                  );
+                },
+                onError: (error) => {
+                  console.error('Failed to delete vet:', error);
+                  Alert.alert(
+                    'Error',
+                    'Failed to delete vet. Please try again.',
+                  );
+                },
               }),
             );
           },

@@ -8,7 +8,10 @@ import FormHeaderRight from './Form/FormHeaderRight.js';
 import ListHeaderLeft from './List/ListHeaderLeft.js';
 import ListHeaderRight from './List/ListHeaderRight.js';
 import PetDetailsHeaderRight from './PetDetails/PetDetailsHeaderRight.js';
-import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice.js';
+import {
+  selectClientDetails,
+  selectClientVetDetails,
+} from '../../../../state/clientDetails/clientDetailsSlice.js';
 import {
   selectListType,
   setListType,
@@ -30,6 +33,7 @@ export default function Navigator() {
   const dispatch = useDispatch();
   const clientDetails = useSelector(selectClientDetails);
   const petDetails = useSelector(selectPetDetails);
+  const vetDetails = useSelector(selectClientVetDetails);
   const listType = useSelector(selectListType);
 
   return (
@@ -133,7 +137,7 @@ export default function Navigator() {
           presentation: 'modal',
           gestureEnabled: false,
           headerTitle: () => (
-            <HeaderTitle title={petDetails ? 'Edit Vet' : 'Add Vet'} />
+            <HeaderTitle title={vetDetails ? 'Edit Vet' : 'Add Vet'} />
           ),
           headerRight: () => <FormHeaderRight navigation={navigation} />,
           headerStyle: {
