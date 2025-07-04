@@ -1,4 +1,3 @@
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Pin } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, Image, Linking, TouchableOpacity } from 'react-native';
@@ -8,50 +7,15 @@ import {
   selectClientFavorite,
   selectClientProfilePicture,
 } from '../../../state/clientDetails/clientDetailsSlice';
-import { formatPhoneNumber } from '../../../utils/helpers/phoneNumberUtil';
+import {
+  formatPhoneNumber,
+  handlePhonePress,
+} from '../../../utils/helpers/phoneNumberUtil';
 
 export default function ClientDetailsHeader() {
   const client = useSelector(selectClientDetails);
   const clientProfilePicture = useSelector(selectClientProfilePicture);
   const clientFavorite = useSelector(selectClientFavorite);
-  const { showActionSheetWithOptions } = useActionSheet();
-
-  const handlePhonePress = () => {
-    const phoneNumber = client.client_contact.primary_phone;
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    const formattedPhone = formatPhoneNumber(phoneNumber);
-
-    const options = ['Call', 'Text', 'Cancel'];
-    const cancelButtonIndex = 2;
-
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: formattedPhone,
-        tintColor: '#007AFF',
-        containerStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        },
-        textStyle: {
-          fontSize: 18,
-        },
-      },
-      (selectedIndex) => {
-        switch (selectedIndex) {
-          case 0: // Call
-            Linking.openURL(`tel:${cleanPhone}`);
-            break;
-          case 1: // Text
-            Linking.openURL(`sms:${cleanPhone}`);
-            break;
-          case 2: // Cancel
-            // Do nothing
-            break;
-        }
-      },
-    );
-  };
 
   const handleAddressPress = () => {
     const { street_address, city, state, zip } = client.client_contact;
@@ -119,9 +83,14 @@ export default function ClientDetailsHeader() {
           )}
         </View>
 
-        <View className="flex-col h-22">
+        <View className="flex-col h-[72px]">
           <View className="flex-row h-5">
-            <TouchableOpacity onPress={handlePhonePress} onLongPress={() => {}}>
+            <TouchableOpacity
+              onPress={() =>
+                handlePhonePress(client.client_contact.primary_phone)
+              }
+              onLongPress={() => {}}
+            >
               <Text
                 className="text-base font-hn-regular text-blue-600"
                 selectable={true}

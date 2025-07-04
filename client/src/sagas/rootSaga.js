@@ -90,6 +90,12 @@ import { FETCH_HAIR_LENGTHS_ACTION_TYPE } from './prefilledData/petAttributes/fe
 import fetchHairLengthsSaga from './prefilledData/petAttributes/fetchHairLengths/fetchHairLengths';
 import { FETCH_SIZE_TIERS_ACTION_TYPE } from './prefilledData/petAttributes/fetchSizeTiers/action';
 import fetchSizeTiersSaga from './prefilledData/petAttributes/fetchSizeTiers/fetchSizeTiers';
+import { CREATE_VET_ACTION_TYPE } from './vets/createVet/action';
+import createVetSaga from './vets/createVet/createVet';
+import { DELETE_VET_ACTION_TYPE } from './vets/deleteVet/action';
+import deleteVetSaga from './vets/deleteVet/deleteVet';
+import { UPDATE_VET_ACTION_TYPE } from './vets/updateVet/action';
+import updateVetSaga from './vets/updateVet/updateVet';
 
 export default function* rootSaga() {
   yield all([
@@ -108,6 +114,10 @@ export default function* rootSaga() {
     takeLatest(FETCH_SIZE_TIERS_ACTION_TYPE, fetchSizeTiersSaga),
     takeLeading(CREATE_SIZE_TIER_ACTION_TYPE, createSizeTierSaga),
     takeLeading(DELETE_SIZE_TIER_ACTION_TYPE, deleteSizeTierSaga),
+
+    takeLeading(DELETE_VET_ACTION_TYPE, deleteVetSaga),
+    takeLeading(CREATE_VET_ACTION_TYPE, createVetSaga),
+    takeLeading(UPDATE_VET_ACTION_TYPE, updateVetSaga),
 
     takeEvery(CLIENTS_SEARCH_BY_ACTION_TYPE, clientsSearchBySaga),
     takeEvery(CLIENTS_FILTERED_BY_ACTION_TYPE, clientsFilteredBySaga),

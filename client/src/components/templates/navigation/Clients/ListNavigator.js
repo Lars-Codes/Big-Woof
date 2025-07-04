@@ -8,7 +8,10 @@ import FormHeaderRight from './Form/FormHeaderRight.js';
 import ListHeaderLeft from './List/ListHeaderLeft.js';
 import ListHeaderRight from './List/ListHeaderRight.js';
 import PetDetailsHeaderRight from './PetDetails/PetDetailsHeaderRight.js';
-import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice.js';
+import {
+  selectClientDetails,
+  selectClientVetDetails,
+} from '../../../../state/clientDetails/clientDetailsSlice.js';
 import {
   selectListType,
   setListType,
@@ -20,6 +23,7 @@ import PetDetails from '../../../pages/Pets/PetDetails.js';
 import Pets from '../../../pages/Pets/Pets.js';
 import ClientForm from '../../forms/Client/ClientForm.js';
 import PetForm from '../../forms/Pets/PetForm.js';
+import VetForm from '../../forms/Vets/VetForm.js';
 import HeaderSelector from '../helpers/HeaderSelector.js';
 import HeaderTitle from '../helpers/HeaderTitle.js';
 
@@ -29,6 +33,7 @@ export default function Navigator() {
   const dispatch = useDispatch();
   const clientDetails = useSelector(selectClientDetails);
   const petDetails = useSelector(selectPetDetails);
+  const vetDetails = useSelector(selectClientVetDetails);
   const listType = useSelector(selectListType);
 
   return (
@@ -99,6 +104,7 @@ export default function Navigator() {
           },
         })}
       />
+
       <Stack.Screen
         name="PetDetails"
         component={PetDetails}
@@ -116,6 +122,22 @@ export default function Navigator() {
           gestureEnabled: false,
           headerTitle: () => (
             <HeaderTitle title={petDetails ? 'Edit Pet' : 'Add Pet'} />
+          ),
+          headerRight: () => <FormHeaderRight navigation={navigation} />,
+          headerStyle: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          },
+        })}
+      />
+
+      <Stack.Screen
+        name="VetForm"
+        component={VetForm}
+        options={({ navigation }) => ({
+          presentation: 'modal',
+          gestureEnabled: false,
+          headerTitle: () => (
+            <HeaderTitle title={vetDetails ? 'Edit Vet' : 'Add Vet'} />
           ),
           headerRight: () => <FormHeaderRight navigation={navigation} />,
           headerStyle: {

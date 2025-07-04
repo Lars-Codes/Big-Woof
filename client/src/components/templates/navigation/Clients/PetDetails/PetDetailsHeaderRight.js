@@ -4,9 +4,12 @@ import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import { Text, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchClientDetailsAction } from '../../../../../sagas/clients/fetchClientDetails/action';
 import { deletePetProfilePictureAction } from '../../../../../sagas/pets/deletePetProfilePicture/action';
+import { deletePetsAction } from '../../../../../sagas/pets/deletePets/action';
 import { updatePetIsDeceasedAction } from '../../../../../sagas/pets/updatePetIsDeceased/action';
 import { uploadPetProfilePictureAction } from '../../../../../sagas/pets/uploadPetProfilePicture/action';
+import { selectClientDetails } from '../../../../../state/clientDetails/clientDetailsSlice';
 import {
   selectPetDetails,
   selectPetProfilePicture,
@@ -14,6 +17,7 @@ import {
 
 export default function PetDetailsHeaderRight({ navigation }) {
   const dispatch = useDispatch();
+  const clientDetails = useSelector(selectClientDetails);
   const petDetails = useSelector(selectPetDetails);
   const petProfilePicture = useSelector(selectPetProfilePicture);
   const { showActionSheetWithOptions } = useActionSheet();
@@ -103,6 +107,50 @@ export default function PetDetailsHeaderRight({ navigation }) {
     );
   };
 
+  const handleDeletePet = () => {
+    Alert.alert(
+      'Delete Pet',
+      `Are you sure you want to delete ${petDetails.pet_data.name}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(
+              deletePetsAction({
+                petIds: [petDetails.pet_data.id],
+                onSuccess: () => {
+                  if (clientDetails) {
+                    dispatch(
+                      fetchClientDetailsAction(
+                        clientDetails.client_data?.client_id,
+                      ),
+                    );
+                  }
+                  Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success,
+                  );
+                  navigation.goBack();
+                },
+                onError: (error) => {
+                  console.error('Failed to delete pet:', error);
+                  Alert.alert(
+                    'Error',
+                    'Failed to delete pet. Please try again.',
+                  );
+                },
+              }),
+            );
+          },
+        },
+      ],
+    );
+  };
+
   const handleCameraCapture = async () => {
     try {
       // Request camera permissions
@@ -172,19 +220,20 @@ export default function PetDetailsHeaderRight({ navigation }) {
       'Upload from Gallery',
       'Delete Profile Picture',
       'Edit Pet',
+      'Delete Pet',
       'Cancel',
     ];
 
     const cancelButtonIndex = options.length - 1;
-
-    // Disable the delete option if no profile picture exists
     const disabledButtonIndices = petProfilePicture ? [] : [3];
+    const destructiveButtonIndex = 5;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex,
         disabledButtonIndices,
+        destructiveButtonIndex,
         tintColor: '#007AFF',
         containerStyle: {
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -225,6 +274,10 @@ export default function PetDetailsHeaderRight({ navigation }) {
             break;
           }
           case 5: {
+            handleDeletePet();
+            break;
+          }
+          case 6: {
             break;
           }
         }

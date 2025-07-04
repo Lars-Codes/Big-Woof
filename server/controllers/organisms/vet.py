@@ -52,10 +52,11 @@ def updateVetContact():
 
 @vet_bp.route('/deleteVet', methods=["DELETE"])
 def deleteVet():
-    client_id = request.form.get('client_id')
-    vet_id = request.form.get('vet_id')
-
     try:
+        data = request.get_json()
+        
+        client_id = data.get('client_id')
+        vet_id = data.get('vet_id')
         res = Vet.delete_vet(client_id, vet_id)
         return res
     except Exception as e:

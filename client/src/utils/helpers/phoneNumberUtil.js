@@ -1,3 +1,5 @@
+import { Linking, Alert } from 'react-native';
+
 export function formatPhoneNumber(phoneNumber) {
   //given a phone number, format it to (XXX) XXX-XXXX or +1 (XXX) XXX-XXXX
   if (!phoneNumber) return '';
@@ -31,3 +33,23 @@ export function validatePhoneNumber(phoneNumber) {
   }
   return false;
 }
+
+export const handlePhonePress = (phoneNumber) => {
+  const cleanPhone = phoneNumber.replace(/\D/g, '');
+  const formattedPhone = formatPhoneNumber(phoneNumber);
+
+  Alert.alert('Contact', formattedPhone, [
+    {
+      text: 'Call',
+      onPress: () => Linking.openURL(`tel:${cleanPhone}`),
+    },
+    {
+      text: 'Text',
+      onPress: () => Linking.openURL(`sms:${cleanPhone}`),
+    },
+    {
+      text: 'Cancel',
+      style: 'cancel',
+    },
+  ]);
+};

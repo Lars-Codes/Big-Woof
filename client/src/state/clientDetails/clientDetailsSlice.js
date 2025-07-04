@@ -6,6 +6,8 @@ export const clientDetailsSlice = createSlice({
     loading: true,
     clientDetails: null,
     clientPets: [],
+    clientVets: [],
+    clientVetDetails: null,
     clientProfilePicture: null,
     clientSelectedInfo: 'pets',
     clientStats: null,
@@ -19,6 +21,18 @@ export const clientDetailsSlice = createSlice({
     setClientDetails: (state, action) => {
       state.clientDetails = action.payload;
       state.clientPets = action.payload?.pets || [];
+      state.clientVets = action.payload?.client_vets || [];
+    },
+    removeClientVet: (state, action) => {
+      const vetId = action.payload;
+      state.clientVets = state.clientVets.filter((vet) => vet.id !== vetId);
+      if (state.clientDetails?.client_vets) {
+        state.clientDetails.client_vets =
+          state.clientDetails.client_vets.filter((vet) => vet.id !== vetId);
+      }
+    },
+    setClientVetDetails: (state, action) => {
+      state.clientVetDetails = action.payload;
     },
     setClientFavorite: (state, action) => {
       if (state.clientDetails) {
@@ -46,6 +60,9 @@ export const clientDetailsSlice = createSlice({
 export const {
   setLoading,
   setClientDetails,
+  removeClientPet,
+  removeClientVet,
+  setClientVetDetails,
   setClientFavorite,
   setClientProfilePicture,
   setClientSelectedInfo,
@@ -59,6 +76,9 @@ export const selectClientDetails = (state) => state.clientDetails.clientDetails;
 export const selectClientFavorite = (state) =>
   state.clientDetails.clientDetails?.client_data.favorite || false;
 export const selectClientPets = (state) => state.clientDetails.clientPets;
+export const selectClientVets = (state) => state.clientDetails.clientVets;
+export const selectClientVetDetails = (state) =>
+  state.clientDetails.clientVetDetails;
 export const selectClientProfilePicture = (state) =>
   state.clientDetails.clientProfilePicture;
 export const selectClientSelectedInfo = (state) =>
