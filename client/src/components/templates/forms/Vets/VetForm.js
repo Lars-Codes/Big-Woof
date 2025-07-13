@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { vetFormConfig } from './vetFormConfig';
+import { VetFormConfig } from './VetFormConfig';
 import { fetchClientDetailsAction } from '../../../../sagas/clients/fetchClientDetails/action';
 import { createVetAction } from '../../../../sagas/vets/createVet/action';
 import { updateVetAction } from '../../../../sagas/vets/updateVet/action';
@@ -68,15 +68,9 @@ export default function VetForm({ navigation }) {
     }
   };
 
-  // Modify config for edit mode
-  const config = {
-    ...vetFormConfig,
-    submitButtonText: vet ? 'Update Vet' : 'Create Vet',
-  };
-
   return (
     <DynamicForm
-      formConfig={config}
+      formConfig={VetFormConfig}
       initialData={vet}
       onSubmit={handleSubmit}
     />

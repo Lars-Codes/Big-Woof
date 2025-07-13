@@ -1,6 +1,5 @@
-import { call, put } from 'redux-saga/effects';
+import { call } from 'redux-saga/effects';
 import { api } from '../../../services/api';
-import { setUpdateClientResult } from '../../../state/clients/clientsSlice';
 
 export function* updateClientBasicData(action) {
   const { clientId, basicData } = action.payload;
@@ -64,8 +63,8 @@ export function* updateClientContactData(action) {
 }
 
 export default function* updateClient(action) {
-  const { clientData } = action.payload;
-  const clientId = clientData.client_id || action.payload.clientId;
+  const { clientData, onSuccess, onError } = action.payload;
+  const clientId = clientData.client_id;
 
   try {
     const results = [];
@@ -120,15 +119,26 @@ export default function* updateClient(action) {
       client_id: clientId,
     };
 
-    yield put(setUpdateClientResult(combinedResult));
+    if (
+      combinedResult.success &&
+      onSuccess &&
+      typeof onSuccess === 'function'
+    ) {
+      yield call(onSuccess, combinedResult);
+    } else if (
+      !combinedResult.success &&
+      onError &&
+      typeof onError === 'function'
+    ) {
+      yield call(onError, combinedResult);
+    }
+
+    return combinedResult;
   } catch (error) {
     console.error('Error updating client:', error);
-    yield put(
-      setUpdateClientResult({
-        success: 0,
-        message: 'Error updating client',
-        client_id: clientId,
-      }),
-    );
+
+    if (onError && typeof onError === 'function') {
+      yield call(onError, error);
+    }
   }
 }

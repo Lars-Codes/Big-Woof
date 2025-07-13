@@ -1,14 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
+import React, { useMemo } from 'react';
+import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { ClientFormConfig } from './ClientFormConfig';
 import { createClientAction } from '../../../../sagas/clients/createClient/action';
 import { fetchClientAppointmentsAction } from '../../../../sagas/clients/fetchClientAppointments/action';
 import { fetchClientDetailsAction } from '../../../../sagas/clients/fetchClientDetails/action';
@@ -18,410 +11,128 @@ import { fetchClientsAction } from '../../../../sagas/clients/fetchClients/actio
 import { fetchClientStatsAction } from '../../../../sagas/clients/fetchClientStats/action';
 import { updateClientAction } from '../../../../sagas/clients/updateClient/action';
 import { selectClientDetails } from '../../../../state/clientDetails/clientDetailsSlice';
-import {
-  setCreateClientResult,
-  selectCreateClientResult,
-  selectUpdateClientResult,
-  selectLoading,
-  setUpdateClientResult,
-} from '../../../../state/clients/clientsSlice';
-import { validateEmail } from '../../../../utils/helpers/emailUtil';
-import { validatePhoneNumber } from '../../../../utils/helpers/phoneNumberUtil';
-import CustomTextInput from '../../../atoms/CustomTextInput/CustomTextInput';
+import { selectLoading } from '../../../../state/clients/clientsSlice';
+import DynamicForm from '../DynamicForm';
 
 export default function ClientForm({ navigation }) {
   const dispatch = useDispatch();
   const client = useSelector(selectClientDetails);
-  const createClientResult = useSelector(selectCreateClientResult);
-  const updateClientResult = useSelector(selectUpdateClientResult);
   const loading = useSelector(selectLoading);
 
-  const fnameRef = useRef(null);
-  const lnameRef = useRef(null);
-  const phoneRef = useRef(null);
-  const emailRef = useRef(null);
-  const streetRef = useRef(null);
-  const cityRef = useRef(null);
-  const stateRef = useRef(null);
-  const zipRef = useRef(null);
-  const secondaryPhoneRef = useRef(null);
+  // Create dynamic config with populated options
+  const dynamicConfig = useMemo(() => {
+    const config = { ...ClientFormConfig };
 
-  const [form, setForm] = useState({
-    fname: '',
-    lname: '',
-    phone_number: '',
-    email: '',
-    street_address: '',
-    city: '',
-    state: '',
-    zip: '',
-    secondary_phone: '',
-  });
+    // Update form title based on edit mode
+    config.submitButtonText = client?.client_data
+      ? 'Update Client'
+      : 'Create Client';
 
-  const [errors, setErrors] = useState({
-    fname: false,
-    lname: false,
-    phone_number: false,
-    email: false,
-    secondary_phone: false,
-  });
-
-  const [errorMessages, setErrorMessages] = useState({
-    fname: '',
-    lname: '',
-    phone_number: '',
-    email: '',
-    secondary_phone: '',
-  });
-
-  // If editing, pre-fill form with client data
-  useEffect(() => {
-    if (client) {
-      setForm({
-        fname: client.client_data?.fname || '',
-        lname: client.client_data?.lname || '',
-        phone_number: client.client_contact?.primary_phone || '',
-        email: client.client_contact?.email || '',
-        street_address: client.client_contact?.street_address || '',
-        city: client.client_contact?.city || '',
-        state: client.client_contact?.state || '',
-        zip: client.client_contact?.zip || '',
-        secondary_phone: client.client_contact?.secondary_phone || '',
-      });
-    }
+    return config;
   }, [client]);
 
-  useEffect(() => {
-    if (createClientResult) {
-      if (createClientResult.success) {
-        dispatch(fetchClientsAction());
-        Alert.alert(
-          'Success',
-          'Client created successfully!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.goBack();
-                dispatch(setCreateClientResult(null));
-                setForm({
-                  fname: '',
-                  lname: '',
-                  phone_number: '',
-                  email: '',
-                  street_address: '',
-                  city: '',
-                  state: '',
-                  zip: '',
-                  secondary_phone: '',
-                });
+  // Prepare initial data for editing
+  const initialData = useMemo(() => {
+    if (!client?.client_data) return null;
+
+    return {
+      fname: client.client_data?.fname || '',
+      lname: client.client_data?.lname || '',
+      phone_number: client.client_contact?.primary_phone || '',
+      email: client.client_contact?.email || '',
+      street_address: client.client_contact?.street_address || '',
+      city: client.client_contact?.city || '',
+      state: client.client_contact?.state || '',
+      zip: client.client_contact?.zip || '',
+      secondary_phone: client.client_contact?.secondary_phone || '',
+    };
+  }, [client]);
+
+  const handleSubmit = (formData) => {
+    if (client?.client_data) {
+      // Update existing client
+      const updatedForm = {
+        ...formData,
+        client_id: client.client_data.client_id,
+      };
+      dispatch(
+        updateClientAction({
+          clientData: updatedForm,
+          onSuccess: () => {
+            // Refresh all client data
+            dispatch(fetchClientsAction());
+            dispatch(fetchClientDetailsAction(client.client_data.client_id));
+            dispatch(fetchClientStatsAction(client.client_data.client_id));
+            dispatch(fetchClientDocumentsAction(client.client_data.client_id));
+            dispatch(
+              fetchClientAppointmentsAction(client.client_data.client_id),
+            );
+            dispatch(
+              fetchClientProfilePictureAction(client.client_data.client_id),
+            );
+            Alert.alert('Success', 'Client updated successfully!', [
+              {
+                text: 'OK',
+                onPress: () => {
+                  navigation.goBack();
+                },
               },
-            },
-            {
-              text: 'View Client',
-              onPress: () => {
-                dispatch(
-                  fetchClientDetailsAction(createClientResult.client_id),
-                );
-                dispatch(fetchClientStatsAction(createClientResult.client_id));
-                dispatch(
-                  fetchClientDocumentsAction(createClientResult.client_id),
-                );
-                dispatch(
-                  fetchClientAppointmentsAction(createClientResult.client_id),
-                );
-                dispatch(
-                  fetchClientProfilePictureAction(createClientResult.client_id),
-                );
-                navigation.goBack();
-                navigation.navigate('ClientDetails');
-                setForm({
-                  fname: '',
-                  lname: '',
-                  phone_number: '',
-                  email: '',
-                  street_address: '',
-                  city: '',
-                  state: '',
-                  zip: '',
-                  secondary_phone: '',
-                });
-              },
-            },
-          ],
-          { cancelable: false },
-        );
-      } else {
-        Alert.alert(
-          'Error',
-          createClientResult.message || 'Failed to create client.',
-        );
-      }
-      dispatch(setCreateClientResult(null));
-    }
-  }, [createClientResult, dispatch, form]);
-
-  useEffect(() => {
-    if (updateClientResult) {
-      if (updateClientResult.success) {
-        dispatch(fetchClientsAction());
-        dispatch(fetchClientDetailsAction(updateClientResult.client_id));
-        dispatch(fetchClientStatsAction(updateClientResult.client_id));
-        dispatch(fetchClientDocumentsAction(updateClientResult.client_id));
-        dispatch(fetchClientAppointmentsAction(updateClientResult.client_id));
-        dispatch(fetchClientProfilePictureAction(updateClientResult.client_id));
-        Alert.alert(
-          'Success',
-          'Client updated successfully!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.goBack();
-                dispatch(setUpdateClientResult(null));
-                setForm({
-                  fname: '',
-                  lname: '',
-                  phone_number: '',
-                  email: '',
-                  street_address: '',
-                  city: '',
-                  state: '',
-                  zip: '',
-                  secondary_phone: '',
-                });
-              },
-            },
-          ],
-          { cancelable: false },
-        );
-      } else {
-        Alert.alert(
-          'Error',
-          updateClientResult.message || 'Failed to update client.',
-        );
-      }
-      dispatch(setUpdateClientResult(null));
-    }
-  }, [updateClientResult, dispatch]);
-
-  // Handle input changes
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: false }));
-      setErrorMessages((prev) => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    const newErrorMessages = {};
-    let isValid = true;
-
-    // Validate required fields
-    if (!form.fname.trim()) {
-      newErrors.fname = true;
-      newErrorMessages.fname = 'First name is required';
-      isValid = false;
-    }
-
-    if (!form.lname.trim()) {
-      newErrors.lname = true;
-      newErrorMessages.lname = 'Last name is required';
-      isValid = false;
-    }
-
-    if (!form.phone_number.trim()) {
-      newErrors.phone_number = true;
-      newErrorMessages.phone_number = 'Phone number is required';
-      isValid = false;
-    } else if (!validatePhoneNumber(form.phone_number)) {
-      newErrors.phone_number = true;
-      newErrorMessages.phone_number = 'Please enter a valid phone number';
-      isValid = false;
-    }
-
-    // Validate email if provided
-    if (form.email.trim() && !validateEmail(form.email)) {
-      newErrors.email = true;
-      newErrorMessages.email = 'Please enter a valid email address';
-      isValid = false;
-    }
-
-    // Validate secondary phone if provided
-    if (
-      form.secondary_phone.trim() &&
-      !validatePhoneNumber(form.secondary_phone)
-    ) {
-      newErrors.secondary_phone = true;
-      newErrorMessages.secondary_phone =
-        'Please enter a valid secondary phone number';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    setErrorMessages(newErrorMessages);
-    return isValid;
-  };
-
-  const handleSubmit = () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    if (client && client.client_data) {
-      // append the client_id to the form data
-      const updatedForm = { ...form, client_id: client.client_data.client_id };
-      dispatch(updateClientAction({ clientData: updatedForm }));
+            ]);
+          },
+          onError: (error) => {
+            Alert.alert(
+              'Error',
+              `Failed to update client: ${error.message || 'Please try again.'}`,
+            );
+          },
+        }),
+      );
     } else {
-      dispatch(createClientAction({ clientData: form }));
+      // Create new client
+      dispatch(
+        createClientAction({
+          clientData: formData,
+          onSuccess: (result) => {
+            dispatch(fetchClientsAction());
+            Alert.alert('Success', 'Client created successfully!', [
+              {
+                text: 'OK',
+                onPress: () => {
+                  navigation.goBack();
+                },
+              },
+              {
+                text: 'View Client',
+                onPress: () => {
+                  // Fetch all client data for the new client
+                  dispatch(fetchClientDetailsAction(result.client_id));
+                  dispatch(fetchClientStatsAction(result.client_id));
+                  dispatch(fetchClientDocumentsAction(result.client_id));
+                  dispatch(fetchClientAppointmentsAction(result.client_id));
+                  dispatch(fetchClientProfilePictureAction(result.client_id));
+                  navigation.goBack();
+                  navigation.navigate('ClientDetails');
+                },
+              },
+            ]);
+          },
+          onError: (error) => {
+            Alert.alert(
+              'Error',
+              `Failed to create client: ${error.message || 'Please try again.'}`,
+            );
+          },
+        }),
+      );
     }
-  };
-
-  const isFormValid = () => {
-    return (
-      form.fname.trim() !== '' &&
-      form.lname.trim() !== '' &&
-      form.phone_number.trim() !== ''
-    );
-  };
-
-  const dismissKeyboard = () => {
-    Keyboard.dismiss();
   };
 
   return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <View className="flex-1 bg-white">
-        <ScrollView
-          className="flex-1 px-4 mt-20"
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets={true}
-        >
-          <CustomTextInput
-            ref={fnameRef}
-            value={form.fname}
-            onChangeText={(text) => handleChange('fname', text)}
-            label="First Name"
-            placeholder="Enter first name"
-            required
-            error={errors.fname}
-            errorMessage={errorMessages.fname}
-            returnKeyType="next"
-            onSubmitEditing={() => lnameRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={lnameRef}
-            value={form.lname}
-            onChangeText={(text) => handleChange('lname', text)}
-            label="Last Name"
-            placeholder="Enter last name"
-            required
-            error={errors.lname}
-            errorMessage={errorMessages.lname}
-            returnKeyType="next"
-            onSubmitEditing={() => phoneRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={phoneRef}
-            value={form.phone_number}
-            onChangeText={(text) => handleChange('phone_number', text)}
-            label="Phone Number"
-            placeholder="(555) 123-4567"
-            required
-            error={errors.phone_number}
-            errorMessage={errorMessages.phone_number}
-            returnKeyType="next"
-            onSubmitEditing={() => emailRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={emailRef}
-            value={form.email}
-            onChangeText={(text) => handleChange('email', text)}
-            label="Email Address"
-            placeholder="email@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-            errorMessage={errorMessages.email}
-            returnKeyType="next"
-            onSubmitEditing={() => streetRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={streetRef}
-            value={form.street_address}
-            onChangeText={(text) => handleChange('street_address', text)}
-            label="Street Address"
-            placeholder="123 Main Street"
-            returnKeyType="next"
-            onSubmitEditing={() => cityRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={cityRef}
-            value={form.city}
-            onChangeText={(text) => handleChange('city', text)}
-            label="City"
-            placeholder="Enter city"
-            returnKeyType="next"
-            onSubmitEditing={() => stateRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={stateRef}
-            value={form.state}
-            onChangeText={(text) => handleChange('state', text)}
-            label="State"
-            placeholder="Enter state"
-            returnKeyType="next"
-            onSubmitEditing={() => zipRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={zipRef}
-            value={form.zip}
-            onChangeText={(text) => handleChange('zip', text)}
-            label="ZIP Code"
-            placeholder="12345"
-            returnKeyType="next"
-            onSubmitEditing={() => secondaryPhoneRef.current?.focus()}
-          />
-
-          <CustomTextInput
-            ref={secondaryPhoneRef}
-            value={form.secondary_phone}
-            onChangeText={(text) => handleChange('secondary_phone', text)}
-            label="Secondary Phone"
-            placeholder="(555) 987-6543"
-            error={errors.secondary_phone}
-            errorMessage={errorMessages.secondary_phone}
-            returnKeyType="done"
-            onSubmitEditing={() => Keyboard.dismiss()}
-          />
-        </ScrollView>
-
-        <TouchableOpacity
-          onPress={handleSubmit}
-          className="bg-blue-500 p-4 items-center"
-          disabled={!isFormValid() || loading}
-          style={{
-            opacity: isFormValid() && !loading ? 1 : 0.5,
-          }}
-        >
-          <Text className="font-hn-bold text-white text-2xl mb-4">
-            {client && client.client_data ? 'Update Client' : 'Create Client'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableWithoutFeedback>
+    <DynamicForm
+      formConfig={dynamicConfig}
+      initialData={initialData}
+      onSubmit={handleSubmit}
+      loading={loading}
+    />
   );
 }

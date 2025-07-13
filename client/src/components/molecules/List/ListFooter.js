@@ -113,13 +113,32 @@ export default function ListFooter() {
           {
             text: 'Delete',
             onPress: () => {
-              dispatch(deleteClientsAction(selectedIds));
-              // Cancel both delete modes
-              dispatch(ClientsSlice.setDeleteMode(false));
-              dispatch(PetSlice.setDeleteMode(false));
-              // Success haptic feedback after deletion
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success,
+              dispatch(
+                deleteClientsAction({
+                  clientIds: selectedIds,
+                  onSuccess: () => {
+                    // Cancel both delete modes
+                    dispatch(ClientsSlice.setDeleteMode(false));
+                    dispatch(PetSlice.setDeleteMode(false));
+                    // Success haptic feedback after deletion
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success,
+                    );
+                    // Optional: Show success message
+                    // Alert.alert('Success', `${selectedCount} client${selectedCount > 1 ? 's' : ''} deleted successfully!`);
+                  },
+                  onError: (error) => {
+                    // Error haptic feedback
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Error,
+                    );
+                    Alert.alert(
+                      'Delete Failed',
+                      `Failed to delete selected clients. Please try again.`,
+                    );
+                    console.error('Error deleting clients:', error);
+                  },
+                }),
               );
             },
             style: 'destructive',
@@ -142,13 +161,32 @@ export default function ListFooter() {
           {
             text: 'Delete',
             onPress: () => {
-              dispatch(deletePetsAction(selectedIds));
-              // Cancel both delete modes
-              dispatch(ClientsSlice.setDeleteMode(false));
-              dispatch(PetSlice.setDeleteMode(false));
-              // Success haptic feedback after deletion
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success,
+              dispatch(
+                deletePetsAction({
+                  petIds: selectedIds,
+                  onSuccess: () => {
+                    // Cancel both delete modes
+                    dispatch(ClientsSlice.setDeleteMode(false));
+                    dispatch(PetSlice.setDeleteMode(false));
+                    // Success haptic feedback after deletion
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success,
+                    );
+                    // Optional: Show success message
+                    // Alert.alert('Success', `${selectedCount} pet${selectedCount > 1 ? 's' : ''} deleted successfully!`);
+                  },
+                  onError: (error) => {
+                    // Error haptic feedback
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Error,
+                    );
+                    Alert.alert(
+                      'Delete Failed',
+                      `Failed to delete selected pets. Please try again.`,
+                    );
+                    console.error('Error deleting pets:', error);
+                  },
+                }),
               );
             },
             style: 'destructive',

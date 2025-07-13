@@ -121,7 +121,9 @@ export default function Navigator() {
           presentation: 'modal',
           gestureEnabled: false,
           headerTitle: () => (
-            <HeaderTitle title={petDetails ? 'Edit Pet' : 'Add Pet'} />
+            <HeaderTitle
+              title={petDetails?.pet_data ? 'Edit Pet' : 'Add Pet'}
+            />
           ),
           headerRight: () => <FormHeaderRight navigation={navigation} />,
           headerStyle: {

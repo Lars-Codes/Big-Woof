@@ -1,19 +1,18 @@
 import { validateEmail } from '../../../../utils/helpers/emailUtil';
 import { validatePhoneNumber } from '../../../../utils/helpers/phoneNumberUtil';
 
-export const VetFormConfig = {
-  submitButtonText: 'Save Vet',
+export const ClientFormConfig = {
+  submitButtonText: 'Save Client',
   initialFormState: {
     fname: '',
     lname: '',
-    primary_phone: '',
-    secondary_phone: '',
+    phone_number: '',
     email: '',
     street_address: '',
     city: '',
     state: '',
     zip: '',
-    notes: '',
+    secondary_phone: '',
   },
   fields: [
     {
@@ -31,9 +30,9 @@ export const VetFormConfig = {
       required: true,
     },
     {
-      name: 'primary_phone',
+      name: 'phone_number',
       type: 'phone',
-      label: 'Primary Phone',
+      label: 'Phone Number',
       placeholder: '(555) 123-4567',
       required: true,
       keyboardType: 'phone-pad',
@@ -43,21 +42,10 @@ export const VetFormConfig = {
       }),
     },
     {
-      name: 'secondary_phone',
-      type: 'phone',
-      label: 'Secondary Phone',
-      placeholder: '(555) 987-6543',
-      keyboardType: 'phone-pad',
-      validation: (value) => ({
-        isValid: !value || validatePhoneNumber(value),
-        message: 'Please enter a valid phone number',
-      }),
-    },
-    {
       name: 'email',
       type: 'email',
       label: 'Email Address',
-      placeholder: 'vet@example.com',
+      placeholder: 'email@example.com',
       keyboardType: 'email-address',
       autoCapitalize: 'none',
       validation: (value) => ({
@@ -91,10 +79,15 @@ export const VetFormConfig = {
       keyboardType: 'numeric',
     },
     {
-      name: 'notes',
-      type: 'text',
-      label: 'Notes',
-      placeholder: 'Enter any notes about the vet',
+      name: 'secondary_phone',
+      type: 'phone',
+      label: 'Secondary Phone',
+      placeholder: '(555) 987-6543',
+      keyboardType: 'phone-pad',
+      validation: (value) => ({
+        isValid: !value || validatePhoneNumber(value),
+        message: 'Please enter a valid secondary phone number',
+      }),
     },
   ],
 };

@@ -16,17 +16,10 @@ export const petsSlice = createSlice({
 
     deleteMode: false,
 
-    createPetResult: null,
-    updatePetResult: null,
-
     breeds: [],
-    createBreedResult: null,
     coatTypes: [],
-    createCoatTypeResult: null,
     sizeTiers: [],
-    createSizeTierResult: null,
     hairLengths: [],
-    createHairLengthResult: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -206,12 +199,6 @@ export const petsSlice = createSlice({
         }
       });
     },
-    setCreatePetResult: (state, action) => {
-      state.createPetResult = action.payload;
-    },
-    setUpdatePetResult: (state, action) => {
-      state.updatePetResult = action.payload;
-    },
     updatePetDeceased: (state, action) => {
       const { petId, isDeceased } = action.payload;
       [
@@ -235,9 +222,6 @@ export const petsSlice = createSlice({
       const breedId = action.payload;
       state.breeds = state.breeds.filter((breed) => breed.breed_id !== breedId);
     },
-    setCreateBreedResult: (state, action) => {
-      state.createBreedResult = action.payload;
-    },
     setCoatTypes: (state, action) => {
       state.coatTypes = action.payload;
     },
@@ -246,9 +230,6 @@ export const petsSlice = createSlice({
       state.coatTypes = state.coatTypes.filter(
         (coatType) => coatType.coat_type_id !== coatTypeId,
       );
-    },
-    setCreateCoatTypeResult: (state, action) => {
-      state.createCoatTypeResult = action.payload;
     },
     setSizeTiers: (state, action) => {
       state.sizeTiers = action.payload;
@@ -259,9 +240,6 @@ export const petsSlice = createSlice({
         (sizeTier) => sizeTier.size_tier_id !== sizeTierId,
       );
     },
-    setCreateSizeTierResult: (state, action) => {
-      state.createSizeTierResult = action.payload;
-    },
     setHairLengths: (state, action) => {
       state.hairLengths = action.payload;
     },
@@ -270,9 +248,6 @@ export const petsSlice = createSlice({
       state.hairLengths = state.hairLengths.filter(
         (hairLength) => hairLength.hair_length_id !== hairLengthId,
       );
-    },
-    setCreateHairLengthResult: (state, action) => {
-      state.createHairLengthResult = action.payload;
     },
   },
 });
@@ -294,21 +269,15 @@ export const {
   selectAllPets,
   deselectAllPets,
   batchUpdateSelection,
-  setCreatePetResult,
-  setUpdatePetResult,
   updatePetDeceased,
   setBreeds,
   removeBreed,
-  setCreateBreedResult,
   setCoatTypes,
   removeCoatType,
-  setCreateCoatTypeResult,
   setSizeTiers,
   removeSizeTier,
-  setCreateSizeTierResult,
   setHairLengths,
   removeHairLength,
-  setCreateHairLengthResult,
 } = petsSlice.actions;
 
 export const selectLoading = (state) => state.pets.loading;
@@ -322,19 +291,10 @@ export const selectPetsResultSet = (state) => state.pets.petsResultSet;
 export const selectSearchResultSet = (state) => state.pets.searchResultSet;
 export const selectSearchedResultSet = (state) => state.pets.searchedResultSet;
 export const selectDeleteMode = (state) => state.pets.deleteMode;
-export const selectCreatePetResult = (state) => state.pets.createPetResult;
-export const selectUpdatePetResult = (state) => state.pets.updatePetResult;
 export const selectBreeds = (state) => state.pets.breeds;
-export const selectCreateBreedResult = (state) => state.pets.createBreedResult;
 export const selectCoatTypes = (state) => state.pets.coatTypes;
-export const selectCreateCoatTypeResult = (state) =>
-  state.pets.createCoatTypeResult;
 export const selectSizeTiers = (state) => state.pets.sizeTiers;
-export const selectCreateSizeTierResult = (state) =>
-  state.pets.createSizeTierResult;
 export const selectHairLengths = (state) => state.pets.hairLengths;
-export const selectCreateHairLengthResult = (state) =>
-  state.pets.createHairLengthResult;
 
 export const selectSelectedPets = createSelector(
   [(state) => state.pets.petsResultSet],

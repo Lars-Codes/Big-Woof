@@ -13,11 +13,7 @@ export const clientsSlice = createSlice({
     clientsResultSet: [],
     searchResultSet: [],
     searchedResultSet: null,
-
     deleteMode: false,
-
-    createClientResult: null,
-    updateClientResult: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -208,12 +204,6 @@ export const clientsSlice = createSlice({
         }
       });
     },
-    setCreateClientResult: (state, action) => {
-      state.createClientResult = action.payload;
-    },
-    setUpdateClientResult: (state, action) => {
-      state.updateClientResult = action.payload;
-    },
     updateClientFavorite: (state, action) => {
       const { clientId, isFavorite } = action.payload;
       [
@@ -251,8 +241,6 @@ export const {
   selectAllClients,
   deselectAllClients,
   batchUpdateSelection,
-  setCreateClientResult,
-  setUpdateClientResult,
   updateClientFavorite,
 } = clientsSlice.actions;
 
@@ -269,10 +257,6 @@ export const selectSearchResultSet = (state) => state.clients.searchResultSet;
 export const selectSearchedResultSet = (state) =>
   state.clients.searchedResultSet;
 export const selectDeleteMode = (state) => state.clients.deleteMode;
-export const selectCreateClientResult = (state) =>
-  state.clients.createClientResult;
-export const selectUpdateClientResult = (state) =>
-  state.clients.updateClientResult;
 
 export const selectSelectedClients = createSelector(
   [(state) => state.clients.clientsResultSet],

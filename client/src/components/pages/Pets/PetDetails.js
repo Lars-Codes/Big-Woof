@@ -5,7 +5,7 @@ import {
   CircleSmall,
   ShieldQuestion,
 } from 'lucide-react-native';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePetAction } from '../../../sagas/pets/updatePet/action';
@@ -14,10 +14,6 @@ import {
   selectLoading,
   setGender,
 } from '../../../state/petDetails/petDetailsSlice';
-import {
-  selectUpdatePetResult,
-  setUpdatePetResult,
-} from '../../../state/pets/petsSlice';
 import CustomDropdown from '../../atoms/CustomDropdown/CustomDropdown';
 import PetProfilePicture from '../../atoms/PetProfilePicture/PetProfilePicture';
 
@@ -25,11 +21,6 @@ export default function PetDetails() {
   const dispatch = useDispatch();
   const loading = useSelector(selectLoading);
   const pet = useSelector(selectPetDetails);
-  const updatePetResult = useSelector(selectUpdatePetResult);
-
-  useEffect(() => {
-    dispatch(setUpdatePetResult(null));
-  }, [updatePetResult, dispatch]);
 
   const formatFieldName = (key) => {
     return key

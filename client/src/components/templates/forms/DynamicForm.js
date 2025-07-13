@@ -118,15 +118,23 @@ export default function DynamicForm({
             required={field.required}
             keyboardType={field.keyboardType}
             autoCapitalize={field.autoCapitalize}
+            multiline={field.multiline}
+            numberOfLines={field.numberOfLines}
             returnKeyType={
-              index === formConfig.fields.length - 1 ? 'done' : 'next'
+              field.multiline
+                ? 'default'
+                : index === formConfig.fields.length - 1
+                  ? 'done'
+                  : 'next'
             }
             onSubmitEditing={() => {
-              const nextRef = getNextFieldRef(index);
-              if (nextRef) {
-                nextRef.current?.focus();
-              } else {
-                Keyboard.dismiss();
+              if (!field.multiline) {
+                const nextRef = getNextFieldRef(index);
+                if (nextRef) {
+                  nextRef.current?.focus();
+                } else {
+                  Keyboard.dismiss();
+                }
               }
             }}
           />

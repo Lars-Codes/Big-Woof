@@ -1,9 +1,9 @@
-import { call, put } from 'redux-saga/effects';
+import { call } from 'redux-saga/effects';
 import { api } from '../../../services/api';
-import { setCreateClientResult } from '../../../state/clients/clientsSlice';
 
 export default function* createClient(action) {
-  const { clientData } = action.payload;
+  const { clientData, onSuccess, onError } = action.payload;
+
   try {
     const formData = new FormData();
     Object.entries(clientData).forEach(([key, value]) => {
@@ -11,14 +11,22 @@ export default function* createClient(action) {
         formData.append(key, value.toString());
       }
     });
+
     const res = yield call(api, '/createClient', 'POST', formData, {
       'Content-Type': 'multipart/form-data',
     });
-    yield put(setCreateClientResult(res));
+
+    if (res?.success && onSuccess && typeof onSuccess === 'function') {
+      yield call(onSuccess, res);
+    } else if (!res?.success && onError && typeof onError === 'function') {
+      yield call(onError, res);
+    }
+
+    return res;
   } catch (error) {
     console.error('Error creating client:', error);
-    yield put(
-      setCreateClientResult({ success: 0, message: 'Error creating client' }),
-    );
+    if (onError && typeof onError === 'function') {
+      yield call(onError, error);
+    }
   }
 }

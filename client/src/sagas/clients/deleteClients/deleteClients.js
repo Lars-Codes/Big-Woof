@@ -4,23 +4,36 @@ import { removeClients, setLoading } from '../../../state/clients/clientsSlice';
 import processClientResultSet from '../processClientResultSet/processClientResultSet';
 import processClientSearchResultSet from '../processClientSearchResultSet/processClientSearchResultSet';
 
-export default function* deleteClient(action) {
-  const clientIds = action.payload;
+export default function* deleteClients(action) {
+  const { clientIds, onSuccess, onError } = action.payload;
+
   try {
-    // yield put(setLoading(true));
+    yield put(setLoading(true));
     const res = yield call(api, '/deleteClient', 'DELETE', {
       clientid_arr: clientIds,
     });
+
     if (res?.success) {
       yield put(removeClients(clientIds));
       yield call(processClientResultSet);
       yield call(processClientSearchResultSet);
+
+      if (onSuccess && typeof onSuccess === 'function') {
+        yield call(onSuccess, res);
+      }
     } else {
-      console.error('Failed to delete client:', res);
+      console.error('Failed to delete clients:', res);
+      if (onError && typeof onError === 'function') {
+        yield call(onError, res);
+      }
     }
+
     return res;
   } catch (error) {
-    console.error('Error deleting client:', error);
+    console.error('Error deleting clients:', error);
+    if (onError && typeof onError === 'function') {
+      yield call(onError, error);
+    }
   } finally {
     yield put(setLoading(false));
   }

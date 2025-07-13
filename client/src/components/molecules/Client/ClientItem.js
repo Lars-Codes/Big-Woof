@@ -142,10 +142,30 @@ export default memo(
             text: 'Delete',
             style: 'destructive',
             onPress: () => {
-              dispatch(deleteClientsAction([client.client_id]));
-              // Success haptic feedback
-              Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success,
+              dispatch(
+                deleteClientsAction({
+                  clientIds: [client.client_id],
+                  onSuccess: () => {
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success,
+                    );
+                    Alert.alert(
+                      'Success',
+                      `${client.fname} ${client.lname} has been deleted.`,
+                    );
+                  },
+                  onError: (error) => {
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Error,
+                    );
+                    Alert.alert(
+                      'Delete Failed',
+                      `Could not delete ${client.fname} ${client.lname}. This client may have associated data that needs to be removed first.`,
+                      [{ text: 'OK', style: 'default' }],
+                    );
+                    console.error('Error deleting client:', error);
+                  },
+                }),
               );
             },
           },
