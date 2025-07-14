@@ -2,10 +2,14 @@ import { CalendarDays } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectClientAppointments } from '../../../state/clientDetails/clientDetailsSlice';
+import {
+  selectClientAppointments,
+  selectClientStats,
+} from '../../../state/clientDetails/clientDetailsSlice';
 
 export default function ClientAppointmentsList() {
   const appointments = useSelector(selectClientAppointments);
+  const stats = useSelector(selectClientStats);
 
   if (!appointments) {
     return (
@@ -30,6 +34,10 @@ export default function ClientAppointmentsList() {
     recurring_appointments.length > 0 ||
     past_appointments_preview.length > 0 ||
     saved_appointment_config.length > 0;
+
+  const { payment_methods } = stats;
+
+  console.log('ClientAppointmentsList payment_methods:', payment_methods);
 
   if (!hasAnyAppointments) {
     return (
@@ -189,6 +197,25 @@ export default function ClientAppointmentsList() {
             >
               <Text className="text-lg font-hn-bold text-gray-800">
                 {config.saved_appointment_name}
+              </Text>
+            </View>
+          ))}
+        </>
+      )}
+
+      {/* Payment Methods */}
+      {payment_methods.length > 0 && (
+        <>
+          <Text className="text-xl font-hn-bold text-gray-800 mt-3 mb-2 px-2">
+            Payment Methods
+          </Text>
+          {payment_methods.map((method) => (
+            <View
+              className="bg-white rounded-lg p-4 mb-2"
+              key={method.payment_type_id}
+            >
+              <Text className="text-base font-hn-regular text-gray-800 capitalize">
+                {method.payment_type}
               </Text>
             </View>
           ))}

@@ -50,25 +50,9 @@ export default function ClientStatsList() {
 
   return (
     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-      {/* Payment Methods */}
-      {payment_methods.length > 0 && (
-        <View className="bg-white rounded-lg p-4 mt-4 mb-2">
-          <Text className="text-2xl font-hn-bold text-gray-800 mb-3">
-            Payment Methods
-          </Text>
-          {payment_methods.map((method) => (
-            <View key={method.payment_type_id} className="mb-1">
-              <Text className="text-base font-hn-regular text-gray-800 capitalize">
-                {method.payment_type}
-              </Text>
-            </View>
-          ))}
-        </View>
-      )}
-
       {/* Added Cost Per Service */}
       {added_cost_per_service.length > 0 && (
-        <View className="bg-white rounded-lg p-4 mb-2">
+        <View className="bg-white rounded-lg p-4 mt-4 mb-2">
           <Text className="text-2xl font-hn-bold text-gray-800 mb-3">
             Additional Service Costs
           </Text>

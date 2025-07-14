@@ -14,10 +14,10 @@ export default memo(function ClientDetailsInfoSelector() {
   const infoOptions = [
     { label: 'Pets', value: 'pets' },
     { label: 'Vets', value: 'vets' },
-    { label: 'Stats', value: 'statistics' },
     { label: 'Appt.', value: 'appointments' },
     { label: 'Docs', value: 'documents' },
     { label: 'Extra', value: 'extra' },
+    { label: 'Stats', value: 'statistics' },
   ];
 
   const selectedIndex = infoOptions.findIndex(

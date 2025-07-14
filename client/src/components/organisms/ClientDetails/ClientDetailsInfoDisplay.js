@@ -18,14 +18,14 @@ export default memo(function ClientDetailsInfoDisplay() {
         return <ClientPetsList />;
       case 'vets':
         return <ClientVetsList />;
-      case 'statistics':
-        return <ClientStatsList />;
       case 'appointments':
         return <ClientAppointmentsList />;
       case 'documents':
         return <ClientDocumentsList />;
       case 'extra':
         return <ClientECList />;
+      case 'statistics':
+        return <ClientStatsList />;
       default:
         return (
           <View className="flex-1 justify-center items-center">
