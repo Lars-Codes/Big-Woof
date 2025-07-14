@@ -47,6 +47,7 @@ export const clientDetailsSlice = createSlice({
     },
     setClientStats: (state, action) => {
       state.clientStats = action.payload;
+      console.log('Client stats updated:', action.payload);
     },
     setClientDocuments: (state, action) => {
       state.clientDocuments = action.payload;

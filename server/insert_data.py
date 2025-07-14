@@ -276,6 +276,126 @@ def create_data():
                     db.session.flush()
                     pets_created.append(pet)
                     pet_id = pet.id 
+                    
+                # Add this after creating pets and before creating appointments (around line 270)
+
+                # Create additional costs for services (1-3 records)
+                num_service_costs = random.randint(1, 3)
+                for cost_idx in range(num_service_costs):
+                    service_cost = AdditionalCosts(
+                        client_id=client.id,
+                        pet_id=None,
+                        appointment_id=None,
+                        added_for_service=1,  # This is for service
+                        added_for_mile=0,
+                        added_cost=round(random.uniform(5.0, 50.0), 2),
+                        is_percentage=random.choice([0, 1]),
+                        service=None,
+                        service_id=random.randint(1, 10),  # Assuming you have services 1-10
+                        added_cost_per_mile=None,
+                        added_cost_per_mile_is_percent=None,
+                        reason=random.choice([
+                            "Difficult coat condition",
+                            "Extra matting removal",
+                            "Behavioral issues",
+                            "Premium shampoo requested",
+                            "Additional time needed"
+                        ])
+                    )
+                    db.session.add(service_cost)
+                
+                # Create travel costs (0-2 records)
+                if random.choice([True, False]):
+                    num_travel_costs = random.randint(1, 2)
+                    for travel_idx in range(num_travel_costs):
+                        travel_cost = AdditionalCosts(
+                            client_id=client.id,
+                            pet_id=None,
+                            appointment_id=None,
+                            added_for_service=0,
+                            added_for_mile=1,  # This is for mileage
+                            added_cost=None,
+                            is_percentage=None,
+                            service=None,
+                            service_id=None,
+                            added_cost_per_mile=round(random.uniform(0.50, 2.00), 2),
+                            added_cost_per_mile_is_percent=random.choice([0, 1]),
+                            reason=random.choice([
+                                "Remote location",
+                                "Gas price adjustment",
+                                "Long distance travel",
+                                "Traffic compensation"
+                            ])
+                        )
+                        db.session.add(travel_cost)
+                
+                # Create other additional costs (1-2 records)
+                num_other_costs = random.randint(1, 2)
+                for other_idx in range(num_other_costs):
+                    other_cost = AdditionalCosts(
+                        client_id=client.id,
+                        pet_id=None,
+                        appointment_id=None,
+                        added_for_service=0,
+                        added_for_mile=0,
+                        added_cost=round(random.uniform(5.0, 30.0), 2),
+                        is_percentage=random.choice([0, 1]),
+                        service=None,
+                        service_id=None,
+                        added_cost_per_mile=None,
+                        added_cost_per_mile_is_percent=None,
+                        reason=random.choice([
+                            "Special equipment rental",
+                            "Emergency call fee",
+                            "Holiday surcharge",
+                            "Last minute booking fee",
+                            "Cleaning fee"
+                        ])
+                    )
+                    db.session.add(other_cost)
+                
+                # Create added time for services (1-3 records)
+                num_service_time = random.randint(1, 3)
+                for time_idx in range(num_service_time):
+                    service_time = AddedTime(
+                        client_id=client.id,
+                        pet_id=None,
+                        appointment_id=None,
+                        added_for_service=1,  # This is for service
+                        service_id=random.randint(1, 10),  # Assuming you have services 1-10
+                        time_type="minutes",
+                        additional_time=random.randint(15, 60),
+                        reason=random.choice([
+                            "Nervous pet needs extra time",
+                            "Heavy matting requires patience",
+                            "Senior pet needs gentle handling",
+                            "First-time client orientation",
+                            "Complex coat pattern"
+                        ])
+                    )
+                    db.session.add(service_time)
+                
+                # Create other added time (0-2 records)
+                if random.choice([True, False]):
+                    num_other_time = random.randint(1, 2)
+                    for other_time_idx in range(num_other_time):
+                        other_time = AddedTime(
+                            client_id=client.id,
+                            pet_id=None,
+                            appointment_id=None,
+                            added_for_service=0,
+                            service_id=None,
+                            time_type="minutes",
+                            additional_time=random.randint(10, 45),
+                            reason=random.choice([
+                                "Equipment setup time",
+                                "Client consultation",
+                                "Photo session",
+                                "Waiting for pet to calm down",
+                                "Cleanup after messy pet"
+                            ])
+                        )
+                        db.session.add(other_time)
                 
                 num_past_appointments = random.randint(2, 5)
                 for m in range(num_past_appointments):

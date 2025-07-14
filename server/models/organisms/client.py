@@ -45,8 +45,8 @@ class Client(db.Model):
 
     payment_types = db.relationship('ClientPaymentTypes', backref='client', lazy='select', cascade="all, delete", single_parent=True, foreign_keys='ClientPaymentTypes.client_id')
 
-    additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AdditionalCosts.client_id')
-    added_time = db.relationship('AddedTime', backref='client', lazy='select',  uselist=False, cascade="all, delete", single_parent=True, foreign_keys='AddedTime.client_id')
+    additional_costs = db.relationship('AdditionalCosts', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='AdditionalCosts.client_id')
+    added_time = db.relationship('AddedTime', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='AddedTime.client_id')
 
     files = db.relationship('ClientFiles', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='ClientFiles.client_id')
     sticky_notes = db.relationship('StickyNotes', backref='client', lazy='select', cascade="all, delete-orphan", foreign_keys='StickyNotes.client_id')
@@ -278,16 +278,16 @@ class Client(db.Model):
                         if a.added_for_service == 1: 
                             service_addition = {
                                 "id": a.id, 
-                                "service_name": a.service.name, 
-                                "added_cost": a.added_cost,
+                                "service_name": a.service.name if a.service else f"Service {a.service_id}", 
+                                "added_cost": float(a.added_cost) if a.added_cost else 0,
                                 "is_percentage": a.is_percentage,
                                 "reason": a.reason if a.reason else "",
                             }
                             clients_data["added_cost_per_service"].append(service_addition)
-                        if a.added_for_mile == 1: 
+                        elif a.added_for_mile == 1: 
                             mile_addition = {
                                 "id": a.id, 
-                                "added_cost_per_mile": a.added_cost_per_mile, 
+                                "added_cost_per_mile": float(a.added_cost_per_mile) if a.added_cost_per_mile else 0, 
                                 "is_percentage": a.added_cost_per_mile_is_percent, 
                                 "reason": a.reason if a.reason else "",
                             }
@@ -295,7 +295,7 @@ class Client(db.Model):
                         else: 
                             other_addition = {
                                 "id": a.id, 
-                                "added_cost": a.added_cost,
+                                "added_cost": float(a.added_cost) if a.added_cost else 0,
                                 "is_percentage": a.is_percentage,
                                 "reason": a.reason if a.reason else "",
                             }
@@ -305,16 +305,16 @@ class Client(db.Model):
                     for t in client.added_time:
                         if t.added_for_service == 1: 
                             time_data = {
-                                "service_name": t.service.name, 
-                                "additional_time": t.additional_time, 
-                                "time_type": "minutes", 
+                                "service_name": t.service.name if t.service else f"Service {t.service_id}", 
+                                "additional_time": float(t.additional_time) if t.additional_time else 0, 
+                                "time_type": t.time_type if t.time_type else "minutes", 
                                 "reason": t.reason if t.reason else "",
                             }
                             clients_data["added_time_per_service"].append(time_data)
                         else: 
                             time_data = {
-                                "additional_time": t.additional_time, 
-                                "time_type": "minutes", 
+                                "additional_time": float(t.additional_time) if t.additional_time else 0, 
+                                "time_type": t.time_type if t.time_type else "minutes", 
                                 "reason": t.reason if t.reason else "",
                             }
                             clients_data["added_time_other"].append(time_data)
@@ -327,7 +327,7 @@ class Client(db.Model):
             else:
                 return jsonify({
                     "success": 0, 
-                    "error": "No client found for client id: " + client_id, 
+                    "error": "No client found for client id: " + str(client_id), 
                 }) 
 
         except SQLAlchemyError as e:
@@ -339,9 +339,11 @@ class Client(db.Model):
         except Exception as e: 
             db.session.rollback()
             print(f"Unknown error: {e}")
+            import traceback
+            traceback.print_exc()
             return (
                 jsonify({"success": 0, "error": "Failed to fetch client cost and time data. Unknown error"}), 500,
-            )  
+            ) 
     
     @classmethod 
     def get_pet_appointment_metdata(cls, client, pet_id):

@@ -29,7 +29,16 @@ class AddedTime(db.Model):
     )
 
     
-    def __init__():
+        # In your AdditionalCosts model
+    def __init__(self, client_id=None, pet_id=None, appointment_id=None, added_for_service=0, service_id=None, time_type="minutes", additional_time=0, reason=None):
+        self.client_id = client_id
+        self.pet_id = pet_id
+        self.appointment_id = appointment_id
+        self.added_for_service = added_for_service
+        self.service_id = service_id
+        self.time_type = time_type
+        self.additional_time = additional_time
+        self.reason = reason
         pass
     
     
