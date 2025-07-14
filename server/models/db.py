@@ -19,6 +19,7 @@ from models.finances.bonus import Bonus
 from models.finances.online_payment_ids import OnlinePaymentIds
 from models.finances.client_payment_types import ClientPaymentTypes
 from models.finances.additional_costs import AdditionalCosts
+from models.finances.service_costs import ServiceCosts
 
 from models.logistics.services import Services 
 from models.logistics.appointment import Appointment
