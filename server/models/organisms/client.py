@@ -78,7 +78,7 @@ class Client(db.Model):
             
             filename = "profile-" + str(client.id) + ".jpg"
             
-            response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
+            # response = Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
             # print(response)
             # if response.get("success") == 0:
             #     print("Error generating profile picture.")
@@ -192,11 +192,32 @@ class Client(db.Model):
                     clients_data["emergency_contacts"].append(ec_info)
                 
                 for p in client.pets:
+                    # Get pet profile picture
+                    pet_profile_picture = None
+                    if p.profile_pic_url:
+                        try:
+                            load_dotenv()
+                            image_store = os.environ.get('IMAGESTORE_URL').strip()
+                            image_dir = os.path.join(image_store, str(p.id))
+                            full_path = os.path.join(image_dir, p.profile_pic_url)
+                            
+                            if os.path.exists(full_path):
+                                with open(full_path, 'rb') as image_file:
+                                    image_data = image_file.read()
+                                    file_ext = p.profile_pic_url.lower().split('.')[-1]
+                                    mime_type = 'image/jpeg' if file_ext in ['jpg', 'jpeg'] else f'image/{file_ext}'
+                                    base64_string = base64.b64encode(image_data).decode('utf-8')
+                                    pet_profile_picture = f"data:{mime_type};base64,{base64_string}"
+                        except Exception as e:
+                            print(f"Error loading pet profile picture for pet {p.id}: {e}")
+                            pet_profile_picture = None
+                    
                     pet_info = {
                         "pet_id": p.id, 
                         "name": p.name, 
                         "age": p.age if p.age else -1, 
                         "breed": p.breed.name if p.breed else "", 
+                        "profile_picture": pet_profile_picture,
                     }
                     clients_data["pets"].append(pet_info)
                 
@@ -716,103 +737,103 @@ class Client(db.Model):
             local_path = os.path.join(image_store, str(client_id), secure_name)
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
-            if initial_generation == 1: 
-                initials = client.fname[0].upper() + client.lname[0].upper()
-                img_size = 512
-                font_size = int(img_size * 0.8)  # Start much bigger - 80% of image size
-                # Generate background color
-                # base_color = [random.randint(0, 255) for _ in range(3)]
-                # pastel_color = tuple(int(c * 0.25 + 255 * 0.75) for c in base_color)  # 75% white blend
-                # background_color = pastel_color
-                # r, g, b = background_color
-                h = random.random()  # Hue: 0.0 to 1.0
-                s = 0.7              # Saturation: lower = more pastel
-                l = 0.75             # Lightness: higher = lighter
+            # if initial_generation == 1: 
+            #     initials = client.fname[0].upper() + client.lname[0].upper()
+            #     img_size = 512
+            #     font_size = int(img_size * 0.8)  # Start much bigger - 80% of image size
+            #     # Generate background color
+            #     # base_color = [random.randint(0, 255) for _ in range(3)]
+            #     # pastel_color = tuple(int(c * 0.25 + 255 * 0.75) for c in base_color)  # 75% white blend
+            #     # background_color = pastel_color
+            #     # r, g, b = background_color
+            #     h = random.random()  # Hue: 0.0 to 1.0
+            #     s = 0.7              # Saturation: lower = more pastel
+            #     l = 0.75             # Lightness: higher = lighter
 
-                # Convert HLS to RGB (colorsys uses 0-1 scale)
-                r, g, b = colorsys.hls_to_rgb(h, l, s)
+            #     # Convert HLS to RGB (colorsys uses 0-1 scale)
+            #     r, g, b = colorsys.hls_to_rgb(h, l, s)
 
-                # Convert to 0–255 range
-                r, g, b = [int(x * 255) for x in (r, g, b)]
-                background_color = (r, g, b)
-                # Create the image
-                image = Image.new('RGB', (img_size, img_size), background_color)
-                draw = ImageDraw.Draw(image)
+            #     # Convert to 0–255 range
+            #     r, g, b = [int(x * 255) for x in (r, g, b)]
+            #     background_color = (r, g, b)
+            #     # Create the image
+            #     image = Image.new('RGB', (img_size, img_size), background_color)
+            #     draw = ImageDraw.Draw(image)
 
-                # Use the specific Helvetica font
-                try:
-                    # Get the directory where this client.py file is located
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    # Navigate up to server directory, then to fonts
-                    font_path = os.path.join(current_dir, '..', '..', 'fonts', 'HelveticaNeueMedium.otf')
-                    font_path = os.path.normpath(font_path)  # Clean up the path
+            #     # Use the specific Helvetica font
+            #     try:
+            #         # Get the directory where this client.py file is located
+            #         current_dir = os.path.dirname(os.path.abspath(__file__))
+            #         # Navigate up to server directory, then to fonts
+            #         font_path = os.path.join(current_dir, '..', '..', 'fonts', 'HelveticaNeueMedium.otf')
+            #         font_path = os.path.normpath(font_path)  # Clean up the path
                     
-                    # Load the font with initial size
-                    font = ImageFont.truetype(font_path, font_size)
-                except Exception as e:
-                    print(f"Could not load font: {e}")
-                    font = ImageFont.load_default()
+            #         # Load the font with initial size
+            #         font = ImageFont.truetype(font_path, font_size)
+            #     except Exception as e:
+            #         print(f"Could not load font: {e}")
+            #         font = ImageFont.load_default()
             
-                # Get text bounding box and adjust font size
-                bbox = draw.textbbox((0, 0), initials, font=font)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
+            #     # Get text bounding box and adjust font size
+            #     bbox = draw.textbbox((0, 0), initials, font=font)
+            #     text_width = bbox[2] - bbox[0]
+            #     text_height = bbox[3] - bbox[1]
                 
-                # Target 60% of image size for the text
-                target_size = img_size * 0.6
-                current_max_size = max(text_width, text_height)
+            #     # Target 60% of image size for the text
+            #     target_size = img_size * 0.6
+            #     current_max_size = max(text_width, text_height)
                 
-                # Always scale to target size
-                scale_factor = target_size / current_max_size
-                new_font_size = int(font_size * scale_factor)
+            #     # Always scale to target size
+            #     scale_factor = target_size / current_max_size
+            #     new_font_size = int(font_size * scale_factor)
                 
-                try:
-                    font = ImageFont.truetype(font_path, new_font_size)
-                except:
-                    font = ImageFont.load_default()
+            #     try:
+            #         font = ImageFont.truetype(font_path, new_font_size)
+            #     except:
+            #         font = ImageFont.load_default()
                 
-                # Recalculate bounding box with new font
-                bbox = draw.textbbox((0, 0), initials, font=font)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
+            #     # Recalculate bounding box with new font
+            #     bbox = draw.textbbox((0, 0), initials, font=font)
+            #     text_width = bbox[2] - bbox[0]
+            #     text_height = bbox[3] - bbox[1]
             
-                # Center the text
-                x = (img_size - text_width) / 2
-                y = (img_size - text_height) / 2
+            #     # Center the text
+            #     x = (img_size - text_width) / 2
+            #     y = (img_size - text_height) / 2
             
-                # Choose text color based on luminance
-                luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-                text_color = (255, 255, 255) if luminance < 0.5 else (0, 0, 0)
+            #     # Choose text color based on luminance
+            #     luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+            #     text_color = (255, 255, 255) if luminance < 0.5 else (0, 0, 0)
             
-                draw.text((x, y), initials, font=font, fill=text_color)
+            #     draw.text((x, y), initials, font=font, fill=text_color)
 
-                # Save the generated image
-                image.save(local_path)
-            else:
+            #     # Save the generated image
+            #     image.save(local_path)
+            # else:
                 # Handle uploaded image
-                if not image:
-                    return jsonify({
-                        "success": 0, 
-                        "error": "Image file is required when not generating initial profile picture"
-                    }) 
+            if not image:
+                return jsonify({
+                    "success": 0, 
+                    "error": "Image file is required when not generating initial profile picture"
+                }) 
 
-                # Save the FileStorage image to the local path
-                image.save(local_path)
+            # Save the FileStorage image to the local path
+            image.save(local_path)
 
-                # Resize the image
-                img = Image.open(local_path)
-                img.thumbnail((512, 512))  # Resize to 512x512
+            # Resize the image
+            img = Image.open(local_path)
+            img.thumbnail((512, 512))  # Resize to 512x512
 
-                format_map = {
-                    "jpg": "JPEG",
-                    "jpeg": "JPEG",
-                    "png": "PNG",
-                }
+            format_map = {
+                "jpg": "JPEG",
+                "jpeg": "JPEG",
+                "png": "PNG",
+            }
 
-                format_str = format_map.get(ext.lower(), ext.upper())
+            format_str = format_map.get(ext.lower(), ext.upper())
 
-                # Save the resized image (overwrite or create new file)
-                img.save(local_path, format=format_str, quality=85)
+            # Save the resized image (overwrite or create new file)
+            img.save(local_path, format=format_str, quality=85)
 
             # Construct the final image URL
             image_url = secure_name
@@ -909,8 +930,8 @@ class Client(db.Model):
             
             client.profile_pic_url = ""
             db.session.commit()
-            filename = "profile-" + str(client.id) + ".jpg"
-            Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
+            # filename = "profile-" + str(client.id) + ".jpg"
+            # Client.upload_profile_picture(client.id, image=None, filename=filename, ext="jpg", initial_generation=1)
             return jsonify({"success": 1, "message": "Successfully deleted profile picture for this user"})
 
         except SQLAlchemyError as e: 

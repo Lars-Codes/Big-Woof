@@ -5,10 +5,17 @@ import {
   CircleSmall,
   ShieldQuestion,
 } from 'lucide-react-native';
-import React from 'react';
-import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  TextInput,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePetAction } from '../../../sagas/pets/updatePet/action';
+import { selectEmployees } from '../../../state/employees/employeesSlice';
 import {
   selectPetDetails,
   selectLoading,
@@ -21,12 +28,31 @@ export default function PetDetails() {
   const dispatch = useDispatch();
   const loading = useSelector(selectLoading);
   const pet = useSelector(selectPetDetails);
+  const employees = useSelector(selectEmployees);
+  const scrollViewRef = useRef(null);
 
-  const formatFieldName = (key) => {
-    return key
-      .split('_')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  const [notes, setNotes] = useState(pet?.pet_data?.notes || '');
+
+  // Update notes when pet changes
+  useEffect(() => {
+    setNotes(pet?.pet_data?.notes || '');
+  }, [pet?.pet_data?.id, pet?.pet_data?.notes]);
+
+  const handleSaveNotes = () => {
+    if (notes !== pet?.pet_data?.notes) {
+      const updatedData = { pet_id: pet.pet_data.id, notes: notes };
+      dispatch(updatePetAction({ petData: updatedData }));
+    }
+  };
+
+  const handleNotesChange = (text) => {
+    setNotes(text);
+  };
+
+  const handleNotesFocus = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
   };
 
   if (loading) {
@@ -53,7 +79,7 @@ export default function PetDetails() {
 
   const renderProfilePicture = () => {
     return (
-      <PetProfilePicture>
+      <PetProfilePicture showCameraButton={true}>
         {renderGenderIcon()}
         {renderDeceasedIcon()}
       </PetProfilePicture>
@@ -89,6 +115,11 @@ export default function PetDetails() {
     );
   };
 
+  const handleSelectGroomer = (item) => {
+    const updatedData = { pet_id: pet.pet_data.id, typical_groomer: item };
+    dispatch(updatePetAction({ petData: updatedData }));
+  };
+
   const renderGenderIcon = () => {
     const gender = pet.pet_data?.gender;
 
@@ -96,7 +127,7 @@ export default function PetDetails() {
     const iconStyle = {
       position: 'absolute',
       bottom: -2,
-      right: -2,
+      left: -2,
       backgroundColor: 'white',
       borderRadius: 99,
       padding: 4,
@@ -144,7 +175,12 @@ export default function PetDetails() {
   };
 
   return (
-    <ScrollView className="flex-1 mt-28">
+    <ScrollView
+      ref={scrollViewRef}
+      className="flex-1 mt-28"
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets={true}
+    >
       <View className="flex-1 px-4">
         {renderProfilePicture()}
 
@@ -203,17 +239,34 @@ export default function PetDetails() {
           <Text className="text-2xl font-hn-bold mb-2">
             Grooming Information
           </Text>
-          {['coat_type', 'hair_length', 'typical_groomer'].map((field) => {
-            const value = pet.pet_data?.[field];
-            return (
-              <View key={field} className="flex-row items-center gap-1">
-                <Text className="text-lg font-hn-medium">
-                  {formatFieldName(field)}:
-                </Text>
-                <Text className="text-lg font-hn-regular">{value || '--'}</Text>
-              </View>
-            );
-          })}
+          <View className="flex-row items-center gap-1">
+            <Text className="text-lg font-hn-medium">Coat Type:</Text>
+            <Text className="text-lg font-hn-regular">
+              {pet.pet_data?.coat_type || '--'}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-lg font-hn-medium">Hair Length:</Text>
+            <Text className="text-lg font-hn-regular">
+              {pet.pet_data?.hair_length || '--'}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-lg font-hn-medium">Typical Groomer:</Text>
+            <CustomDropdown
+              options={employees}
+              selectedItem={pet.pet_data?.typical_groomer}
+              onSelect={(item) => {
+                () => handleSelectGroomer(item);
+              }}
+              title="Typical Groomer"
+              placeholder="Select Groomer"
+            >
+              <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
+                {pet.pet_data?.typical_groomer || 'Not Assigned'}
+              </Text>
+            </CustomDropdown>
+          </View>
         </View>
 
         {/* Owner Info Card */}
@@ -228,14 +281,33 @@ export default function PetDetails() {
         </View>
 
         {/* Notes Card */}
-        {pet.pet_data?.notes && (
-          <View className="bg-gray-50 rounded-lg p-4 mb-4">
-            <Text className="text-2xl font-hn-bold mb-2">Notes</Text>
-            <Text className="text-lg font-hn-regular">
-              {pet.pet_data.notes || 'No notes yet.'}
-            </Text>
-          </View>
-        )}
+        <View className="bg-gray-50 rounded-lg p-4 mb-4">
+          <Text className="text-2xl font-hn-bold mb-2">Notes</Text>
+          <TextInput
+            value={notes}
+            onChangeText={handleNotesChange}
+            onFocus={handleNotesFocus}
+            onBlur={handleSaveNotes}
+            placeholder="Add notes about this pet..."
+            placeholderTextColor="#9CA3AF"
+            multiline
+            textAlignVertical="top"
+            returnKeyType="done"
+            onSubmitEditing={() => {
+              handleSaveNotes();
+            }}
+            blurOnSubmit={true}
+            className="text-lg font-hn-regular min-h-[100] p-3 "
+            style={{
+              backgroundColor: '#f0f0f0',
+              borderRadius: 20,
+              padding: 12,
+              fontFamily: 'hn-regular',
+              fontSize: 16,
+              color: '#333',
+            }}
+          />
+        </View>
       </View>
     </ScrollView>
   );

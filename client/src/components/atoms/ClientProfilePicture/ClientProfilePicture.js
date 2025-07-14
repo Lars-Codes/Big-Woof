@@ -3,35 +3,23 @@ import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'lucide-react-native';
 import React from 'react';
-import { Image, View, TouchableOpacity, Alert } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
-import { deletePetProfilePictureAction } from '../../../sagas/pets/deletePetProfilePicture/action';
-import { uploadPetProfilePictureAction } from '../../../sagas/pets/uploadPetProfilePicture/action';
+import { Image, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteClientProfilePictureAction } from '../../../sagas/clients/deleteClientProfilePicture/action';
+import { uploadClientProfilePictureAction } from '../../../sagas/clients/uploadClientProfilePicture/action';
 import {
-  selectPetDetails,
-  selectPetProfilePicture,
-} from '../../../state/petDetails/petDetailsSlice';
-import { getBreedImage } from '../../../utils/pets/petBreedImages';
+  selectClientDetails,
+  selectClientProfilePicture,
+} from '../../../state/clientDetails/clientDetailsSlice';
 
-export default function PetProfilePicture({
-  children,
-  pet: propPet,
-  profilePicture: propProfilePicture,
-  size = 100,
-  showCameraButton = false,
-}) {
+export default function ClientProfilePicture({ children, size = 100 }) {
   const dispatch = useDispatch();
-  const pet = propPet || useSelector(selectPetDetails);
-  const petProfilePicture =
-    propProfilePicture !== undefined
-      ? propProfilePicture
-      : useSelector(selectPetProfilePicture);
-
+  const client = useSelector(selectClientDetails);
+  const clientProfilePicture = useSelector(selectClientProfilePicture);
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const isDeceased = pet?.pet_data?.deceased === 1;
-  const shouldUseBreedImage = !petProfilePicture;
+  // Only show default image if there's no profile picture
+  const shouldUseDefaultImage = !clientProfilePicture;
 
   const handleImageUpload = async () => {
     try {
@@ -77,26 +65,15 @@ export default function PetProfilePicture({
         const imageFile = {
           uri: asset.uri,
           type: `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`,
-          name: `profile-${pet?.pet_data.id}.${fileExtension}`,
+          name: `profile-${client?.client_data.client_id}.${fileExtension}`,
         };
 
         // Dispatch upload action
         dispatch(
-          uploadPetProfilePictureAction({
-            petId: pet?.pet_data.id,
+          uploadClientProfilePictureAction({
+            clientId: client?.client_data.client_id,
             image: imageFile,
             ext: fileExtension,
-            onSuccess: () => {
-              dispatch(fetchClientDetailsAction(pet?.pet_data.owner_id));
-              Alert.alert('Success', 'Profile picture uploaded successfully!');
-            },
-            onError: (errorMessage) => {
-              Alert.alert(
-                'Error',
-                errorMessage ||
-                  'Failed to upload profile picture. Please try again.',
-              );
-            },
           }),
         );
 
@@ -138,30 +115,29 @@ export default function PetProfilePicture({
         const fileExtension =
           uriParts[uriParts.length - 1].toLowerCase() || 'jpg';
 
+        // Validate file type
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+        if (!allowedExtensions.includes(fileExtension)) {
+          Alert.alert(
+            'Invalid File Type',
+            'Please select a JPG, JPEG, or PNG image.',
+          );
+          return;
+        }
+
         // Create FormData compatible object
         const imageFile = {
           uri: asset.uri,
           type: `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`,
-          name: `profile-${pet?.pet_data.id}.${fileExtension}`,
+          name: `profile-${client?.client_data.client_id}.${fileExtension}`,
         };
 
         // Dispatch upload action
         dispatch(
-          uploadPetProfilePictureAction({
-            petId: pet?.pet_data.id,
+          uploadClientProfilePictureAction({
+            clientId: client?.client_data.client_id,
             image: imageFile,
             ext: fileExtension,
-            onSuccess: () => {
-              dispatch(fetchClientDetailsAction(pet?.pet_data.owner_id));
-              Alert.alert('Success', 'Profile picture uploaded successfully!');
-            },
-            onError: (errorMessage) => {
-              Alert.alert(
-                'Error',
-                errorMessage ||
-                  'Failed to upload profile picture. Please try again.',
-              );
-            },
           }),
         );
 
@@ -187,22 +163,7 @@ export default function PetProfilePicture({
           style: 'destructive',
           onPress: () => {
             dispatch(
-              deletePetProfilePictureAction({
-                petId: pet?.pet_data.id,
-                onSuccess: () => {
-                  dispatch(fetchClientDetailsAction(pet?.pet_data.owner_id));
-                  Alert.alert(
-                    'Success',
-                    'Profile picture deleted successfully!',
-                  );
-                },
-                onError: () => {
-                  Alert.alert(
-                    'Error',
-                    'Failed to delete pet profile picture. Please try again.',
-                  );
-                },
-              }),
+              deleteClientProfilePictureAction(client?.client_data.client_id),
             );
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           },
@@ -222,7 +183,7 @@ export default function PetProfilePicture({
     ];
 
     const cancelButtonIndex = options.length - 1;
-    const disabledButtonIndices = petProfilePicture ? [] : [2];
+    const disabledButtonIndices = clientProfilePicture ? [] : [2];
     const destructiveButtonIndex = 2;
 
     showActionSheetWithOptions(
@@ -248,7 +209,7 @@ export default function PetProfilePicture({
             handleImageUpload();
             break;
           case 2:
-            if (petProfilePicture) {
+            if (clientProfilePicture) {
               handleDeleteProfilePicture();
             }
             break;
@@ -260,9 +221,6 @@ export default function PetProfilePicture({
   };
 
   const renderCameraButton = () => {
-    // Only show plus icon if showCameraButton is true AND we're not in list view (no propPet)
-    if (!showCameraButton) return null;
-
     const iconSize = 24;
     const iconStyle = {
       position: 'absolute',
@@ -290,34 +248,25 @@ export default function PetProfilePicture({
     );
   };
 
-  if (shouldUseBreedImage) {
-    // Use breed-based image
-    const breed = propPet ? propPet.breed : pet?.pet_data?.breed || '';
-    const imageSource = getBreedImage(breed);
-
+  if (shouldUseDefaultImage) {
     return (
       <View className="items-center mt-4 mb-2">
         <View className="relative">
           <View
             className="rounded-full bg-gray-300 justify-center items-center"
-            style={{ width: size, height: size, opacity: isDeceased ? 0.5 : 1 }}
+            style={{ width: size, height: size }}
           >
-            <Image
-              source={imageSource}
+            <Text
+              className="font-hn-bold text-black text-6xl p-4 mt-2"
               style={{
-                width: size * 0.8,
-                height: size * 0.8,
-                borderRadius: (size * 0.8) / 2,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.4,
-                shadowRadius: 6,
-                elevation: 8,
-                overflow: 'visible',
+                textShadowColor: 'rgba(0, 0, 0, 0.4)',
+                textShadowOffset: { width: 0, height: 4 },
+                textShadowRadius: 12,
               }}
-              resizeMode="cover"
-              fadeDuration={0}
-            />
+            >
+              {client?.client_data?.fname?.charAt(0).toUpperCase() +
+                client?.client_data?.lname?.charAt(0).toUpperCase()}
+            </Text>
           </View>
           {children}
           {renderCameraButton()}
@@ -326,22 +275,16 @@ export default function PetProfilePicture({
     );
   }
 
-  // Use uploaded profile picture
-  const imageUri = petProfilePicture?.startsWith('data:')
-    ? petProfilePicture
-    : `data:image/jpeg;base64,${petProfilePicture}`;
+  const imageUri = clientProfilePicture?.startsWith('data:')
+    ? clientProfilePicture
+    : `data:image/jpeg;base64,${clientProfilePicture}`;
 
   return (
     <View className="items-center mt-4 mb-2">
       <View className="relative">
         <Image
           source={{ uri: imageUri }}
-          style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            opacity: isDeceased ? 0.5 : 1,
-          }}
+          className="w-[100px] h-[100px] rounded-full"
         />
         {children}
         {renderCameraButton()}

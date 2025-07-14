@@ -36,6 +36,8 @@ import { UPDATE_CLIENT_IS_FAVORITE_ACTION_TYPE } from './clients/updateClientIsF
 import updateClientIsFavoriteSaga from './clients/updateClientIsFavorite/updateClientIsFavorite';
 import { UPLOAD_CLIENT_PROFILE_PICTURE_ACTION_TYPE } from './clients/uploadClientProfilePicture/action';
 import uploadClientProfilePictureSaga from './clients/uploadClientProfilePicture/uploadClientProfilePicture';
+import { FETCH_EMPLOYEES_ACTION_TYPE } from './employees/fetchEmployees/action';
+import fetchEmployeesSaga from './employees/fetchEmployees/fetchEmployees';
 import { INIT_ACTION_TYPE } from './init/action';
 import initSaga from './init/init';
 import { LOGGED_IN_ACTION_TYPE } from './loggedIn/action';
@@ -118,6 +120,8 @@ export default function* rootSaga() {
     takeLeading(DELETE_VET_ACTION_TYPE, deleteVetSaga),
     takeLeading(CREATE_VET_ACTION_TYPE, createVetSaga),
     takeLeading(UPDATE_VET_ACTION_TYPE, updateVetSaga),
+
+    takeLeading(FETCH_EMPLOYEES_ACTION_TYPE, fetchEmployeesSaga),
 
     takeEvery(CLIENTS_SEARCH_BY_ACTION_TYPE, clientsSearchBySaga),
     takeEvery(CLIENTS_FILTERED_BY_ACTION_TYPE, clientsFilteredBySaga),

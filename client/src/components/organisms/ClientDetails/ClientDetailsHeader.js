@@ -1,20 +1,19 @@
 import { Pin } from 'lucide-react-native';
 import React from 'react';
-import { View, Text, Image, Linking, TouchableOpacity } from 'react-native';
+import { View, Text, Linking, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
   selectClientDetails,
   selectClientFavorite,
-  selectClientProfilePicture,
 } from '../../../state/clientDetails/clientDetailsSlice';
 import {
   formatPhoneNumber,
   handlePhonePress,
 } from '../../../utils/helpers/phoneNumberUtil';
+import ClientProfilePicture from '../../atoms/ClientProfilePicture/ClientProfilePicture';
 
 export default function ClientDetailsHeader() {
   const client = useSelector(selectClientDetails);
-  const clientProfilePicture = useSelector(selectClientProfilePicture);
   const clientFavorite = useSelector(selectClientFavorite);
 
   const handleAddressPress = () => {
@@ -53,23 +52,10 @@ export default function ClientDetailsHeader() {
     );
   }
 
-  const renderProfilePicture = () => {
-    const imageUri = clientProfilePicture?.startsWith('data:')
-      ? clientProfilePicture
-      : `data:image/jpeg;base64,${clientProfilePicture}`;
-
-    return (
-      <Image
-        source={{ uri: imageUri }}
-        className="w-[100px] h-[100px] rounded-full"
-      />
-    );
-  };
-
   return (
     <View className="flex-row flex-1">
       <View className="w-[35%] justify-center items-center">
-        {renderProfilePicture()}
+        <ClientProfilePicture />
       </View>
       <View className="w-[65%] p-4 justify-center">
         <View className="flex-row items-center h-8">

@@ -20,7 +20,9 @@ export default function* fetchClientProfilePicture(action) {
       yield put(setClientProfilePicture(null));
     }
   } catch (error) {
-    console.error('Error fetching client profile picture:', error);
+    if (error?.success === 0) {
+      console.error('Error fetching client profile picture:', error);
+    }
     yield put(setClientProfilePicture(null));
   } finally {
     yield put(setLoading(false));

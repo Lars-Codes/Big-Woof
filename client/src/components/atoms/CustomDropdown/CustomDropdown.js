@@ -143,7 +143,7 @@ const CustomDropdown = forwardRef(
                 </TouchableOpacity>
               )}
             </View>
-            <View className="flex-1">
+            <View className="flex">
               <Text className="text-2xl font-hn-bold text-gray-800 text-center">
                 {title}
               </Text>

@@ -168,18 +168,18 @@ def create_data():
                 db.session.flush()  # Get the client ID
                 
                 # Generate profile picture using the existing auto-generation functionality
-                filename = f"profile-{client.id}.jpg"
-                try:
-                    profile_pic_response = Client.upload_profile_picture(
-                        client.id, 
-                        image=None, 
-                        filename=filename, 
-                        ext="jpg", 
-                        initial_generation=1
-                    )
-                    print(f"  Generated profile picture for client {client.id}")
-                except Exception as e:
-                    print(f"  Warning: Failed to generate profile picture for client {client.id}: {e}")
+                # filename = f"profile-{client.id}.jpg"
+                # try:
+                #     profile_pic_response = Client.upload_profile_picture(
+                #         client.id, 
+                #         image=None, 
+                #         filename=filename, 
+                #         ext="jpg", 
+                #         initial_generation=1
+                #     )
+                #     print(f"  Generated profile picture for client {client.id}")
+                # except Exception as e:
+                #     print(f"  Warning: Failed to generate profile picture for client {client.id}: {e}")
                 
                 # ...rest of your existing code for creating appointment stats, emergency contacts, etc...
                 
@@ -362,9 +362,11 @@ def create_data():
                 
                 # Commit each client individually for easier debugging
                 db.session.commit()
-                print(f"Successfully created client {i} with profile picture")
+                # print(f"Successfully created client {i} with profile picture")
+                print(f"Successfully created client {i}!")                
             
-            print(f"Successfully created {num_clients} clients with all associated data and profile pictures!")
+            # print(f"Successfully created {num_clients} clients with all associated data and profile pictures!")
+            print(f"Successfully created {num_clients} clients with all associated data!")
             
         except SQLAlchemyError as e:
             db.session.rollback()

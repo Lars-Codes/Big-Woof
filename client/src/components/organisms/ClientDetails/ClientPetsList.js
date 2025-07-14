@@ -123,9 +123,8 @@ export default function ClientPetsList() {
               <View className="flex-row items-center flex-1">
                 <View className="mr-4">
                   <PetProfilePicture
-                    pet={{
-                      pet_data: { breed: pet.breed, deceased: pet.deceased },
-                    }}
+                    pet={pet}
+                    profilePicture={pet.profile_picture}
                     size={60}
                   />
                 </View>

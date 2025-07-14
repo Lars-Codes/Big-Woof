@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import clientDetailsReducer from './clientDetails/clientDetailsSlice';
 import clientsReducer from './clients/clientsSlice';
+import employeesReducer from './employees/employeesSlice';
 import listReducer from './list/listSlice';
 import petDetailsReducer from './petDetails/petDetailsSlice';
 import petsReducer from './pets/petsSlice';
@@ -14,6 +15,7 @@ const reducers = {
   list: listReducer,
   pets: petsReducer,
   petDetails: petDetailsReducer,
+  employees: employeesReducer,
 };
 
 const store = configureStore({
