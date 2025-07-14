@@ -22,12 +22,15 @@ from controllers.organisms.pet import pet_bp
 from controllers.organisms.emergency_contact import emergency_contact_bp
 from controllers.organisms.vet import vet_bp
 from controllers.organisms.employee import employee_bp
+
 from controllers.prefilled_tables.payment_types import payment_types_bp
 from controllers.prefilled_tables.document_types import document_types_bp
 from controllers.prefilled_tables.pet_attributes import pet_attributes_bp
 
 from controllers.misc.sticky_notes import stickies_bp
 from controllers.misc.images import pet_images_bp
+
+from controllers.logistics.services import services_bp
 
 app = Flask(__name__)
 
@@ -66,6 +69,7 @@ app.register_blueprint(pet_bp)
 app.register_blueprint(stickies_bp)
 app.register_blueprint(pet_images_bp)
 app.register_blueprint(pet_attributes_bp)
+app.register_blueprint(services_bp)
 
 with app.app_context():
     # Check if migrations directory exists before trying to upgrade

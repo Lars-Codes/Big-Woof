@@ -2,6 +2,7 @@ from models.db import db
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify
 from datetime import datetime 
+from models.organisms.client import Client 
 
 class StickyNotes(db.Model):
     
@@ -26,6 +27,11 @@ class StickyNotes(db.Model):
     
     @classmethod 
     def create_sticky(cls, client_id, note, pet_id=None):
+        client = Client.query.filter_by(id=client_id).first()
+        if not client: 
+            return (
+                jsonify({"success": 0, "error": "Client does not exist for client_id"}), 500,
+        )
         sticky = cls(client_id=client_id, note=note, date=datetime.now(), pet_id=pet_id)
         try: 
             db.session.add(sticky)
