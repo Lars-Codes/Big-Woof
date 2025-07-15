@@ -94,6 +94,11 @@ export default function PetList() {
     const sortingOptions = [
       { label: 'Sort by Name', value: 'name' },
       { label: 'Sort by Breed', value: 'breed' },
+      { label: 'Sort by Coat Type', value: 'coat_type' },
+      { label: 'Sort by Hair Length', value: 'hair_length' },
+      { label: 'Sort by Size Tier', value: 'size_tier' },
+      // { label: 'Sort by Age', value: 'age' },
+      // { label: 'Sort by Weight', value: 'weight' },
       { label: 'Sort by Client First Name', value: 'client_fname' },
       { label: 'Sort by Client Last Name', value: 'client_lname' },
     ];

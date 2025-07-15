@@ -232,6 +232,11 @@ class Pet(db.Model):
                     "client_fname": pet.client.fname,
                     "client_lname": pet.client.lname,
                     "breed": pet.breed.name if pet.breed else "", 
+                    "size_tier": pet.size_tier.size_tier if pet.size_tier else "",
+                    "coat_type": pet.coat_type.coat_type if pet.coat_type else "", 
+                    "hair_length": pet.hair_length.length if pet.hair_length else "", 
+                    "age": pet.age, 
+                    "weight": pet.weight,
                     "deceased": pet.deceased, 
                 }
                 for pet in pets 
