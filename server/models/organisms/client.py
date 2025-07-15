@@ -305,7 +305,7 @@ class Client(db.Model):
                     for t in client.added_time:
                         if t.added_for_service == 1: 
                             time_data = {
-                                "service_name": t.service.name if t.service else f"Service {t.service_id}", 
+                                "service_name": t.service.service_name if t.service else f"Service {t.service_id}", 
                                 "additional_time": float(t.additional_time) if t.additional_time else 0, 
                                 "time_type": t.time_type if t.time_type else "minutes", 
                                 "reason": t.reason if t.reason else "",

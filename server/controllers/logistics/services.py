@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify 
 from models.logistics.services import Services
 from models.finances.service_costs import ServiceCosts
+from models.logistics.service_additions import ServiceAdditions
 
 services_bp = Blueprint("services_bp", __name__)
 
@@ -105,4 +106,54 @@ def updateServiceCost():
         return res
     
 
+# SERVICE ADDITIONS ==================================================================================
+
+
+@services_bp.route('/createServiceAddition', methods=["POST"])
+def createServiceAddition():
+    service_id = request.form.get("service_id")
+    added_cost = request.form.get("added_cost")
+    reason = request.form.get("reason")
+    description = request.form.get("description")
+    print("id: ", service_id)
+    try:
+        res = ServiceAdditions.create_addition(service_id, added_cost, reason, description)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /createServiceAddition: {e}")
+        return res
+    
+
+@services_bp.route('/deleteServiceAddition', methods=["DELETE"])
+def deleteServiceAddition():
+    addition_id = request.form.get("service_addition_id")
+    try:
+        res = ServiceAdditions.delete_addition(addition_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deleteServiceAddition: {e}")
+        return res
+    
+@services_bp.route('/updateServiceAddition', methods=['PATCH'])
+def updateServiceAddition():
+    data = {}
+    possible_fields = [
+        'service_addition_id', "added_cost", "reason", "description"
+    ]
+    
+    for field in possible_fields:
+        value = request.form.get(field)
+        if value is not None:
+            data[field] = value
+            
+    if data.get('service_addition_id') == None: 
+        return (
+            jsonify({"success": 0, "error": "Key 'service_addition_id' must be provided"}), 500, 
+        )  
+    try:
+        res = ServiceAdditions.update_addition(**data)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /updateServiceAddition: {e}")
+        return res
     
