@@ -5,6 +5,7 @@ import { Text, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientDetailsAction } from '../../../../../sagas/clients/fetchClientDetails/action';
 import { deletePetsAction } from '../../../../../sagas/pets/deletePets/action';
+import { fetchPetDetailsAction } from '../../../../../sagas/pets/fetchPetDetails/action';
 import { updatePetIsDeceasedAction } from '../../../../../sagas/pets/updatePetIsDeceased/action';
 import { selectClientDetails } from '../../../../../state/clientDetails/clientDetailsSlice';
 import { selectPetDetails } from '../../../../../state/petDetails/petDetailsSlice';
@@ -99,6 +100,7 @@ export default function PetDetailsHeaderRight({ navigation }) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             break;
           case 1:
+            dispatch(fetchPetDetailsAction(petDetails.pet_data.id));
             navigation.navigate('PetForm');
             break;
           case 2:
