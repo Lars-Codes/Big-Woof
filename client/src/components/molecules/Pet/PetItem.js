@@ -1,7 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, ShieldX } from 'lucide-react-native';
 import React, { useCallback, memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -133,14 +133,18 @@ export default memo(
           className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
           style={{ minHeight: 56 }}
         >
-          <View className="flex items-start">
-            <Text className="text-3xl text-gray-800 font-hn-medium">
-              {pet.name}
-            </Text>
-            <Text className="text-base text-gray-500 font-hn-medium">
-              {pet.client_fname} {pet.client_lname}
-            </Text>
+          <View className="flex-row items-center">
+            <View className="flex items-start mr-4">
+              <Text className="text-3xl text-gray-800 font-hn-medium">
+                {pet.name}
+              </Text>
+              <Text className="text-base text-gray-500 font-hn-medium">
+                {pet.client_fname} {pet.client_lname}
+              </Text>
+            </View>
+            {!!pet?.deceased && <ShieldX size={24} color="#EF4444" />}
           </View>
+
           {deleteMode ? (
             <CustomCheckbox
               value={isPetSelected}
