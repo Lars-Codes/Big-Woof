@@ -63,15 +63,18 @@ class Vet(db.Model):
     @classmethod 
     def update_vet_contact(cls, **kwargs):
         client_id = kwargs.get('client_id')
+        vet_id = kwargs.get('vet_id')
+        
         try: 
             client = Client.query.get(client_id)
             if not client:
                 return jsonify({
                     "success": 0, 
-                    "error": "No client found for client id: " + client_id, 
+                    "error": f"No client found for client id: {client_id}", 
                 }) 
                 
-            vet = cls.query.filter_by(client_id=client_id).first()
+            # Find the specific vet by both client_id and vet_id
+            vet = cls.query.filter_by(client_id=client_id, id=vet_id).first()
 
             fields = [
                 'fname', 'lname', 'notes',
@@ -95,14 +98,14 @@ class Vet(db.Model):
                 
                 return jsonify({
                     "success": 1, 
-                    "message": "Vet information updated succesfully",
+                    "message": "Vet information updated successfully",
                     "vet_id": vet.id
                 })
             
             else:
                 return jsonify({
                     "success": 0, 
-                    "error": "No vet found for client id: " + client_id, 
+                    "error": f"No vet found for client id: {client_id} and vet id: {vet_id}", 
                 }) 
 
                     

@@ -1,4 +1,4 @@
-import { Pin } from 'lucide-react-native';
+import { Pin, Phone, Mail, MapPin } from 'lucide-react-native';
 import React from 'react';
 import { View, Text, Linking, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -58,7 +58,7 @@ export default function ClientDetailsHeader() {
         <ClientProfilePicture />
       </View>
       <View className="w-[65%] p-4 justify-center">
-        <View className="flex-row items-center h-8">
+        <View className="flex-row items-center mb-2">
           <Text className="text-3xl text-gray-800 font-hn-bold">
             {client.client_data.fname} {client.client_data.lname}
           </Text>
@@ -69,64 +69,67 @@ export default function ClientDetailsHeader() {
           )}
         </View>
 
-        <View className="flex-col h-[72px]">
-          <View className="flex-row h-5">
-            <TouchableOpacity
-              onPress={() =>
-                handlePhonePress(client.client_contact.primary_phone)
-              }
-              onLongPress={() => {}}
+        <View className="flex-col">
+          <TouchableOpacity
+            onPress={() =>
+              handlePhonePress(client.client_contact.primary_phone)
+            }
+            onLongPress={() => {}}
+            className="flex-row items-center mb-1"
+          >
+            <Phone size={16} color="#3B82F6" />
+            <Text
+              className="text-sm font-hn-regular text-blue-600 ml-2"
+              selectable={true}
             >
-              <Text
-                className="text-base font-hn-regular text-blue-600"
-                selectable={true}
-              >
-                {formatPhoneNumber(client.client_contact.primary_phone)}
-              </Text>
-            </TouchableOpacity>
-          </View>
+              {formatPhoneNumber(client.client_contact.primary_phone)}
+            </Text>
+          </TouchableOpacity>
 
           {client.client_contact.email && (
-            <View className="flex-row h-5 mb-1">
-              <TouchableOpacity
-                onPress={handleEmailPress}
-                onLongPress={() => {}}
+            <TouchableOpacity
+              onPress={handleEmailPress}
+              onLongPress={() => {}}
+              className="flex-row items-center mb-1"
+            >
+              <Mail size={16} color="#3B82F6" />
+              <Text
+                className="text-sm font-hn-regular text-blue-600 ml-2 flex-1"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                selectable={true}
               >
-                <Text
-                  className="text-base font-hn-regular text-blue-600 flex-1"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  selectable={true}
-                >
-                  {client.client_contact.email}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {client.client_contact.email}
+              </Text>
+            </TouchableOpacity>
           )}
 
           {client.client_contact.street_address &&
             client.client_contact.city &&
             client.client_contact.state &&
             client.client_contact.zip && (
-              <View className="flex-row h-10">
-                <TouchableOpacity
-                  onPress={handleAddressPress}
-                  onLongPress={() => {}}
-                  selectable={true}
-                >
+              <TouchableOpacity
+                onPress={handleAddressPress}
+                onLongPress={() => {}}
+                className="flex-row items-start"
+              >
+                <MapPin size={16} color="#3B82F6" className="mt-0.5" />
+                <View className="ml-2 flex-1">
                   <Text
-                    className="text-base font-hn-regular text-blue-600 flex-1"
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
+                    className="text-sm font-hn-regular text-blue-600"
                     selectable={true}
                   >
                     {client.client_contact.street_address}
-                    {'\n'}
+                  </Text>
+                  <Text
+                    className="text-sm font-hn-regular text-blue-600"
+                    selectable={true}
+                  >
                     {client.client_contact.city}, {client.client_contact.state}{' '}
                     {client.client_contact.zip}
                   </Text>
-                </TouchableOpacity>
-              </View>
+                </View>
+              </TouchableOpacity>
             )}
         </View>
       </View>

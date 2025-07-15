@@ -8,10 +8,20 @@ import {
   Plus,
   Ellipsis,
 } from 'lucide-react-native';
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+  Linking,
+} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
 import { deleteVetAction } from '../../../sagas/vets/deleteVet/action';
+import { updateVetAction } from '../../../sagas/vets/updateVet/action';
 import {
   selectClientDetails,
   selectClientVets,
@@ -28,6 +38,79 @@ export default function ClientVetsList() {
   const clientDetails = useSelector(selectClientDetails);
   const vets = useSelector(selectClientVets);
   const { showActionSheetWithOptions } = useActionSheet();
+  const scrollViewRef = useRef(null);
+
+  // State to track notes for each vet
+  const [vetNotes, setVetNotes] = useState({});
+  // Add refs for each TextInput
+  const textInputRefs = useRef({});
+
+  // Initialize notes when vets change
+  useEffect(() => {
+    if (vets) {
+      const initialNotes = {};
+      vets.forEach((vet) => {
+        initialNotes[vet.id] = vet.notes || '';
+      });
+      setVetNotes(initialNotes);
+    }
+  }, [vets]);
+
+  const handleSaveVetNotes = (vetId, notes) => {
+    const originalNotes = vets.find((vet) => vet.id === vetId)?.notes || '';
+
+    if (notes !== originalNotes) {
+      const updatedData = {
+        vet_id: vetId,
+        notes: notes,
+        client_id: clientDetails.client_data.client_id,
+      };
+
+      dispatch(
+        updateVetAction({
+          ...updatedData,
+          onSuccess: () => {
+            // DON'T refetch here - let the local state persist
+            dispatch(
+              fetchClientDetailsAction(clientDetails.client_data.client_id),
+            );
+            // The data will be fresh when the user navigates away and comes back
+          },
+          onError: (error) => {
+            console.error(`Failed to update vet ${vetId} notes:`, error);
+            // Revert the local state
+            setVetNotes((prev) => ({
+              ...prev,
+              [vetId]: originalNotes,
+            }));
+          },
+        }),
+      );
+    }
+  };
+
+  const handleNotesChange = (vetId, text) => {
+    setVetNotes((prev) => ({
+      ...prev,
+      [vetId]: text,
+    }));
+  };
+
+  const handleNotesFocus = (vetId) => {
+    // Small delay to ensure keyboard is shown
+    setTimeout(() => {
+      const inputRef = textInputRefs.current[vetId];
+      if (inputRef && scrollViewRef.current) {
+        inputRef.measureLayout(scrollViewRef.current, (x, y) => {
+          const scrollToY = Math.max(0, y - 215);
+          scrollViewRef.current.scrollTo({
+            y: scrollToY,
+            animated: true,
+          });
+        });
+      }
+    }, 100);
+  };
 
   const handleEdit = (vet) => {
     // action sheet with the options to edit or delete
@@ -45,7 +128,7 @@ export default function ClientVetsList() {
         switch (buttonIndex) {
           case 0:
             // Edit Vet
-            handleEditVet(vet); // Assuming we want to edit the selected vet
+            handleEditVet(vet);
             break;
           case 1:
             // Delete Vet
@@ -99,6 +182,42 @@ export default function ClientVetsList() {
     );
   };
 
+  const handleVetAddressPress = (vet) => {
+    const addressParts = [
+      vet.street_address,
+      vet.city,
+      vet.state,
+      vet.zip,
+    ].filter(Boolean);
+
+    if (addressParts.length === 0) {
+      console.warn('No address available for this vet');
+      return;
+    }
+
+    const fullAddress = addressParts.join(', ');
+    const encodedAddress = encodeURIComponent(fullAddress);
+
+    // This will open the default maps app on both iOS and Android
+    const mapsUrl = `maps:0,0?q=${encodedAddress}`;
+
+    Linking.openURL(mapsUrl).catch(() => {
+      // Fallback for Android or if maps: doesn't work
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+      Linking.openURL(googleMapsUrl);
+    });
+  };
+
+  const handleVetEmailPress = (email) => {
+    if (email) {
+      Linking.openURL(`mailto:${email}`).catch((err) => {
+        console.error('Failed to open email:', err);
+      });
+    } else {
+      console.warn('No email address available');
+    }
+  };
+
   const handleAddVet = () => {
     navigation.navigate('VetForm');
   };
@@ -128,22 +247,19 @@ export default function ClientVetsList() {
   }
 
   return (
-    <View className="flex-1 bg-gray-300 px-2 pt-2 rounded-xl my-2">
-      {/* Add Vet Button */}
-      <TouchableOpacity
-        onPress={handleAddVet}
-        className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center justify-center"
+    <View className="flex-1 bg-gray-300 px-2 pb-2 rounded-xl my-2">
+      <ScrollView
+        ref={scrollViewRef}
+        className="flex-1"
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={true}
+        showsVerticalScrollIndicator={false}
       >
-        <Plus size={18} color="white" />
-        <Text className="text-white font-hn-medium ml-2">Add Vet</Text>
-      </TouchableOpacity>
-
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {vets.map((vet, index) => (
           <View
-            key={index}
+            key={vet.id}
             className={`bg-white rounded-xl p-4 mx-1 ${
-              index === 0 ? 'mt-2' : 'mt-3'
+              index === 0 ? 'mt-3' : 'mt-3'
             } ${index === vets.length - 1 ? 'mb-3' : ''}`}
           >
             {/* Header with Actions */}
@@ -168,12 +284,15 @@ export default function ClientVetsList() {
               </Text>
 
               {vet.email && (
-                <View className="flex-row items-center mb-2">
-                  <Mail size={16} color="#6B7280" />
-                  <Text className="text-sm font-hn-regular text-gray-600 ml-2">
+                <TouchableOpacity
+                  onPress={() => handleVetEmailPress(vet.email)}
+                  className="flex-row items-center mb-2"
+                >
+                  <Mail size={16} color="#3B82F6" />
+                  <Text className="text-sm font-hn-regular text-blue-600 ml-2">
                     {vet.email}
                   </Text>
-                </View>
+                </TouchableOpacity>
               )}
 
               {vet.primary_phone && (
@@ -205,38 +324,69 @@ export default function ClientVetsList() {
             {(vet.street_address || vet.city || vet.state || vet.zip) && (
               <View className="mb-3">
                 <Text className="text-base font-hn-bold  mb-2">Address</Text>
-                <View className="flex-row items-start">
-                  <MapPin size={16} color="#6B7280" className="mt-0.5" />
+                <TouchableOpacity
+                  onPress={() => handleVetAddressPress(vet)}
+                  className="flex-row items-start"
+                >
+                  <MapPin size={16} color="#3B82F6" className="mt-0.5" />
                   <View className="ml-2 flex-1">
                     {vet.street_address && (
-                      <Text className="text-sm font-hn-regular text-gray-600">
+                      <Text className="text-sm font-hn-regular text-blue-600">
                         {vet.street_address}
                       </Text>
                     )}
                     {(vet.city || vet.state || vet.zip) && (
-                      <Text className="text-sm font-hn-regular text-gray-600">
+                      <Text className="text-sm font-hn-regular text-blue-600">
                         {[vet.city, vet.state, vet.zip]
                           .filter(Boolean)
                           .join(', ')}
                       </Text>
                     )}
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
             )}
 
-            {/* Notes */}
-            {vet.notes && (
-              <View className="bg-gray-100 p-3 rounded-lg">
-                <Text className="text-base font-hn-bold  mb-1">Notes</Text>
-                <Text className="text-sm font-hn-regular text-gray-600 leading-5">
-                  {vet.notes}
-                </Text>
-              </View>
-            )}
+            {/* Notes - Now Editable */}
+            <Text className="text-base font-hn-bold mb-2">Notes</Text>
+            <TextInput
+              ref={(ref) => (textInputRefs.current[vet.id] = ref)}
+              value={vetNotes[vet.id] || ''}
+              onChangeText={(text) => handleNotesChange(vet.id, text)}
+              onBlur={() => handleSaveVetNotes(vet.id, vetNotes[vet.id] || '')}
+              onFocus={() => handleNotesFocus(vet.id)}
+              placeholder="Add notes about this vet..."
+              placeholderTextColor="#9CA3AF"
+              multiline
+              textAlignVertical="top"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                handleSaveVetNotes(vet.id, vetNotes[vet.id] || '');
+              }}
+              blurOnSubmit={true}
+              className="text-sm font-hn-regular min-h-[80]"
+              style={{
+                backgroundColor: '#f0f0f0',
+                borderRadius: 20,
+                padding: 12,
+                fontFamily: 'hn-regular',
+                fontSize: 14,
+                color: '#333',
+                minHeight: 80,
+              }}
+            />
           </View>
         ))}
       </ScrollView>
+
+      {/* Add Vet Button */}
+      <TouchableOpacity
+        onPress={handleAddVet}
+        className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center justify-center"
+      >
+        <Plus size={18} color="white" />
+        <Text className="text-white font-hn-medium ml-2">Add Vet</Text>
+      </TouchableOpacity>
     </View>
   );
 }

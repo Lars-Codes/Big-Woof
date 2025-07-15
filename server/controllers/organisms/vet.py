@@ -30,7 +30,8 @@ def createVet():
 def updateVetContact():
     data = {}
     possible_fields = [
-        'client_id', 'fname', 'lname', 'city', 'email', 'notes', 'primary_phone', 'secondary_phone', 'state', 'street_address', 'zip'
+        'client_id', 'vet_id', 'fname', 'lname', 'city', 'email', 'notes', 
+        'primary_phone', 'secondary_phone', 'state', 'street_address', 'zip'
     ]
     
     for field in possible_fields:
@@ -41,6 +42,11 @@ def updateVetContact():
     if data.get('client_id') == None: 
         return (
             jsonify({"success": 0, "error": "Key client_id must be provided"}), 500, 
+        )
+        
+    if data.get('vet_id') == None: 
+        return (
+            jsonify({"success": 0, "error": "Key vet_id must be provided"}), 500, 
         )  
         
     try:

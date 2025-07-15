@@ -99,16 +99,7 @@ export default function ClientPetsList() {
   };
 
   return (
-    <View className="flex-1 bg-gray-300 px-2 pt-2 rounded-xl my-2">
-      {/* Add Pet Button */}
-      <TouchableOpacity
-        onPress={handleAddPet}
-        className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center justify-center"
-      >
-        <Plus size={18} color="white" />
-        <Text className="text-white font-hn-medium ml-2">Add Pet</Text>
-      </TouchableOpacity>
-
+    <View className="flex-1 bg-gray-300 px-2 pb-2 rounded-xl my-2">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {pets.map((pet, index) => (
           <TouchableOpacity
@@ -116,7 +107,7 @@ export default function ClientPetsList() {
             key={pet.pet_id}
             activeOpacity={0.4}
             className={`bg-white rounded-xl p-4 mx-1 ${
-              index === 0 ? 'mt-2' : 'mt-3'
+              index === 0 ? 'mt-3' : 'mt-3'
             } ${index === pets.length - 1 ? 'mb-3' : ''}`}
           >
             <View className="flex-row justify-between items-start mb-2">
@@ -152,6 +143,15 @@ export default function ClientPetsList() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Add Pet Button */}
+      <TouchableOpacity
+        onPress={handleAddPet}
+        className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center justify-center"
+      >
+        <Plus size={18} color="white" />
+        <Text className="text-white font-hn-medium ml-2">Add Pet</Text>
+      </TouchableOpacity>
     </View>
   );
 }

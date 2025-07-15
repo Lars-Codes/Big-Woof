@@ -37,8 +37,6 @@ export default function ClientAppointmentsList() {
 
   const { payment_methods } = stats;
 
-  console.log('ClientAppointmentsList payment_methods:', payment_methods);
-
   if (!hasAnyAppointments) {
     return (
       <View className="flex-1 justify-center items-center mb-20">
