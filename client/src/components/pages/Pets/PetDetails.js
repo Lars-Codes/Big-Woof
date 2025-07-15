@@ -21,6 +21,11 @@ import {
   selectLoading,
   setGender,
 } from '../../../state/petDetails/petDetailsSlice';
+import {
+  selectHairLengths,
+  selectCoatTypes,
+  selectSizeTiers,
+} from '../../../state/pets/petsSlice';
 import CustomDropdown from '../../atoms/CustomDropdown/CustomDropdown';
 import PetProfilePicture from '../../atoms/PetProfilePicture/PetProfilePicture';
 
@@ -28,15 +33,66 @@ export default function PetDetails() {
   const dispatch = useDispatch();
   const loading = useSelector(selectLoading);
   const pet = useSelector(selectPetDetails);
+  const hairLengths = useSelector(selectHairLengths);
+  const coatTypes = useSelector(selectCoatTypes);
+  const sizeTiers = useSelector(selectSizeTiers);
+
+  const hairLengthsOptions = hairLengths.map((length) => ({
+    label: length.length,
+    value: length.hair_length_id,
+  }));
+
+  const coatTypesOptions = coatTypes.map((coat) => ({
+    label: coat.type,
+    value: coat.coat_type_id,
+  }));
+
+  const sizeTearsOptions = sizeTiers.map((size) => ({
+    label: size.tier,
+    value: size.size_tier_id,
+  }));
+
   const employees = useSelector(selectEmployees);
   const scrollViewRef = useRef(null);
 
   const [notes, setNotes] = useState(pet?.pet_data?.notes || '');
+  // Add local state for all dropdowns
+  const [selectedHairLength, setSelectedHairLength] = useState(
+    pet?.pet_data?.hair_length || 'Not Assigned',
+  );
+  const [selectedCoatType, setSelectedCoatType] = useState(
+    pet?.pet_data?.coat_type || 'Not Assigned',
+  );
+  const [selectedSizeTier, setSelectedSizeTier] = useState(
+    pet?.pet_data?.size_tier || 'Not Assigned',
+  );
 
-  // Update notes when pet changes
+  // Update all local states when pet changes
   useEffect(() => {
     setNotes(pet?.pet_data?.notes || '');
-  }, [pet?.pet_data?.id, pet?.pet_data?.notes]);
+    setSelectedHairLength(pet?.pet_data?.hair_length || 'Not Assigned');
+    setSelectedCoatType(pet?.pet_data?.coat_type || 'Not Assigned');
+    setSelectedSizeTier(pet?.pet_data?.size_tier || 'Not Assigned');
+  }, [
+    pet?.pet_data?.id,
+    pet?.pet_data?.notes,
+    pet?.pet_data?.hair_length,
+    pet?.pet_data?.coat_type,
+    pet?.pet_data?.size_tier,
+  ]);
+
+  // Find current IDs for all dropdowns based on local state
+  const currentHairLengthId = hairLengths.find(
+    (length) => length.length === selectedHairLength,
+  )?.hair_length_id;
+
+  const currentCoatTypeId = coatTypes.find(
+    (coat) => coat.type === selectedCoatType,
+  )?.coat_type_id;
+
+  const currentSizeTierId = sizeTiers.find(
+    (size) => size.tier === selectedSizeTier,
+  )?.size_tier_id;
 
   const handleSaveNotes = () => {
     if (notes !== pet?.pet_data?.notes) {
@@ -113,11 +169,6 @@ export default function PetDetails() {
         </View>
       </View>
     );
-  };
-
-  const handleSelectGroomer = (item) => {
-    const updatedData = { pet_id: pet.pet_data.id, typical_groomer: item };
-    dispatch(updatePetAction({ petData: updatedData }));
   };
 
   const renderGenderIcon = () => {
@@ -197,13 +248,13 @@ export default function PetDetails() {
         {/* Basic Info Card */}
         <View className="bg-gray-50 rounded-lg p-4 mb-4">
           <Text className="text-2xl font-hn-bold mb-2">Basic Information</Text>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Age:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.age + ' years' || '0 years'}
             </Text>
           </View>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Gender:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.gender === 1
@@ -213,31 +264,52 @@ export default function PetDetails() {
                   : 'Unknown'}
             </Text>
           </View>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Weight:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.weight + ' lbs' || '0 lbs'}
             </Text>
           </View>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Size Tier:</Text>
-            <Text className="text-lg font-hn-regular">
-              {pet.pet_data?.size_tier || '--'}
-            </Text>
+            <CustomDropdown
+              options={sizeTearsOptions}
+              selectedOption={currentSizeTierId}
+              onSelect={(selectedId) => {
+                const selectedSizeTierObj = sizeTiers.find(
+                  (size) => size.size_tier_id === selectedId,
+                );
+                setSelectedSizeTier(
+                  selectedSizeTierObj?.tier || 'Not Assigned',
+                );
+                const updatedData = {
+                  pet_id: pet.pet_data.id,
+                  size_tier_id: selectedId,
+                  size_tier: selectedSizeTierObj?.tier,
+                };
+                dispatch(updatePetAction({ petData: updatedData }));
+              }}
+              title="Size Tier"
+              placeholder="Select Size Tier"
+            >
+              <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
+                {selectedSizeTier}
+              </Text>
+            </CustomDropdown>
           </View>
         </View>
 
         {/* Health Info Card */}
         <View className="bg-gray-50 rounded-lg p-4 mb-4">
           <Text className="text-2xl font-hn-bold mb-2">Health Information</Text>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Fixed:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.fixed === 1 ? 'Yes' : 'No'}
             </Text>
           </View>
           {pet.pet_data?.deceased === 1 && (
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center gap-1 py-1">
               <Text className="text-lg font-hn-medium">Deceased:</Text>
               <Text className="text-lg font-hn-regular">Yes</Text>
             </View>
@@ -249,25 +321,71 @@ export default function PetDetails() {
           <Text className="text-2xl font-hn-bold mb-2">
             Grooming Information
           </Text>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Coat Type:</Text>
-            <Text className="text-lg font-hn-regular">
-              {pet.pet_data?.coat_type || '--'}
-            </Text>
+            <CustomDropdown
+              options={coatTypesOptions}
+              selectedOption={currentCoatTypeId}
+              onSelect={(selectedId) => {
+                const selectedCoatTypeObj = coatTypes.find(
+                  (coat) => coat.coat_type_id === selectedId,
+                );
+                setSelectedCoatType(
+                  selectedCoatTypeObj?.type || 'Not Assigned',
+                );
+                const updatedData = {
+                  pet_id: pet.pet_data.id,
+                  coat_type_id: selectedId,
+                  coat_type: selectedCoatTypeObj?.type,
+                };
+                dispatch(updatePetAction({ petData: updatedData }));
+              }}
+              title="Coat Type"
+              placeholder="Select Coat Type"
+            >
+              <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
+                {selectedCoatType}
+              </Text>
+            </CustomDropdown>
           </View>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Hair Length:</Text>
-            <Text className="text-lg font-hn-regular">
-              {pet.pet_data?.hair_length || '--'}
-            </Text>
+            <CustomDropdown
+              options={hairLengthsOptions}
+              selectedOption={currentHairLengthId}
+              onSelect={(selectedId) => {
+                const selectedHairLengthObj = hairLengths.find(
+                  (length) => length.hair_length_id === selectedId,
+                );
+                setSelectedHairLength(
+                  selectedHairLengthObj?.length || 'Not Assigned',
+                );
+                const updatedData = {
+                  pet_id: pet.pet_data.id,
+                  hair_length_id: selectedId,
+                  hair_length: selectedHairLengthObj?.length,
+                };
+                dispatch(updatePetAction({ petData: updatedData }));
+              }}
+              title="Hair Length"
+              placeholder="Select Hair Length"
+            >
+              <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
+                {selectedHairLength}
+              </Text>
+            </CustomDropdown>
           </View>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Typical Groomer:</Text>
             <CustomDropdown
               options={employees}
               selectedItem={pet.pet_data?.typical_groomer}
               onSelect={(item) => {
-                () => handleSelectGroomer(item);
+                const updatedData = {
+                  pet_id: pet.pet_data.id,
+                  typical_groomer: item,
+                };
+                dispatch(updatePetAction({ petData: updatedData }));
               }}
               title="Typical Groomer"
               placeholder="Select Groomer"
@@ -282,7 +400,7 @@ export default function PetDetails() {
         {/* Owner Info Card */}
         <View className="bg-gray-50 rounded-lg p-4 mb-4">
           <Text className="text-2xl font-hn-bold mb-2">Owner Information</Text>
-          <View className="flex-row items-center gap-1">
+          <View className="flex-row items-center gap-1 py-1">
             <Text className="text-lg font-hn-medium">Owner:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.owner_name || '--'}

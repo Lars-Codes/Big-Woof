@@ -1,5 +1,6 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Picker } from '@react-native-picker/picker';
+import * as Haptics from 'expo-haptics';
 import React, {
   useRef,
   useImperativeHandle,
@@ -48,6 +49,9 @@ const CustomDropdown = forwardRef(
     };
 
     const handleDoneClick = () => {
+      // Trigger haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
       if (tempSelectedValue !== null && tempSelectedValue !== undefined) {
         onSelect(tempSelectedValue);
       }
@@ -104,6 +108,7 @@ const CustomDropdown = forwardRef(
     };
 
     const openActionSheet = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       if (!disabled) {
         setTempSelectedValue(selectedOption);
         actionSheetRef.current?.show();
