@@ -204,6 +204,16 @@ export default function PetDetails() {
             </Text>
           </View>
           <View className="flex-row items-center gap-1">
+            <Text className="text-lg font-hn-medium">Gender:</Text>
+            <Text className="text-lg font-hn-regular">
+              {pet.pet_data?.gender === 1
+                ? 'Male'
+                : pet.pet_data?.gender === 2
+                  ? 'Female'
+                  : 'Unknown'}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1">
             <Text className="text-lg font-hn-medium">Weight:</Text>
             <Text className="text-lg font-hn-regular">
               {pet.pet_data?.weight + ' lbs' || '0 lbs'}

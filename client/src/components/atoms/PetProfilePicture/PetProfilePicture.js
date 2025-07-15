@@ -315,7 +315,7 @@ export default function PetProfilePicture({
                 elevation: 8,
                 overflow: 'visible',
               }}
-              resizeMode="cover"
+              resizeMode="contain"
               fadeDuration={0}
             />
           </View>
