@@ -13,7 +13,6 @@ class Services(db.Model):
     service_name = db.Column(db.String(300), nullable=False)
     service_costs = db.relationship('ServiceCosts', uselist=True, backref='services', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='ServiceCosts.service_id')
     service_additions = db.relationship('ServiceAdditions', uselist=True, backref='services', cascade="all, delete", single_parent=True, lazy='select', foreign_keys='ServiceAdditions.service_id')
-
     description = db.Column(db.Text, nullable = True) 
 
 
@@ -21,33 +20,60 @@ class Services(db.Model):
         self.service_name = service_name 
         self.description = description
         
-    # @classmethod 
-    # def get_all_services(cls):
-    #     try: 
-    #         service = Services.query.options(
-    #             joinedload(Services.service_costs), 
-    #             joinedload(Services.service_additions), 
-    #         ).all()
+    @classmethod 
+    def get_all_services(cls):
+        try: 
+            services = Services.query.options(
+                joinedload(Services.service_costs), 
+                joinedload(Services.service_additions), 
+            ).all()
             
-    #         service_data = [
-    #             {
-    #                 "service_name": 
-    #             }
-    #         ]
-
-            
-    #     except SQLAlchemyError as e:
-    #         db.session.rollback()
-    #         print(f"Database error: {e}")
-    #         return (
-    #             jsonify({"success": 0, "error": "Failed to get all services. Database error"}), 500,
-    #         )
-    #     except Exception as e: 
-    #         db.session.rollback()
-    #         print(f"Unknown error: {e}")
-    #         return (
-    #             jsonify({"success": 0, "error": "Failed to et all services. Unknown error"}), 500,
-    #         ) 
+            service_data = []
+            for service in services: 
+                data = {
+                    "service_name": service.service_name, 
+                    "description": service.description if service.description else "",
+                    "service_costs": [],
+                    "service_additions": [],
+                }
+                # service_data.append(data)
+                
+                for cost in service.service_costs: 
+                    cost_info = {
+                        "service_cost": cost.service_cost, 
+                        "breed": cost.breed.name if cost.breed else "",
+                        "size_tier": cost.size_tier.size_tier if cost.size_tier else "",
+                        "coat_type": cost.coat_type.coat_type if cost.coat_type else "",
+                        "hair_length": cost.hair_length.length if cost.hair_length else "",
+                    }
+                    data["service_costs"].append(cost_info)
+                
+                for addition in service.service_additions: 
+                    addition_info = {
+                        "service_addition_added_cost": addition.added_cost, 
+                        "reason": addition.reason, 
+                        "description": addition.description if addition.description else "",
+                    }
+                    data["service_additions"].append(addition_info)
+                
+                service_data.append(data)    
+                    
+            return jsonify({
+                "success": 1, 
+                "data": service_data
+            })  
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all services. Database error"}), 500,
+            )
+        except Exception as e: 
+            db.session.rollback()
+            print(f"Unknown error: {e}")
+            return (
+                jsonify({"success": 0, "error": "Failed to get all services. Unknown error"}), 500,
+            ) 
         
     @classmethod 
     def create_service(cls, service_name, description):

@@ -8,7 +8,7 @@ class ServiceCosts(db.Model):
     
     id = db.Column(db.Integer, primary_key = True) 
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)  
-    service_cost = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
+    service_cost = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
 
     breed_id = db.Column(db.Integer, db.ForeignKey('breed.id'), nullable=True)  
     size_tier_id = db.Column(db.Integer, db.ForeignKey('size_tier.id'), nullable=True)   

@@ -6,6 +6,15 @@ from models.logistics.service_additions import ServiceAdditions
 services_bp = Blueprint("services_bp", __name__)
 
 # SERVICES =========================================================================================================
+@services_bp.route('/getAllServices', methods=["GET"])
+def getAllServices():
+    try: 
+        res = Services.get_all_services()
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /getAllServices: {e}")
+        return res
+    
 @services_bp.route('/createService', methods=["POST"])
 def createService():
     service_name = request.form.get("service_name")

@@ -16,6 +16,9 @@ from models.files.client_files import ClientFiles
 from models.misc.sticky_notes import StickyNotes
 from models.timemachine.added_time import AddedTime
 from models.finances.additional_costs import AdditionalCosts
+from models.logistics.services import Services
+from models.finances.service_costs import ServiceCosts
+from models.logistics.service_additions import ServiceAdditions
 
 import random
 from datetime import datetime, date, time, timedelta
@@ -115,6 +118,251 @@ vet_notes = [
 relationships = ["mom", "dad", "sister", "brother", "roommate", "friend", "partner", "girlfriend", "boyfriend", "cousin", "uncle", "grandma", "grandpa"]
 
 document_types = ["Vaccination record", "Contract agreement", "Receipt", "Invoice", "Rabies record", "Other"]
+
+
+dog_grooming_services = [
+    "Basic Bath",
+    "Haircut",
+    "Nail Trim",
+    "Nail Grinding",
+    "Ear Cleaning",
+    "Teeth Brushing",
+    "De-shedding Treatment",
+    "Anal Gland Expression",
+    "Flea & Tick Bath",
+    "Medicated Bath",
+    "Paw Pad Trim",
+    "Sanitary Trim",
+    "Face Trim",
+    "Full Groom",
+    "Puppy Cut",
+    "Breed-Specific Cut",
+    "Shampoo and Conditioning",
+    "Dematting",
+    "Blueberry Facial",
+    "Skunk Odor Removal",
+    "Whitening Shampoo",
+    "Sensitive Skin Treatment",
+    "Coat Conditioning Spray",
+    "Blow Dry and Brush Out",
+    "Hand Stripping",
+    "Hydrotherapy Bath",
+    "Undercoat Removal",
+    "Paw Balm Application",
+    "Deodorizing Spray",
+    "Tick Removal",
+    "Hot Oil Treatment",
+    "Dry Shampoo Treatment",
+    "Oatmeal Bath",
+    "Ear Hair Removal",
+    "Skin Moisturizing Treatment",
+    "Teeth Scaling (Non-anesthetic)",
+    "Nail Polish for Dogs",
+    "Color Tinting",
+    "Mohawk Trim",
+    "Feather Extensions",
+    "Bandana or Bow",
+    "Fragrance Spritz",
+    "Paw Soak",
+    "Nose Balm Application",
+    "De-matting Comb-out",
+    "Lump Check",
+    "Matted Coat Shave Down",
+    "Senior Dog Grooming",
+    "Puppy Intro Groom",
+    "Express Groom (Quick Service)",
+    "Luxury Spa Package",
+    "Seasonal Shedding Treatment",
+    "Conditioner Rinse",
+    "Tear Stain Removal",
+    "Tick & Flea Check",
+    "Special Needs Grooming",
+    "Deep Conditioning Mask",
+    "Clipping Around Eyes",
+    "Custom Style Cut",
+    "Ear Plucking",
+    "Pad Cleaning",
+    "Brush Out Only",
+    "Trim Around Paws",
+    "Belly Shave",
+    "Tail Feathering",
+    "Hair Dye for Dogs",
+    "Show Dog Grooming",
+    "Long Coat Maintenance",
+    "Short Coat Finish",
+    "Nail Capping",
+    "Whisker Trim",
+    "Muzzle Clean-up",
+    "Body Clipping",
+    "Holiday-Themed Cut",
+    "Allergy Relief Treatment",
+    "De-skunking",
+    "Tangle-Free Finish",
+    "Therapeutic Shampoo",
+    "Chlorhexidine Bath",
+    "Coconut Oil Treatment",
+    "Coat Shine Spray",
+    "Double Coat Blowout",
+    "Deep Ear Flush",
+    "Foot Soak for Irritation",
+    "Cooling Spritz",
+    "Top Knot Styling",
+    "Trim Between Toes",
+    "Anal Area Trim",
+    "Underbelly Trim",
+    "Flea Comb-Through",
+    "Bath and Towel Dry",
+    "Drying with Turban Wrap",
+    "Quick Fresh-Up Service",
+    "Day Spa Package",
+    "Shed Control Treatment",
+    "Gland Check",
+    "Teeth Wipe",
+    "Quick Brush & Go",
+    "Paw Massage",
+    "Scented Coat Spray"
+]
+
+dog_grooming_service_descriptions = [
+    "A gentle bath using pet-safe shampoo to clean and refresh your dog's coat.",
+    "A full-body haircut tailored to your dog's breed or your preferred style.",
+    "Trim and file your dog’s nails to a safe, comfortable length.",
+    "Smooths rough edges after nail trimming to prevent scratches.",
+    "Cleans ears to remove wax and debris, helping prevent infections.",
+    "Brushes your dog's teeth to help reduce plaque and maintain oral health.",
+    "Removes loose undercoat to reduce shedding and promote healthy skin.",
+    "Gently expresses anal glands to reduce discomfort and avoid infection.",
+    "Kills fleas and ticks using safe medicated shampoo.",
+    "Treats skin issues with specialized vet-recommended shampoo.",
+    "Trims excess fur around paw pads for better traction and hygiene.",
+    "Neat trim in sensitive areas to maintain hygiene and cleanliness.",
+    "Shapes facial fur for a clean, expressive look.",
+    "Complete grooming including bath, haircut, nail trim, and ear cleaning.",
+    "A soft, even trim designed for puppies and comfort.",
+    "Precision trim following breed grooming standards.",
+    "Deep-clean shampoo followed by coat-softening conditioner.",
+    "Removes tangles and mats with care to avoid skin irritation.",
+    "A gentle facial scrub with blueberry essence for a fresh scent.",
+    "Removes skunk odors safely and completely with special treatment.",
+    "Brightens white fur using whitening shampoo without bleach.",
+    "Uses gentle formulas for dogs with allergies or sensitive skin.",
+    "Applies leave-in conditioner to keep the coat soft and shiny.",
+    "Dries and brushes your dog’s coat for a smooth, tangle-free finish.",
+    "Hand-plucking dead hair for specific terrier or wire-coated breeds.",
+    "Gentle water massage for dogs with arthritis or sore muscles.",
+    "Rakes and blows out dense undercoats to prevent matting.",
+    "Soothes cracked paws with healing balm application.",
+    "Neutralizes odors with a safe, long-lasting dog deodorizer.",
+    "Manual removal of ticks found during the grooming process.",
+    "Nourishes coat with warm oil to treat dry skin and dull fur.",
+    "Cleans without water using dry foam or powder.",
+    "Calms itchy or dry skin using a colloidal oatmeal bath.",
+    "Removes excess ear hair that may block airflow.",
+    "Hydrating treatment to soothe flaky or irritated skin.",
+    "Scrapes plaque using gentle tools—no anesthesia required.",
+    "Adds a fun pop of color with dog-safe nail polish.",
+    "Applies temporary, safe dye for playful fur coloring.",
+    "Gives your dog a bold, edgy mohawk hairstyle.",
+    "Adds dog-safe feathers to give your pup a fashionable look.",
+    "Includes a seasonal bandana or cute bow after grooming.",
+    "A spritz of lightly scented dog perfume to finish the session.",
+    "Warm paw soak to clean and soothe cracked or dry paw pads.",
+    "Nose balm to protect and moisturize a dry or cracked nose.",
+    "Careful removal of knots and mats using specialized combs.",
+    "Checks for unusual lumps or bumps during brushing.",
+    "Safely shaves severely matted fur to relieve discomfort.",
+    "Gentle services tailored for elderly dogs with special needs.",
+    "Short grooming session to help puppies adjust to the process.",
+    "Fast-track grooming for dogs that get nervous or stressed.",
+    "Includes premium treatments like facials, conditioner, and paw balm.",
+    "Seasonal solution for dogs shedding their winter coat.",
+    "Final conditioner rinse for a soft, healthy finish.",
+    "Removes unsightly tear stains around eyes with gentle wipes.",
+    "Thorough inspection for ticks and fleas during combing.",
+    "Accommodates dogs with medical or behavioral challenges.",
+    "Deep-moisture mask to repair dry or damaged fur.",
+    "Trims fur away from the eyes for better vision and hygiene.",
+    "Custom cut designed to match your dog’s lifestyle and personality.",
+    "Plucks excess ear hair to maintain airflow and cleanliness.",
+    "Cleans paw pads and in-between toes thoroughly.",
+    "Basic brushing to remove loose fur and minor tangles.",
+    "Trims around the paws for a tidy appearance.",
+    "Removes belly fur to prevent matting and overheating.",
+    "Adds soft, flowing hair to the tail for a fluffy look.",
+    "Fun, safe coloring for a custom tail or ear tint.",
+    "Show-quality grooming for competitions and events.",
+    "Maintains long coats with regular brushing and conditioning.",
+    "Enhances shine and reduces shedding in short-haired dogs.",
+    "Soft plastic caps applied to nails to prevent scratching.",
+    "Shortens or shapes whiskers for specific show looks.",
+    "Cleans around muzzle and lips to remove food or debris.",
+    "Clips body hair evenly for a sleek, uniform look.",
+    "Adds fun details like hearts or stars for holidays.",
+    "Relieves irritated skin with soothing botanical blends.",
+    "Removes skunk oil from fur using multi-step decontamination.",
+    "Final detangling treatment for a smooth coat finish.",
+    "Therapeutic bath to treat skin irritations and infections.",
+    "Antiseptic shampoo bath for dogs prone to hotspots.",
+    "Coconut oil soak for shiny fur and moisturized skin.",
+    "Final mist that adds shine and protects against odor.",
+    "Targets thick double coats with power drying and brushing.",
+    "Flushes out deep ear wax with vet-grade solution.",
+    "Soothes itchy feet with Epsom salt and herbal blend.",
+]
+
+extra_cost_reasons = [
+    "Severely matted coat",
+    "Pelted fur removal",
+    "Aggressive or reactive behavior",
+    "Excessive shedding",
+    "Double coat blowout",
+    "Extra brushing time",
+    "Dog required two groomers",
+    "Excessive dirt or feces in coat",
+    "Flea infestation",
+    "Tick removal required",
+    "Special medicated shampoo",
+    "Premium hypoallergenic shampoo",
+    "Sensitive skin treatment",
+    "Hot spot treatment",
+    "Skunk odor removal",
+    "Oatmeal or aloe treatment bath",
+    "Nail grinding instead of trimming",
+    "Overgrown nails requiring extra time",
+    "Teeth cleaning with scaling tools",
+    "Anal glands impacted",
+    "Ear infection cleaning",
+    "Severe ear matting or buildup",
+    "Senior dog extra care",
+    "Disabled or injured dog handling",
+    "Dog didn’t tolerate drying",
+    "Extra-long or thick coat",
+    "Large dog extra time",
+    "Giant breed surcharge",
+    "Puppy required multiple breaks",
+    "Multiple attempts due to stress",
+    "Excessive barking or resistance",
+    "Heavy de-matting session",
+    "Breed-specific cut complexity",
+    "Custom haircut request",
+    "Creative grooming or coloring",
+    "Holiday styling add-on",
+    "Second bath required",
+    "Long overdue grooming (over 3 months)",
+    "Wet or soiled on arrival",
+    "Dog bit or snapped at tools",
+    "Grooming required sedation assistance",
+    "Hand stripping instead of clipping",
+    "Owner no-show reschedule fee",
+    "Late drop-off or pickup fee",
+    "Emergency same-day appointment",
+    "Unplanned walk-in fee",
+    "Multiple coat conditions to treat",
+    "Excess tangles on ears or tail",
+    "Excess undercoat buildup",
+    "Time-consuming breed (e.g., doodles, poodles)"
+]
+
 
 def generate_phone():
     return f"{random.randint(100, 999)}{random.randint(100, 999)}{random.randint(1000, 9999)}"
@@ -277,7 +525,9 @@ def create_data():
                     pets_created.append(pet)
                     pet_id = pet.id 
                     
+                    
                 # Add this after creating pets and before creating appointments (around line 270)
+
 
                 # Create additional costs for services (1-3 records)
                 num_service_costs = random.randint(1, 3)
@@ -487,6 +737,42 @@ def create_data():
             
             # print(f"Successfully created {num_clients} clients with all associated data and profile pictures!")
             print(f"Successfully created {num_clients} clients with all associated data!")
+            
+            # Create services 
+            num_services = 10 
+            for i in range(1, num_services+1):
+                service = Services(
+                    service_name=random.choice(dog_grooming_services), 
+                    description = random.choice(dog_grooming_service_descriptions)
+                )
+                db.session.add(service)
+                db.session.flush()
+                
+                num_service_costs = random.randint(1, 10)
+                for i in range(num_service_costs):
+                    service_id = service.id
+                    cost_of_service = random.randint(30, 150)
+                    breed_id = random.randint(1, 25)
+                    size_tier_id=random.randint(1, 4)
+                    coat_type_id=random.randint(1, 4)
+                    hair_length_id = random.randint(1, 5)                    
+                    
+                    cost_for_service = ServiceCosts(service_id=service_id, service_cost=cost_of_service, breed_id=breed_id, size_tier_id=size_tier_id, coat_type_id=coat_type_id, hair_length_id=hair_length_id)                
+                    db.session.add(cost_for_service)
+
+                num_service_additions = random.randint(1, 5)
+                for i in range(num_service_additions):
+                    service_id = service.id 
+                    added_cost = random.randint(1, 10)
+                    reason = random.choice(extra_cost_reasons)
+                    description = random.choice(dog_grooming_service_descriptions)
+                    additions = ServiceAdditions(service_id, added_cost, reason, description)
+                    
+                    db.session.add(additions)
+                
+                db.session.commit()
+                    
+            
             
         except SQLAlchemyError as e:
             db.session.rollback()
