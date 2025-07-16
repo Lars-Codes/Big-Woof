@@ -1,7 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Haptics from 'expo-haptics';
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, ActivityIndicator, FlatList } from 'react-native';
+import { View, ActivityIndicator, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { clientsSearchByAction } from '../../../sagas/clients/clientsSearchBy/action';
 import { clientsSortedByAction } from '../../../sagas/clients/clientsSortedBy/action';
@@ -128,6 +128,22 @@ export default function ClientList() {
     return sectionedData;
   }, [sectionedData, hideHeaders]);
 
+  // Calculate sticky header indices for section headers only
+  const stickyHeaderIndices = useMemo(() => {
+    if (hideHeaders) {
+      return [];
+    }
+
+    const indices = [];
+    filteredSectionedData.forEach((item, index) => {
+      if (item.type === 'section-header') {
+        indices.push(index);
+      }
+    });
+
+    return indices;
+  }, [filteredSectionedData, hideHeaders]);
+
   const renderItem = useCallback(({ item }) => {
     if (item.type === 'section-header') {
       return <CustomSectionedHeader title={item.title} icon={item.icon} />;
@@ -136,17 +152,7 @@ export default function ClientList() {
     return <ClientItem client={item} />;
   }, []);
 
-  const renderListHeader = useMemo(
-    () => (
-      <SearchInput
-        searchStr={searchStr}
-        handleSearch={handleClientSearch}
-        handleFilter={handleClientFilter}
-        placeholder="Search Clients"
-      />
-    ),
-    [searchStr, handleClientSearch, handleClientFilter],
-  );
+  // Remove renderListHeader since we're moving search outside
 
   // Custom keyExtractor to handle both clients and headers
   const keyExtractor = useCallback((item) => {
@@ -165,26 +171,26 @@ export default function ClientList() {
   }
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 mt-28">
+      <SearchInput
+        searchStr={searchStr}
+        handleSearch={handleClientSearch}
+        handleFilter={handleClientFilter}
+        placeholder="Search Clients"
+      />
       <FlatList
         data={filteredSectionedData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={() => (
-          <View className="flex-1 items-center justify-center min-h-80">
-            <Text className="text-lg text-gray-500 font-hn-medium">
-              No clients available.
-            </Text>
-          </View>
-        )}
+        stickyHeaderIndices={stickyHeaderIndices}
+        ListEmptyComponent={null}
         onRefresh={handleRefresh}
         refreshing={loading}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        initialNumToRender={10}
-        updateCellsBatchingPeriod={100}
+        removeClippedSubviews={false}
+        maxToRenderPerBatch={50}
+        windowSize={10}
+        initialNumToRender={20}
+        updateCellsBatchingPeriod={50}
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={true}
         indicatorStyle="black"
@@ -193,7 +199,8 @@ export default function ClientList() {
         contentContainerStyle={{
           paddingBottom: deleteMode ? 52 : 0,
         }}
-        disableVirtualization={false}
+        disableVirtualization={true}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );

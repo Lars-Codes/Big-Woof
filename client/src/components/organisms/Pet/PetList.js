@@ -169,6 +169,22 @@ export default function PetList() {
     return sectionedData;
   }, [sectionedData, hideHeaders]);
 
+  // Calculate sticky header indices
+  const stickyHeaderIndices = useMemo(() => {
+    if (hideHeaders) {
+      return [];
+    }
+
+    const indices = [];
+    filteredSectionedData.forEach((item, index) => {
+      if (item.type === 'section-header') {
+        indices.push(index);
+      }
+    });
+
+    return indices;
+  }, [filteredSectionedData, hideHeaders]);
+
   const renderItem = useCallback(({ item }) => {
     if (item.type === 'section-header') {
       return <CustomSectionedHeader title={item.title} icon={item.icon} />;
@@ -176,18 +192,6 @@ export default function PetList() {
 
     return <PetItem pet={item} />;
   }, []);
-
-  const renderListHeader = useMemo(
-    () => (
-      <SearchInput
-        searchStr={searchStr}
-        handleSearch={handlePetSearch}
-        handleFilter={handlePetFilter}
-        placeholder="Search Pets"
-      />
-    ),
-    [searchStr, handlePetSearch, handlePetFilter],
-  );
 
   const keyExtractor = useCallback((item) => {
     if (item.type === 'section-header') {
@@ -205,12 +209,18 @@ export default function PetList() {
   }
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 mt-28">
+      <SearchInput
+        searchStr={searchStr}
+        handleSearch={handlePetSearch}
+        handleFilter={handlePetFilter}
+        placeholder="Search Pets"
+      />
       <FlatList
         data={filteredSectionedData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        ListHeaderComponent={renderListHeader}
+        stickyHeaderIndices={stickyHeaderIndices}
         ListEmptyComponent={() => (
           <View className="flex-1 items-center justify-center min-h-80">
             <Text className="text-lg text-gray-500 font-hn-medium">
