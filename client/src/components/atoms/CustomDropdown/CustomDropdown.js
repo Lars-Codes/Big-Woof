@@ -52,6 +52,13 @@ const CustomDropdown = forwardRef(
         onSelect(tempSelectedValue);
       }
       actionSheetRef.current?.hide();
+    };
+
+    const handleNextClick = () => {
+      if (tempSelectedValue !== null && tempSelectedValue !== undefined) {
+        onSelect(tempSelectedValue);
+      }
+      actionSheetRef.current?.hide();
 
       if (onAfterSelect) {
         setTimeout(() => {
@@ -74,9 +81,22 @@ const CustomDropdown = forwardRef(
         tempSelectedValue !== null &&
         tempSelectedValue !== undefined;
 
+      // Get the display label for the action sheet
+      const displayLabel = selectedOptionData
+        ? typeof selectedOptionData === 'object' && selectedOptionData.label
+          ? selectedOptionData.label
+          : selectedOptionData
+        : tempSelectedValue;
+
+      // Create the delete option text
+      const deleteOptionText =
+        displayLabel && displayLabel !== null
+          ? `Delete ${displayLabel}`
+          : 'Delete';
+
       showActionSheetWithOptions(
         {
-          options: ['Add', 'Delete', 'Cancel'],
+          options: [`Add ${title}`, deleteOptionText, 'Cancel'],
           destructiveButtonIndex: 1,
           cancelButtonIndex: 2,
           disabledButtonIndices: isDataAvailable ? [] : [1],
@@ -188,6 +208,17 @@ const CustomDropdown = forwardRef(
               }
             })}
           </Picker>
+
+          {/* Footer */}
+          <View className="flex-row justify-between items-center px-6 pb-8">
+            <View className="flex-1">
+              <TouchableOpacity onPress={handleNextClick} className="items-end">
+                <Text className="text-2xl font-hn-medium text-blue-500">
+                  Next
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ActionSheet>
       </>
     );
