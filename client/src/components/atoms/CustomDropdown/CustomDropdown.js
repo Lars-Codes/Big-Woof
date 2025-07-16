@@ -8,7 +8,7 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { TouchableOpacity, View, Text, Alert } from 'react-native';
 import ActionSheet from 'react-native-actions-sheet';
 
 const CustomDropdown = forwardRef(
@@ -22,6 +22,7 @@ const CustomDropdown = forwardRef(
       title,
       disabled = false,
       showEditButton = false,
+      canBeNull = true,
       handleAdd,
       handleDelete,
       children,
@@ -52,7 +53,9 @@ const CustomDropdown = forwardRef(
       // Trigger haptic feedback
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      if (tempSelectedValue !== null && tempSelectedValue !== undefined) {
+      if (tempSelectedValue == null || tempSelectedValue == undefined) {
+        onSelect('');
+      } else {
         onSelect(tempSelectedValue);
       }
       actionSheetRef.current?.hide();
@@ -154,7 +157,22 @@ const CustomDropdown = forwardRef(
               </Text>
             </View>
             <View className="flex-1">
-              <TouchableOpacity onPress={handleDoneClick} className="items-end">
+              <TouchableOpacity
+                onPress={() => {
+                  if (
+                    !canBeNull &&
+                    (tempSelectedValue == null || tempSelectedValue === '')
+                  ) {
+                    Alert.alert(
+                      'Invalid Selection',
+                      'Please select a valid option.',
+                    );
+                  } else {
+                    handleDoneClick();
+                  }
+                }}
+                className="items-end"
+              >
                 <Text className="text-2xl font-hn-medium text-blue-500">
                   Done
                 </Text>

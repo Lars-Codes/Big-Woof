@@ -4,7 +4,7 @@ import { setPetDeceased } from '../../../state/petDetails/petDetailsSlice';
 import { updatePetDeceased } from '../../../state/pets/petsSlice';
 
 export default function* updatePetIsDeceased(action) {
-  const { petId, isDeceased } = action.payload;
+  const { petId, isDeceased, onSuccess, onError } = action.payload;
 
   try {
     // Update Redux state immediately for instant UI feedback
@@ -22,11 +22,19 @@ export default function* updatePetIsDeceased(action) {
       'Content-Type': 'multipart/form-data',
     });
 
-    if (!res?.success === 1) {
+    if (res?.success === 1) {
+      // Server update successful
+      if (onSuccess && typeof onSuccess === 'function') {
+        yield call(onSuccess, res);
+      }
+    } else {
       // If server update fails, revert the local change
       yield put(updatePetDeceased({ petId, isDeceased: !isDeceased }));
       yield put(setPetDeceased(!isDeceased ? 1 : 0));
       console.error('Failed to update deceased status on server');
+      if (onError && typeof onError === 'function') {
+        yield call(onError, res);
+      }
     }
     return res;
   } catch (error) {
@@ -34,5 +42,8 @@ export default function* updatePetIsDeceased(action) {
     yield put(updatePetDeceased({ petId, isDeceased: !isDeceased }));
     yield put(setPetDeceased(!isDeceased ? 1 : 0));
     console.error('Error updating pet deceased status:', error);
+    if (onError && typeof onError === 'function') {
+      yield call(onError, error);
+    }
   }
 }
