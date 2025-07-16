@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import { useDispatch, useSelector } from 'react-redux';
 import { PetFormConfig } from './PetFormConfig';
+import { fetchClientDetailsAction } from '../../../../sagas/clients/fetchClientDetails/action';
 import { createPetAction } from '../../../../sagas/pets/createPet/action';
 import { fetchPetDetailsAction } from '../../../../sagas/pets/fetchPetDetails/action';
 import { fetchPetProfilePictureAction } from '../../../../sagas/pets/fetchPetProfilePicture/action';
@@ -343,6 +344,7 @@ export default function PetForm({ navigation }) {
                   dispatch(fetchPetsAction());
                   dispatch(fetchPetDetailsAction(pet.pet_data.id));
                   dispatch(fetchPetProfilePictureAction(pet.pet_data.id));
+                  dispatch(fetchClientDetailsAction(pet.pet_data.owner_id));
                   navigation.goBack();
                 },
               },
@@ -372,6 +374,7 @@ export default function PetForm({ navigation }) {
                 onPress: () => {
                   dispatch(fetchPetDetailsAction(result.pet_id));
                   dispatch(fetchPetProfilePictureAction(result.pet_id));
+                  dispatch(fetchClientDetailsAction(result.client_id));
                   navigation.goBack();
                   navigation.navigate('PetDetails');
                 },
