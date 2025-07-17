@@ -23,12 +23,14 @@ class AppointmentFees(db.Model):
             no_show_fee = AppointmentFees(0.00, "No-show")
             cancellation = AppointmentFees(0.00, "Cancellation")
             late_cancellation = AppointmentFees(0.00, "Late cancellation")
+            cost_per_mile = AppointmentFees(0.00, "Price per mile")
             try: 
                 db.session.add(late_fee)
                 db.session.add(no_show_fee)
                 db.session.add(cancellation)
                 db.session.add(late_cancellation)
-                db.session.commit()
+                db.session.add()
+                db.session.commit(cost_per_mile)
                 print("Prefilled values for appointment fees.")
             except SQLAlchemyError as e:
                 db.session.rollback()
@@ -75,10 +77,10 @@ class AppointmentFees(db.Model):
             return (
                     jsonify({"success": 0, "error": "Fee id must be an integer."}), 500,
                 )  
-        if fee_id_int >=1 and fee_id_int <= 4: 
+        if fee_id_int >=1 and fee_id_int <= 5: 
             if 'reason' in kwargs: 
                 return (
-                    jsonify({"success": 0, "error": "Not allowed to update reason fields for pre-filled indices 1-4."}), 500,
+                    jsonify({"success": 0, "error": "Not allowed to update reason fields for pre-filled indices 1-5."}), 500,
                 )  
         
         try: 
@@ -123,9 +125,9 @@ class AppointmentFees(db.Model):
                 return (
                         jsonify({"success": 0, "error": "Fee id must be an integer."}), 500,
                     )  
-            if fee_id_int >=1 and fee_id_int <= 4: 
+            if fee_id_int >=1 and fee_id_int <= 5: 
                 return (
-                    jsonify({"success": 0, "error": "Not allowed to delete pre-filled indices 1-4."}), 500,
+                    jsonify({"success": 0, "error": "Not allowed to delete pre-filled indices 1-5."}), 500,
                 )  
             
             fee = AppointmentFees.query.get(fee_id)
