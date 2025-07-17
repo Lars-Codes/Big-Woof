@@ -175,6 +175,7 @@ def updateServiceAddition():
 def createFee():
     fee = request.form.get("fee")
     reason = request.form.get("reason")
+    print(reason)
     try:
         res = AppointmentFees.create_fee(fee, reason)
         return res 
@@ -205,7 +206,7 @@ def updateFee():
         if value is not None:
             data[field] = value
             
-    if data.get('fee_id') == None: 
+    if data.get('fee_id') == None:
         return (
             jsonify({"success": 0, "error": "Key 'fee_id' must be provided"}), 500, 
         )  

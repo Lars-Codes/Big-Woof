@@ -39,7 +39,11 @@ class AppointmentFees(db.Model):
 
     @classmethod 
     def create_fee(cls, fee, reason):
-        new_fee = cls(fee, reason)
+        if not fee or not reason: 
+            return (
+                jsonify({"success": 0, "error": "Failed to create fee. Must include a fee and a reason."}), 500,
+            )
+        new_fee = cls(float(fee), reason)
         try: 
             db.session.add(new_fee)
             db.session.commit()
@@ -64,6 +68,19 @@ class AppointmentFees(db.Model):
     @classmethod 
     def update_fee(cls, **kwargs):
         fee_id = kwargs.get('fee_id')
+        
+        if fee_id!='': 
+            fee_id_int = int(fee_id)
+        else: 
+            return (
+                    jsonify({"success": 0, "error": "Fee id must be an integer."}), 500,
+                )  
+        if fee_id_int >=1 and fee_id_int <= 4: 
+            if 'reason' in kwargs: 
+                return (
+                    jsonify({"success": 0, "error": "Not allowed to update reason fields for pre-filled indices 1-4."}), 500,
+                )  
+        
         try: 
             fee = cls.query.filter_by(id=fee_id).first()
             if fee:                
@@ -99,7 +116,18 @@ class AppointmentFees(db.Model):
         
     @classmethod     
     def delete_fee(cls, fee_id):
-        try: 
+        try:
+            if fee_id!='': 
+                fee_id_int = int(fee_id)
+            else: 
+                return (
+                        jsonify({"success": 0, "error": "Fee id must be an integer."}), 500,
+                    )  
+            if fee_id_int >=1 and fee_id_int <= 4: 
+                return (
+                    jsonify({"success": 0, "error": "Not allowed to delete pre-filled indices 1-4."}), 500,
+                )  
+            
             fee = AppointmentFees.query.get(fee_id)
             if fee:
                 db.session.delete(fee)
