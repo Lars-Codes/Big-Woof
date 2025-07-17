@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from models.logistics.services import Services
 from models.finances.service_costs import ServiceCosts
 from models.logistics.service_additions import ServiceAdditions
+from models.finances.appointment_fees import AppointmentFees
 
 services_bp = Blueprint("services_bp", __name__)
 
@@ -164,5 +165,55 @@ def updateServiceAddition():
         return res
     except Exception as e:
         print(f"Unexpected error from /updateServiceAddition: {e}")
+        return res
+    
+    
+# FEES ===========================================================================================================
+
+
+@services_bp.route('/createFee', methods=["POST"])
+def createFee():
+    fee = request.form.get("fee")
+    reason = request.form.get("reason")
+    print(reason)
+    try:
+        res = AppointmentFees.create_fee(fee, reason)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /createFee: {e}")
+        return res
+    
+
+@services_bp.route('/deleteFee', methods=["DELETE"])
+def deleteFee():
+    fee_id = request.form.get("fee_id")
+    try:
+        res = AppointmentFees.delete_fee(fee_id)
+        return res 
+    except Exception as e: 
+        print(f"Unexpected error from /deleteFee: {e}")
+        return res
+    
+@services_bp.route('/updateFee', methods=['PATCH'])
+def updateFee():
+    data = {}
+    possible_fields = [
+        'fee_id', "fee", "reason"
+    ]
+    
+    for field in possible_fields:
+        value = request.form.get(field)
+        if value is not None:
+            data[field] = value
+            
+    if data.get('fee_id') == None:
+        return (
+            jsonify({"success": 0, "error": "Key 'fee_id' must be provided"}), 500, 
+        )  
+    try:
+        res = AppointmentFees.update_fee(**data)
+        return res
+    except Exception as e:
+        print(f"Unexpected error from /updateFee: {e}")
         return res
     
