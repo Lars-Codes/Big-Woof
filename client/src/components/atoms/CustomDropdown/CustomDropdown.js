@@ -22,6 +22,7 @@ const CustomDropdown = forwardRef(
       title,
       disabled = false,
       showEditButton = false,
+      showNextButton = true,
       canBeNull = true,
       handleAdd,
       handleDelete,
@@ -235,11 +236,16 @@ const CustomDropdown = forwardRef(
           {/* Footer */}
           <View className="flex-row justify-between items-center px-6 pb-8">
             <View className="flex-1">
-              <TouchableOpacity onPress={handleNextClick} className="items-end">
-                <Text className="text-2xl font-hn-medium text-blue-500">
-                  Next
-                </Text>
-              </TouchableOpacity>
+              {showNextButton && (
+                <TouchableOpacity
+                  onPress={handleNextClick}
+                  className="items-end"
+                >
+                  <Text className="text-2xl font-hn-medium text-blue-500">
+                    Next
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </ActionSheet>

@@ -12,12 +12,22 @@ import {
   ActivityIndicator,
   ScrollView,
   TextInput,
+  Alert,
 } from 'react-native';
+import prompt from 'react-native-prompt-android';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
 import { fetchPetsAction } from '../../../sagas/pets/fetchPets/action';
 import { updatePetAction } from '../../../sagas/pets/updatePet/action';
 import { updatePetIsDeceasedAction } from '../../../sagas/pets/updatePetIsDeceased/action';
+import { createBreedAction } from '../../../sagas/prefilledData/petAttributes/createBreed/action';
+import { createCoatTypeAction } from '../../../sagas/prefilledData/petAttributes/createCoatType/action';
+import { createHairLengthAction } from '../../../sagas/prefilledData/petAttributes/createHairLength/action';
+import { createSizeTierAction } from '../../../sagas/prefilledData/petAttributes/createSizeTier/action';
+import { deleteBreedAction } from '../../../sagas/prefilledData/petAttributes/deleteBreed/action';
+import { deleteCoatTypeAction } from '../../../sagas/prefilledData/petAttributes/deleteCoatType/action';
+import { deleteHairLengthAction } from '../../../sagas/prefilledData/petAttributes/deleteHairLength/action';
+import { deleteSizeTierAction } from '../../../sagas/prefilledData/petAttributes/deleteSizeTier/action';
 import { selectClients } from '../../../state/clients/clientsSlice';
 import { selectEmployees } from '../../../state/employees/employeesSlice';
 import {
@@ -142,6 +152,132 @@ export default function PetDetails() {
     }
   };
 
+  const handleAdd = (title, action) => {
+    prompt(
+      `Add new ${title}`,
+      `Enter the new ${title.toLowerCase()}:`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Add',
+          onPress: (inputValue) => {
+            if (inputValue && inputValue.trim()) {
+              const callbacks = {
+                onSuccess: () => {
+                  Alert.alert(
+                    'Success',
+                    `${title} "${inputValue.trim()}" created successfully!`,
+                  );
+                },
+                onError: (error) => {
+                  Alert.alert(
+                    'Error',
+                    `Failed to create ${title.toLowerCase()}. Please try again.`,
+                  );
+                  console.error(`Error creating ${title}:`, error);
+                },
+              };
+
+              let payload;
+              switch (title) {
+                case 'Hair Length':
+                  payload = {
+                    hairLengthData: { hair_length: inputValue.trim() },
+                    ...callbacks,
+                  };
+                  break;
+                case 'Breed':
+                  payload = {
+                    breedData: { breed: inputValue.trim() },
+                    ...callbacks,
+                  };
+                  break;
+                case 'Size Tier':
+                  payload = {
+                    sizeTierData: { size_tier: inputValue.trim() },
+                    ...callbacks,
+                  };
+                  break;
+                case 'Coat Type':
+                  payload = {
+                    coatTypeData: { coat_type: inputValue.trim() },
+                    ...callbacks,
+                  };
+                  break;
+                default:
+                  console.error('Unknown title:', title);
+                  return;
+              }
+
+              dispatch(action(payload));
+            } else {
+              Alert.alert('Error', 'Please enter a valid value.');
+            }
+          },
+        },
+      ],
+      {
+        type: 'plain-text',
+        cancelable: true,
+        defaultValue: '',
+        placeholder: `Enter ${title.toLowerCase()}...`,
+      },
+    );
+  };
+
+  const handleDelete = (title, field, action, value) => {
+    Alert.alert(
+      `Delete ${title}`,
+      `Are you sure you want to delete "${field}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const callbacks = {
+              onSuccess: () => {
+                Alert.alert(
+                  'Success',
+                  `${title} "${field}" deleted successfully!`,
+                );
+              },
+              onError: (error) => {
+                Alert.alert(
+                  'Error',
+                  `Failed to delete ${title.toLowerCase()}. Please try again.`,
+                );
+                console.error(`Error deleting ${title}:`, error);
+              },
+            };
+
+            let payload;
+            switch (title) {
+              case 'Hair Length':
+                payload = { hair_length_id: value, ...callbacks };
+                break;
+              case 'Breed':
+                payload = { breed_id: value, ...callbacks };
+                break;
+              case 'Size Tier':
+                payload = { size_tier_id: value, ...callbacks };
+                break;
+              case 'Coat Type':
+                payload = { coat_type_id: value, ...callbacks };
+                break;
+              default:
+                console.error('Unknown title:', title);
+                return;
+            }
+
+            dispatch(action(payload));
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   if (loading) {
     return (
       <View className="flex-1">
@@ -248,6 +384,7 @@ export default function PetDetails() {
         ]}
         selectedOption={gender}
         onSelect={handleGenderChange}
+        showNextButton={false}
         placeholder="Select Gender"
         title="Gender"
       >
@@ -274,6 +411,8 @@ export default function PetDetails() {
           <CustomDropdown
             options={breedOptions}
             selectedOption={currentBreedId}
+            showEditButton={true}
+            showNextButton={false}
             onSelect={(selectedId) => {
               const selectedBreedObj = breeds.find(
                 (breed) => breed.breed_id === selectedId,
@@ -304,6 +443,15 @@ export default function PetDetails() {
             }}
             title="Breed"
             placeholder="Select Breed"
+            handleAdd={() => handleAdd('Breed', createBreedAction)}
+            handleDelete={(selectedOption) =>
+              handleDelete(
+                'Breed',
+                selectedOption.label,
+                deleteBreedAction,
+                selectedOption.value,
+              )
+            }
           >
             <Text className="text-lg font-hn-regular bg-white px-2 rounded-full">
               {selectedBreed}
@@ -341,6 +489,8 @@ export default function PetDetails() {
             <CustomDropdown
               options={sizeTearsOptions}
               selectedOption={currentSizeTierId}
+              showEditButton={true}
+              showNextButton={false}
               onSelect={(selectedId) => {
                 const selectedSizeTierObj = sizeTiers.find(
                   (size) => size.size_tier_id === selectedId,
@@ -364,6 +514,15 @@ export default function PetDetails() {
               }}
               title="Size Tier"
               placeholder="Select Size Tier"
+              handleAdd={() => handleAdd('Size Tier', createSizeTierAction)}
+              handleDelete={(selectedOption) =>
+                handleDelete(
+                  'Size Tier',
+                  selectedOption.label,
+                  deleteSizeTierAction,
+                  selectedOption.value,
+                )
+              }
             >
               <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
                 {selectedSizeTier}
@@ -383,6 +542,7 @@ export default function PetDetails() {
                 { label: 'No', value: 2 },
               ]}
               selectedOption={fixed}
+              showNextButton={false}
               onSelect={(value) => {
                 setFixed(value === '' ? 'Not Assigned' : value);
                 const updatedData = {
@@ -416,6 +576,7 @@ export default function PetDetails() {
                   { label: 'No', value: 0 },
                 ]}
                 selectedOption={1}
+                showNextButton={false}
                 onSelect={(value) => {
                   dispatch(
                     updatePetIsDeceasedAction({
@@ -450,6 +611,8 @@ export default function PetDetails() {
             <CustomDropdown
               options={coatTypesOptions}
               selectedOption={currentCoatTypeId}
+              showEditButton={true}
+              showNextButton={false}
               onSelect={(selectedId) => {
                 const selectedCoatTypeObj = coatTypes.find(
                   (coat) => coat.coat_type_id === selectedId,
@@ -473,6 +636,15 @@ export default function PetDetails() {
               }}
               title="Coat Type"
               placeholder="Select Coat Type"
+              handleAdd={() => handleAdd('Coat Type', createCoatTypeAction)}
+              handleDelete={(selectedOption) =>
+                handleDelete(
+                  'Coat Type',
+                  selectedOption.label,
+                  deleteCoatTypeAction,
+                  selectedOption.value,
+                )
+              }
             >
               <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
                 {selectedCoatType}
@@ -484,6 +656,8 @@ export default function PetDetails() {
             <CustomDropdown
               options={hairLengthsOptions}
               selectedOption={currentHairLengthId}
+              showEditButton={true}
+              showNextButton={false}
               onSelect={(selectedId) => {
                 const selectedHairLengthObj = hairLengths.find(
                   (length) => length.hair_length_id === selectedId,
@@ -507,6 +681,15 @@ export default function PetDetails() {
               }}
               title="Hair Length"
               placeholder="Select Hair Length"
+              handleAdd={() => handleAdd('Hair Length', createHairLengthAction)}
+              handleDelete={(selectedOption) =>
+                handleDelete(
+                  'Hair Length',
+                  selectedOption.label,
+                  deleteHairLengthAction,
+                  selectedOption.value,
+                )
+              }
             >
               <Text className="text-lg font-hn-regular bg-[#f0f0f0] px-2 rounded-full">
                 {selectedHairLength}
@@ -518,6 +701,7 @@ export default function PetDetails() {
             <CustomDropdown
               options={employees}
               selectedItem={pet.pet_data?.typical_groomer}
+              showNextButton={false}
               onSelect={(item) => {
                 const updatedData = {
                   pet_id: pet.pet_data.id,
@@ -551,6 +735,7 @@ export default function PetDetails() {
             <CustomDropdown
               options={clientOptions}
               selectedOption={currentClientId}
+              showNextButton={false}
               onSelect={(selectedId) => {
                 const selectedClient = clients.find(
                   (client) => client.client_id === selectedId,
