@@ -5,7 +5,7 @@ from flask import jsonify
 class ServiceAdditions(db.Model):
     
     id = db.Column(db.Integer, primary_key = True) 
-    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)  
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=True)  
     
     added_cost = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     reason = db.Column(db.String(300), nullable=False)

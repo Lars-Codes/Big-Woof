@@ -1,5 +1,6 @@
 from models.db import db 
 from models.finances.appointment_fees import AppointmentFees
+from models.logistics.service_additions import ServiceAdditions
 from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
@@ -29,6 +30,8 @@ class Services(db.Model):
             ).all()
             
             appointment_fees = db.session.query(AppointmentFees).all()
+            
+            outside_of_service_add_ons = db.session.query(ServiceAdditions).filter(ServiceAdditions.service_id == None).all()
             
             service_data = []
             for service in services: 
@@ -69,6 +72,17 @@ class Services(db.Model):
             ]
             
             service_data.append(fees_data)
+            
+            outside_service = [
+                {
+                    "service_addition_added_cost": addition.added_cost, 
+                    "reason": addition.reason, 
+                    "description": addition.description if addition.description else "",
+                }
+                for add_on in outside_of_service_add_ons
+            ]
+            
+            service_data.append(outside_service)
                     
             return jsonify({
                 "success": 1, 
