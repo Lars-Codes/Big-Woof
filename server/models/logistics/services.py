@@ -59,16 +59,16 @@ class Services(db.Model):
                 
                 service_data.append(data)  
                 
-                fees_data = [
-                    {
-                        "fee_id": fee.id, 
-                        "reason": fee.reason, 
-                        "fee": fee.fee
-                    }
-                    for fee in appointment_fees
-                ]
-                
-                service_data.append(fees_data)
+            fees_data = [
+                {
+                    "fee_id": fee.id, 
+                    "reason": fee.reason, 
+                    "fee": fee.fee
+                }
+                for fee in appointment_fees
+            ]
+            
+            service_data.append(fees_data)
                     
             return jsonify({
                 "success": 1, 
