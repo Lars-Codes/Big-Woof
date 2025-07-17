@@ -1,5 +1,5 @@
 from models.db import db 
-# from models.finances.service_costs import ServiceCosts
+from models.finances.appointment_fees import AppointmentFees
 from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
@@ -28,6 +28,8 @@ class Services(db.Model):
                 joinedload(Services.service_additions), 
             ).all()
             
+            appointment_fees = db.session.query(AppointmentFees).all()
+            
             service_data = []
             for service in services: 
                 data = {
@@ -36,7 +38,6 @@ class Services(db.Model):
                     "service_costs": [],
                     "service_additions": [],
                 }
-                # service_data.append(data)
                 
                 for cost in service.service_costs: 
                     cost_info = {
@@ -56,7 +57,18 @@ class Services(db.Model):
                     }
                     data["service_additions"].append(addition_info)
                 
-                service_data.append(data)    
+                service_data.append(data)  
+                
+                fees_data = [
+                    {
+                        "fee_id": fee.id, 
+                        "reason": fee.reason, 
+                        "fee": fee.fee
+                    }
+                    for fee in appointment_fees
+                ]
+                
+                service_data.append(fees_data)
                     
             return jsonify({
                 "success": 1, 

@@ -15,7 +15,7 @@ from models.prefilled_tables.size_tier import SizeTier
 from models.prefilled_tables.breed import Breed
 from models.prefilled_tables.coat_types import CoatTypes
 from models.prefilled_tables.hair_length import HairLength
-
+from models.finances.appointment_fees import AppointmentFees
 
 from controllers.organisms.client import client_bp
 from controllers.organisms.pet import pet_bp
@@ -85,6 +85,7 @@ with app.app_context():
     inspector = inspect(db.engine)
     if 'payment_types' in inspector.get_table_names():
         print("Populating prefilled values...")
+        AppointmentFees.populate_prefilled_values()
         PaymentTypes.populate_prefilled_values()
         TimeTypes.populate_prefilled_values()
         DocumentTypes.populate_prefilled_values()
@@ -92,6 +93,7 @@ with app.app_context():
         Breed.populate_prefilled_values()
         CoatTypes.populate_prefilled_values()
         HairLength.populate_prefilled_values()
+        
 
     else:
         print("Tables not created yet — skipping prefill.")
