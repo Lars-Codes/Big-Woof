@@ -80,13 +80,28 @@ export default function ClientAppointmentsList() {
             {appointment_stats.num_cancelled}
           </Text>
         </View>
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between mb-1">
           <Text className="text-base font-hn-medium text-gray-600">
             Late Cancellations:
           </Text>
           <Text className="text-base font-hn-regular text-gray-800">
             {appointment_stats.num_cancelled_late}
           </Text>
+        </View>
+        {/* Payment Methods */}
+        <View className="flex-row justify-between">
+          <Text className="text-base font-hn-medium text-gray-600">
+            Payment Methods:
+          </Text>
+          {payment_methods.length > 0 ? (
+            <Text className="text-base font-hn-regular text-gray-800">
+              {payment_methods.map((method) => method.payment_type).join(', ')}
+            </Text>
+          ) : (
+            <Text className="text-base font-hn-regular text-gray-800">
+              No Payment Methods Available
+            </Text>
+          )}
         </View>
       </View>
 
@@ -195,25 +210,6 @@ export default function ClientAppointmentsList() {
             >
               <Text className="text-lg font-hn-bold text-gray-800">
                 {config.saved_appointment_name}
-              </Text>
-            </View>
-          ))}
-        </>
-      )}
-
-      {/* Payment Methods */}
-      {payment_methods.length > 0 && (
-        <>
-          <Text className="text-xl font-hn-bold text-gray-800 mt-3 mb-2 px-2">
-            Payment Methods
-          </Text>
-          {payment_methods.map((method) => (
-            <View
-              className="bg-white rounded-lg p-4 mb-2"
-              key={method.payment_type_id}
-            >
-              <Text className="text-base font-hn-regular text-gray-800 capitalize">
-                {method.payment_type}
               </Text>
             </View>
           ))}
