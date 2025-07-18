@@ -1,7 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as Haptics from 'expo-haptics';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPetsAction } from '../../../sagas/pets/fetchPets/action';
 import { petsSearchByAction } from '../../../sagas/pets/petsSearchBy/action';
@@ -221,20 +221,14 @@ export default function PetList() {
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         stickyHeaderIndices={stickyHeaderIndices}
-        ListEmptyComponent={() => (
-          <View className="flex-1 items-center justify-center min-h-80">
-            <Text className="text-lg text-gray-500 font-hn-medium">
-              No Pets available.
-            </Text>
-          </View>
-        )}
+        ListEmptyComponent={null}
         onRefresh={handleRefresh}
         refreshing={loading}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        initialNumToRender={10}
-        updateCellsBatchingPeriod={100}
+        removeClippedSubviews={false}
+        maxToRenderPerBatch={50}
+        windowSize={10}
+        initialNumToRender={20}
+        updateCellsBatchingPeriod={50}
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={true}
         indicatorStyle="black"
@@ -243,7 +237,8 @@ export default function PetList() {
         contentContainerStyle={{
           paddingBottom: deleteMode ? 52 : 0,
         }}
-        disableVirtualization={false}
+        disableVirtualization={true}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );

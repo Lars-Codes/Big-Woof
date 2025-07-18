@@ -71,22 +71,22 @@ class Services(db.Model):
                 for fee in appointment_fees
             ]
             
-            service_data.append(fees_data)
-            
             outside_service = [
                 {
                     "service_addition_added_cost": addition.added_cost, 
                     "reason": addition.reason, 
                     "description": addition.description if addition.description else "",
                 }
-                for add_on in outside_of_service_add_ons
+                for addition in outside_of_service_add_ons
             ]
-            
-            service_data.append(outside_service)
                     
             return jsonify({
                 "success": 1, 
-                "data": service_data
+                "data": {
+                    "services": service_data,
+                    "appointment_fees": fees_data,
+                    "standalone_additions": outside_service
+                }
             })  
         except SQLAlchemyError as e:
             db.session.rollback()

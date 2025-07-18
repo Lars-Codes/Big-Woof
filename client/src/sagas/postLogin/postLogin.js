@@ -8,6 +8,8 @@ import fetchCoatTypes from '../prefilledData/petAttributes/fetchCoatTypes/fetchC
 import fetchHairLengths from '../prefilledData/petAttributes/fetchHairLengths/fetchHairLengths';
 import fetchSizeTiers from '../prefilledData/petAttributes/fetchSizeTiers/fetchSizeTiers';
 
+import fetchServices from '../services/fetchServices/fetchServices';
+
 export default function* postLogin() {
   try {
     yield fork(fetchClients);
@@ -17,6 +19,8 @@ export default function* postLogin() {
     yield fork(fetchHairLengths);
     yield fork(fetchSizeTiers);
     yield fork(fetchEmployees);
+
+    yield fork(fetchServices);
   } catch (error) {
     console.error('Failed to post login:', error);
   }

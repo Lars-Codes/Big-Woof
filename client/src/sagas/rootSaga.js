@@ -92,6 +92,8 @@ import { FETCH_HAIR_LENGTHS_ACTION_TYPE } from './prefilledData/petAttributes/fe
 import fetchHairLengthsSaga from './prefilledData/petAttributes/fetchHairLengths/fetchHairLengths';
 import { FETCH_SIZE_TIERS_ACTION_TYPE } from './prefilledData/petAttributes/fetchSizeTiers/action';
 import fetchSizeTiersSaga from './prefilledData/petAttributes/fetchSizeTiers/fetchSizeTiers';
+import { FETCH_SERVICES_ACTION_TYPE } from './services/fetchServices/action';
+import fetchServicesSaga from './services/fetchServices/fetchServices';
 import { CREATE_VET_ACTION_TYPE } from './vets/createVet/action';
 import createVetSaga from './vets/createVet/createVet';
 import { DELETE_VET_ACTION_TYPE } from './vets/deleteVet/action';
@@ -122,6 +124,8 @@ export default function* rootSaga() {
     takeLeading(UPDATE_VET_ACTION_TYPE, updateVetSaga),
 
     takeLeading(FETCH_EMPLOYEES_ACTION_TYPE, fetchEmployeesSaga),
+
+    takeLeading(FETCH_SERVICES_ACTION_TYPE, fetchServicesSaga),
 
     takeEvery(CLIENTS_SEARCH_BY_ACTION_TYPE, clientsSearchBySaga),
     takeEvery(CLIENTS_FILTERED_BY_ACTION_TYPE, clientsFilteredBySaga),

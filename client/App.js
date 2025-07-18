@@ -4,12 +4,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { List } from 'lucide-react-native';
+import { List, Wrench } from 'lucide-react-native';
 import React, { useEffect, useCallback } from 'react';
 import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useDispatch } from 'react-redux';
 import ListNavigator from './src/components/templates/navigation/Clients/ListNavigator';
+import ServicesNavigator from './src/components/templates/navigation/Services/ServicesNavigator.js';
 import { initAction } from './src/sagas/init/action';
 import store from './src/state/store';
 import './src/sagas/rootSaga';
@@ -53,6 +54,13 @@ function AppContent({ onLayout }) {
             component={ListNavigator}
             options={{
               tabBarIcon: ({ color }) => <List size={32} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="Services"
+            component={ServicesNavigator}
+            options={{
+              tabBarIcon: ({ color }) => <Wrench size={32} color={color} />,
             }}
           />
         </Tab.Navigator>

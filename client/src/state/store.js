@@ -5,6 +5,7 @@ import employeesReducer from './employees/employeesSlice';
 import listReducer from './list/listSlice';
 import petDetailsReducer from './petDetails/petDetailsSlice';
 import petsReducer from './pets/petsSlice';
+import servicesReducer from './services/servicesSlice';
 const createSagaMiddleware = require('redux-saga').default;
 
 export const sagaMiddleware = createSagaMiddleware();
@@ -16,6 +17,7 @@ const reducers = {
   pets: petsReducer,
   petDetails: petDetailsReducer,
   employees: employeesReducer,
+  services: servicesReducer,
 };
 
 const store = configureStore({

@@ -11,6 +11,7 @@ from models.organisms.vet import Vet
 from models.contact_info import ContactInfo
 from models.logistics.appointment import Appointment
 from models.logistics.appointment_stats import AppointmentStats
+from models.finances.appointment_fees import AppointmentFees
 from models.finances.client_payment_types import ClientPaymentTypes
 from models.files.client_files import ClientFiles
 from models.misc.sticky_notes import StickyNotes
@@ -377,11 +378,67 @@ def generate_address():
         "state": random.choice(state),
         "zip": f"{random.randint(10000, 99999)}"
     }
+def create_predefined_fees():
+    """Create the 4 predefined appointment fees that should always exist"""
+    predefined_fees = [
+        {"reason": "Late", "fee": 0.00},
+        {"reason": "No-show", "fee": 0.00}, 
+        {"reason": "Cancellation", "fee": 0.00},
+        {"reason": "Late cancellation", "fee": 0.00}
+    ]
+    
+    for fee_data in predefined_fees:
+        # Check if fee already exists to avoid duplicates
+        existing_fee = AppointmentFees.query.filter_by(reason=fee_data["reason"]).first()
+        if not existing_fee:
+            fee = AppointmentFees(
+                reason=fee_data["reason"],
+                fee=fee_data["fee"]
+            )
+            db.session.add(fee)
+    
+    db.session.commit()
+    print("Created predefined appointment fees")
+
+def create_standalone_service_additions():
+    """Create some service additions that aren't tied to specific services"""
+    standalone_additions = [
+        {
+            "added_cost": 5.00,
+            "reason": "teeth brushing add-on",
+            "description": "quick toothbrush"
+        },
+        {
+            "added_cost": 3.00,
+            "reason": "nail polish application",
+            "description": "decorative nail coloring"
+        },
+        {
+            "added_cost": 8.00,
+            "reason": "bandana styling",
+            "description": "seasonal bandana accessory"
+        }
+    ]
+    
+    for addition_data in standalone_additions:
+        addition = ServiceAdditions(
+            service_id=None,  # This makes it standalone
+            added_cost=addition_data["added_cost"],
+            reason=addition_data["reason"],
+            description=addition_data["description"]
+        )
+        db.session.add(addition)
+    
+    db.session.commit()
+    print("Created standalone service additions")
 
 def create_data():
     with app.app_context():
         try:
-            num_clients = 100
+            create_predefined_fees()
+            create_standalone_service_additions()
+            
+            num_clients = 25
             print(f"Creating {num_clients} clients with associated data...")
             
             for i in range(1, num_clients + 1):
