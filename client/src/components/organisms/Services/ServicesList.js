@@ -1,14 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useCallback } from 'react';
+import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectServices,
   selectAppointmentFees,
   selectStandaloneAdditions,
   setSelectedService,
-  // selectLoading,
+  selectLoading,
 } from '../../../state/services/servicesSlice';
+import { fetchServicesAction } from '../../../sagas/services/fetchServices/action';
 
 export default function ServicesList() {
   const dispatch = useDispatch();
@@ -16,7 +17,11 @@ export default function ServicesList() {
   const services = useSelector(selectServices);
   const appointmentFees = useSelector(selectAppointmentFees);
   const standaloneAdditions = useSelector(selectStandaloneAdditions);
-  // const loading = useSelector(selectLoading);
+  const loading = useSelector(selectLoading);
+
+  const handleRefresh = useCallback(() => {
+    dispatch(fetchServicesAction());
+  }, [dispatch]);
 
   // Helper function to get price range from service_costs
   const getPriceRange = (serviceCosts) => {
@@ -145,6 +150,14 @@ export default function ServicesList() {
     </View>
   );
 
+  if (loading && services.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 mt-28">
       <FlatList
@@ -152,6 +165,8 @@ export default function ServicesList() {
         renderItem={renderServiceItem}
         keyExtractor={(item) => item.service_name}
         numColumns={2}
+        onRefresh={handleRefresh}
+        refreshing={loading}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         contentContainerStyle={{
           paddingBottom: 32,
