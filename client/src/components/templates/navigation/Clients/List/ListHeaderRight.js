@@ -40,6 +40,7 @@ export default function ListHeaderRight({ navigation }) {
       className="w-32 flex-row justify-end items-center"
       onPress={() => handleClick()}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      activeOpacity={0.7}
     >
       <CirclePlus size={28} color="#000" />
     </TouchableOpacity>

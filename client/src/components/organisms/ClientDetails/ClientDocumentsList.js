@@ -61,11 +61,19 @@ export default function ClientDocumentsList() {
             </View>
 
             <View className="flex-row">
-              <TouchableOpacity className="p-2 mr-2" onPress={() => {}}>
+              <TouchableOpacity
+                className="p-2 mr-2"
+                onPress={() => {}}
+                activeOpacity={0.7}
+              >
                 <Eye size={20} color="#4A90E2" />
               </TouchableOpacity>
 
-              <TouchableOpacity className="p-2" onPress={() => {}}>
+              <TouchableOpacity
+                className="p-2"
+                onPress={() => {}}
+                activeOpacity={0.7}
+              >
                 <Download size={20} color="#4A90E2" />
               </TouchableOpacity>
             </View>

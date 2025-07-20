@@ -5,10 +5,10 @@ import {
   setLoading,
 } from '../../../state/clientDetails/clientDetailsSlice';
 
-export default function* fetchClientDetails(action) {
+export default function* fetchClientDetails(action, loading = false) {
   const clientId = action.payload;
   try {
-    yield put(setLoading(true));
+    if (loading) yield put(setLoading(true));
     const res = yield call(
       api,
       `/getClientMetadata?client_id=${clientId}`,

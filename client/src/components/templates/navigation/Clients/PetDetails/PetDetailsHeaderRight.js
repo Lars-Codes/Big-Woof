@@ -118,6 +118,7 @@ export default function PetDetailsHeaderRight({ navigation }) {
       className="mr-2"
       onPress={handleEditPress}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      activeOpacity={0.7}
     >
       <Text className="text-2xl font-hn-medium text-blue-500">Edit</Text>
     </TouchableOpacity>

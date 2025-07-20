@@ -3,6 +3,7 @@ import * as Blur from 'expo-blur';
 import React from 'react';
 import ServiceDetails from '../../../pages/Services/ServiceDetails.js';
 import Services from '../../../pages/Services/Services.js';
+import DetailsHeaderLeft from '../Clients/Details/DetailsHeaderLeft.js';
 import HeaderTitle from '../helpers/HeaderTitle.js';
 
 const Stack = createNativeStackNavigator();
@@ -41,11 +42,11 @@ export default function Navigator() {
       <Stack.Screen
         name="ServiceDetails"
         component={ServiceDetails}
-        options={{
+        options={({ navigation }) => ({
           headerTitle: () => <HeaderTitle title="Service Details" />,
-          //   headerLeft: () => <HeaderSelector />,
+          headerLeft: () => <DetailsHeaderLeft navigation={navigation} />,
           //   headerRight: () => <HeaderRight />,
-        }}
+        })}
       />
     </Stack.Navigator>
   );

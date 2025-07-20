@@ -37,6 +37,7 @@ export default function ListHeaderLeft() {
         }
       }}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      activeOpacity={0.7}
     >
       <Text className="text-2xl font-hn-medium text-blue-500">
         {deleteMode ? 'Cancel' : 'Edit'}

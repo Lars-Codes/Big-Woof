@@ -5,6 +5,7 @@ export const servicesSlice = createSlice({
   initialState: {
     services: [],
     selectedService: null,
+    selectedInfo: 'costs',
     appointmentFees: [],
     standaloneAdditions: [],
     loading: false,
@@ -15,6 +16,9 @@ export const servicesSlice = createSlice({
     },
     setSelectedService: (state, action) => {
       state.selectedService = action.payload;
+    },
+    setSelectedInfo: (state, action) => {
+      state.selectedInfo = action.payload;
     },
     setAppointmentFees: (state, action) => {
       state.appointmentFees = action.payload;
@@ -31,6 +35,7 @@ export const servicesSlice = createSlice({
 export const {
   setServices,
   setSelectedService,
+  setSelectedInfo,
   setAppointmentFees,
   setStandaloneAdditions,
   setLoading,
@@ -38,6 +43,7 @@ export const {
 
 export const selectServices = (state) => state.services.services;
 export const selectSelectedService = (state) => state.services.selectedService;
+export const selectSelectedInfo = (state) => state.services.selectedInfo;
 export const selectAppointmentFees = (state) => state.services.appointmentFees;
 export const selectStandaloneAdditions = (state) =>
   state.services.standaloneAdditions;

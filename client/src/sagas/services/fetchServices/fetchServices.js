@@ -7,9 +7,9 @@ import {
   setStandaloneAdditions,
 } from '../../../state/services/servicesSlice';
 
-export default function* fetchServices() {
+export default function* fetchServices(loading = true) {
   try {
-    yield put(setLoading(true));
+    if (loading) yield put(setLoading(true));
     const res = yield call(api, '/getAllServices', 'GET');
     const services = res.data?.services || [];
     const appointmentFees = res.data?.appointment_fees || [];

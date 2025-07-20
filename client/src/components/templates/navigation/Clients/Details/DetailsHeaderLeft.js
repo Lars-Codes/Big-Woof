@@ -7,6 +7,7 @@ export default function DetailsHeaderLeft({ navigation }) {
     <TouchableOpacity
       onPress={() => navigation.goBack()}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      activeOpacity={0.7}
     >
       <ChevronLeft size={32} color="#000" />
     </TouchableOpacity>

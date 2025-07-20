@@ -1,7 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchServicesAction } from '../../../sagas/services/fetchServices/action';
 import {
   selectServices,
   selectAppointmentFees,
@@ -9,7 +16,6 @@ import {
   setSelectedService,
   selectLoading,
 } from '../../../state/services/servicesSlice';
-import { fetchServicesAction } from '../../../sagas/services/fetchServices/action';
 
 export default function ServicesList() {
   const dispatch = useDispatch();

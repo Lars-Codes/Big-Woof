@@ -181,6 +181,7 @@ export default function DynamicForm({
 
         <TouchableOpacity
           onPress={handleSubmit}
+          activeOpacity={0.7}
           className="bg-blue-500 p-4 items-center"
           disabled={!isFormValid() || loading}
           style={{

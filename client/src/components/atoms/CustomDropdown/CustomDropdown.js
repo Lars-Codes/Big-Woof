@@ -165,7 +165,7 @@ const CustomDropdown = forwardRef(
           <View className="flex-row justify-between items-center px-6 pt-4">
             <View className="flex-1">
               {showEditButton && (
-                <TouchableOpacity onPress={handleEditClick}>
+                <TouchableOpacity activeOpacity={0.7} onPress={handleEditClick}>
                   <Text className="text-2xl font-hn-medium text-blue-500">
                     Edit
                   </Text>
@@ -192,6 +192,7 @@ const CustomDropdown = forwardRef(
                     handleDoneClick();
                   }
                 }}
+                activeOpacity={0.7}
                 className="items-end"
               >
                 <Text className="text-2xl font-hn-medium text-blue-500">
@@ -239,6 +240,7 @@ const CustomDropdown = forwardRef(
               {showNextButton && (
                 <TouchableOpacity
                   onPress={handleNextClick}
+                  activeOpacity={0.7}
                   className="items-end"
                 >
                   <Text className="text-2xl font-hn-medium text-blue-500">

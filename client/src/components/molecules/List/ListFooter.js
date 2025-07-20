@@ -260,6 +260,7 @@ export default function ListFooter() {
         <TouchableOpacity
           onPress={handleSelectAll}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
           className="flex-1"
         >
           <Text className="text-2xl font-hn-medium text-blue-500 text-left">
@@ -277,6 +278,7 @@ export default function ListFooter() {
           onPress={handleConfirmDelete}
           disabled={selectedCount === 0}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
           className="flex-1"
         >
           <Text

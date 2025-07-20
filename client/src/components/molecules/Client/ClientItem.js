@@ -191,7 +191,7 @@ export default memo(
         <TouchableOpacity
           onPress={handleClientPress}
           onLongPress={handleClientLongPress}
-          activeOpacity={0.4}
+          activeOpacity={0.7}
           className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
           style={{ minHeight: 56 }}
         >

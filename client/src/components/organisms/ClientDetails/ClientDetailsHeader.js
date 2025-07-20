@@ -75,6 +75,7 @@ export default function ClientDetailsHeader() {
               handlePhonePress(client.client_contact.primary_phone)
             }
             onLongPress={() => {}}
+            activeOpacity={0.7}
             className="flex-row items-center mb-1"
           >
             <Phone size={16} color="#3B82F6" />
@@ -90,6 +91,7 @@ export default function ClientDetailsHeader() {
             <TouchableOpacity
               onPress={handleEmailPress}
               onLongPress={() => {}}
+              activeOpacity={0.7}
               className="flex-row items-center mb-1"
             >
               <Mail size={16} color="#3B82F6" />
@@ -111,6 +113,7 @@ export default function ClientDetailsHeader() {
               <TouchableOpacity
                 onPress={handleAddressPress}
                 onLongPress={() => {}}
+                activeOpacity={0.7}
                 className="flex-row items-start"
               >
                 <MapPin size={16} color="#3B82F6" className="mt-0.5" />

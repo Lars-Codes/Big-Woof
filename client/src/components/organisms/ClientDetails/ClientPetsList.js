@@ -1,9 +1,10 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
-import { Plus, Ellipsis } from 'lucide-react-native';
+import { Ellipsis } from 'lucide-react-native';
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchClientDetailsAction } from '../../../sagas/clients/fetchClientDetails/action';
 import { deletePetsAction } from '../../../sagas/pets/deletePets/action';
 import { fetchPetDetailsAction } from '../../../sagas/pets/fetchPetDetails/action';
 import { fetchPetProfilePictureAction } from '../../../sagas/pets/fetchPetProfilePicture/action';
@@ -13,6 +14,7 @@ import {
 } from '../../../state/clientDetails/clientDetailsSlice';
 import { setPetDetails } from '../../../state/petDetails/petDetailsSlice';
 import PetProfilePicture from '../../atoms/PetProfilePicture/PetProfilePicture';
+import MiniList from '../../molecules/List/MiniList';
 
 export default function ClientPetsList() {
   const dispatch = useDispatch();
@@ -98,60 +100,56 @@ export default function ClientPetsList() {
     navigation.navigate('PetForm');
   };
 
-  return (
-    <View className="flex-1 bg-gray-300 px-2 pb-2 rounded-xl my-2">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {pets.map((pet, index) => (
-          <TouchableOpacity
-            onPress={() => handleViewPetDetails(pet)}
-            key={pet.pet_id}
-            activeOpacity={0.4}
-            className={`bg-white rounded-xl p-4 mx-1 ${
-              index === 0 ? 'mt-3' : 'mt-3'
-            } ${index === pets.length - 1 ? 'mb-3' : ''}`}
-          >
-            <View className="flex-row justify-between items-start mb-2">
-              <View className="flex-row items-center flex-1">
-                <View className="mr-4">
-                  <PetProfilePicture
-                    pet={pet}
-                    profilePicture={pet.profile_picture}
-                    size={60}
-                  />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-2xl font-hn-bold mb-2">{pet.name}</Text>
-                  <View className="flex-row items-center gap-1">
-                    <Text className="text-lg font-hn-medium">Breed:</Text>
-                    <Text className="text-lg font-hn-regular">{pet.breed}</Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <Text className="text-lg font-hn-medium">Age:</Text>
-                    <Text className="text-lg font-hn-regular">
-                      {pet.age} years old
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View className="flex-row space-x-2">
-                <TouchableOpacity onPress={() => handleEdit(pet)}>
-                  <Ellipsis size={20} color="#6B7280" />
-                </TouchableOpacity>
-              </View>
+  const renderPetItem = (pet) => (
+    <TouchableOpacity
+      onPress={() => handleViewPetDetails(pet)}
+      activeOpacity={0.7}
+      className="flex-1"
+    >
+      <View className="flex-row justify-between items-start mb-2">
+        <View className="flex-row items-center flex-1">
+          <View className="mr-4">
+            <PetProfilePicture
+              pet={pet}
+              profilePicture={pet.profile_picture}
+              size={60}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-2xl font-hn-bold mb-2">{pet.name}</Text>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-lg font-hn-medium">Breed:</Text>
+              <Text className="text-lg font-hn-regular">{pet.breed}</Text>
             </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-lg font-hn-medium">Age:</Text>
+              <Text className="text-lg font-hn-regular">
+                {pet.age} years old
+              </Text>
+            </View>
+          </View>
+        </View>
 
-      {/* Add Pet Button */}
-      <TouchableOpacity
-        onPress={handleAddPet}
-        className="bg-blue-500 px-4 py-2 rounded-lg flex-row items-center justify-center"
-      >
-        <Plus size={18} color="white" />
-        <Text className="text-white font-hn-medium ml-2">Add Pet</Text>
-      </TouchableOpacity>
-    </View>
+        <View className="flex-row space-x-2">
+          <TouchableOpacity onPress={() => handleEdit(pet)} activeOpacity={0.7}>
+            <Ellipsis size={20} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <MiniList
+      data={pets || []}
+      renderItem={renderPetItem}
+      onRefresh={() => {
+        dispatch(
+          fetchClientDetailsAction(clientDetails.client_data.client_id, false),
+        );
+      }}
+      onAddPress={handleAddPet}
+      addButtonText="Add Pet"
+    />
   );
 }
